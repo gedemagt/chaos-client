@@ -5,7 +5,7 @@ import ca.weblite.codename1.db.DAOProvider;
 import com.codename1.db.Database;
 import com.codename1.io.JSONParser;
 import com.codename1.io.Log;
-import com.jhalkjar.caoscomp.backend.Rute;
+import com.jhalkjar.caoscomp.backend.DBRute;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -31,7 +31,7 @@ public class RuteDatabase {
         }
     }
 
-    public Rute createRute(String name, String image_url, String creator) {
+    public DBRute createRute(String name, String image_url, String creator) {
         try {
             Database db = Database.openOrCreate(dbname);
             DAOProvider provider = new DAOProvider(db, configPath, 1);
@@ -45,7 +45,7 @@ public class RuteDatabase {
             rutes.save(rute);
             db.close();
 
-            List<Rute> loaded = loadRutes();
+            List<DBRute> loaded = loadRutes();
             return loaded.get(loaded.size()-1);
 
         } catch (IOException e) {
@@ -54,8 +54,8 @@ public class RuteDatabase {
         return null;
     }
 
-    public ArrayList<Rute> loadRutes() {
-        ArrayList<Rute> rutes = new ArrayList<>();
+    public ArrayList<DBRute> loadRutes() {
+        ArrayList<DBRute> rutes = new ArrayList<>();
         try {
             Database db = Database.openOrCreate(dbname);
             DAOProvider provider = new DAOProvider(db, configPath, 1);
@@ -69,7 +69,7 @@ public class RuteDatabase {
                 String creater = (String) m.get("creator");
                 long id = (Long) m.get("id");
 
-                Rute r = new Rute(name, image_url, stringToVals(points), creater, id, this);
+                DBRute r = new DBRute(name, image_url, stringToVals(points), creater, id, this);
                 rutes.add(r);
             }
             db.close();
@@ -115,7 +115,7 @@ public class RuteDatabase {
         return sb.toString();
     }
 
-    public void saveRute(Rute r) {
+    public void saveRute(DBRute r) {
         try {
             Database db = Database.openOrCreate(dbname);
             DAOProvider provider = new DAOProvider(db, configPath, 1);
@@ -133,7 +133,7 @@ public class RuteDatabase {
         }
     }
 
-    public void deleteRute(Rute r) {
+    public void deleteRute(DBRute r) {
 
         try {
             Database db = Database.openOrCreate(dbname);

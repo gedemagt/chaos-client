@@ -10,7 +10,7 @@ import com.codename1.ui.layouts.BoxLayout;
 import com.codename1.ui.plaf.Style;
 import com.codename1.ui.plaf.UIManager;
 import com.codename1.ui.util.ImageIO;
-import com.jhalkjar.caoscomp.backend.Rute;
+import com.jhalkjar.caoscomp.backend.DBRute;
 import com.jhalkjar.caoscomp.database.RuteDatabase;
 
 import java.io.OutputStream;
@@ -54,7 +54,7 @@ public class RuteCreator extends Form {
         add(BorderLayout.CENTER, iv);
         getToolbar().addCommandToRightBar("", FontImage.createMaterial(FontImage.MATERIAL_DONE, s), (e) -> {
 
-            Rute r = db.createRute(name.getText(), picturePath, more.getText());
+            DBRute r = db.createRute(name.getText(), picturePath, more.getText());
             new Editor(r).show();
 
         });

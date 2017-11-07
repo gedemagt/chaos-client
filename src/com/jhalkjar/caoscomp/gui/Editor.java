@@ -6,7 +6,7 @@ import com.codename1.ui.Form;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.plaf.Style;
 import com.codename1.ui.plaf.UIManager;
-import com.jhalkjar.caoscomp.backend.Rute;
+import com.jhalkjar.caoscomp.backend.DBRute;
 import com.jhalkjar.caoscomp.database.RuteDatabase;
 
 /**
@@ -18,7 +18,7 @@ public class Editor extends Form {
     Style s = UIManager.getInstance().getComponentStyle("Title");
     Canvas canvas;
 
-    public Editor(Rute r) {
+    public Editor(DBRute r) {
         super(new BorderLayout());
         Log.p("Loading '" + r.getName() + "' with image url '" + r.getImageUrl() + "'!");
 

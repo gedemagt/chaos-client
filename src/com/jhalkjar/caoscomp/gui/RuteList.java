@@ -11,7 +11,7 @@ import com.codename1.ui.plaf.Style;
 import com.codename1.ui.plaf.UIManager;
 import com.codename1.ui.table.TableLayout;
 
-import com.jhalkjar.caoscomp.backend.Rute;
+import com.jhalkjar.caoscomp.backend.DBRute;
 import com.jhalkjar.caoscomp.database.RuteDatabase;
 
 import java.util.List;
@@ -36,7 +36,7 @@ public class RuteList extends Form {
 
     private void updateUI() {
         RuteDatabase db = new RuteDatabase();
-        List<Rute> rutes = db.loadRutes();
+        List<DBRute> rutes = db.loadRutes();
         removeAll();
         if(rutes.size() == 0) {
             Label l = new Label("Please add a rute!");
@@ -45,7 +45,7 @@ public class RuteList extends Form {
         else {
             Container list = new Container(BoxLayout.y());
             list.setScrollableY(true);
-            for(Rute r : rutes) {
+            for(DBRute r : rutes) {
                 Container c = createListElement(r);
                 list.add(c);
             }
@@ -55,7 +55,7 @@ public class RuteList extends Form {
     }
 
 
-    private Container createListElement(Rute rute) {
+    private Container createListElement(DBRute rute) {
 
         Style s = UIManager.getInstance().getComponentStyle("Title");
         Label name = new Label(rute.getName());

@@ -12,7 +12,7 @@ import java.util.ArrayList;
 /**
  * Created by jesper on 11/5/17.
  */
-public class Rute {
+public class DBRute {
 
     public String getCreator() {
         return creator;
@@ -60,7 +60,7 @@ public class Rute {
     private RuteDatabase db;
     private Image image;
 
-    public Rute(String name, String image, ArrayList<Point> p, String creator, long id, RuteDatabase db) {
+    public DBRute(String name, String image, ArrayList<Point> p, String creator, long id, RuteDatabase db) {
         this.creator = creator;
         this.name = name;
         this.p = p;
