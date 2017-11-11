@@ -8,25 +8,25 @@ import com.codename1.ui.Image;
 import javafx.util.Pair;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by jesper on 11/5/17.
  */
 public class Canvas extends ImageViewer {
-    private ArrayList<Point> points = new ArrayList<>();
+    private List<Point> points = new ArrayList<>();
     private boolean wasDragged = false;
     private Point selected = null;
 
     int size = 10;
 
-    public Canvas(Image image, ArrayList<Point> points) {
+    public Canvas(Image image, List<Point> points) {
         super(image);
         this.points = points;
     }
 
     public void addPoint(float _x, float _y){
         points.add(new Point(_x, _y));
-        Log.p(points.size()+"");
     }
 
     public boolean wasDragged() {return this.wasDragged;}
@@ -101,7 +101,7 @@ public class Canvas extends ImageViewer {
 
             g.setColor(0x7caeff);
 
-            String label = Integer.toString(i);
+//            String label = Integer.toString(i);
 
             //g.drawString(label, p.getXPixel(this) - f.stringWidth(label)/2, p.getYPixel(this) - f.getHeight()/2);
         }

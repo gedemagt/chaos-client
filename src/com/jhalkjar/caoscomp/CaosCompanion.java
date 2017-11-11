@@ -1,10 +1,8 @@
 package com.jhalkjar.caoscomp;
 
-import com.codename1.io.Log;
 import com.codename1.ui.*;
 import com.codename1.ui.plaf.UIManager;
 import com.codename1.ui.util.Resources;
-import com.jhalkjar.caoscomp.backend.WebGrabber;
 import com.jhalkjar.caoscomp.gui.RuteList;
 
 
@@ -32,11 +30,8 @@ public class CaosCompanion {
             current.show();
             return;
         }
-        WebGrabber webGrabber = new WebGrabber("http://localhost:5000");
-        Log.p(webGrabber.getRutes());
 
         Form editor = new RuteList();
-
         editor.show();
     }
 
