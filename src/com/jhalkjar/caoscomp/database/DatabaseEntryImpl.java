@@ -1,7 +1,5 @@
 package com.jhalkjar.caoscomp.database;
 
-import com.jhalkjar.caoscomp.backend.DatabaseEntry;
-
 import java.util.Date;
 
 /**

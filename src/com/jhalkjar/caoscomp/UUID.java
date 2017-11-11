@@ -183,25 +183,25 @@ public final class UUID implements java.io.Serializable, Comparable<UUID> {
      *          described in {@link #toString}
      *
      */
-    public static UUID fromString(String name) {
-        String[] components = name.split("-");
-        if (components.length != 5)
-            throw new IllegalArgumentException("Invalid UUID string: "+name);
-        for (int i=0; i<5; i++)
-            components[i] = "0x"+components[i];
-
-        long mostSigBits = Long.decode(components[0]).longValue();
-        mostSigBits <<= 16;
-        mostSigBits |= Long.decode(components[1]).longValue();
-        mostSigBits <<= 16;
-        mostSigBits |= Long.decode(components[2]).longValue();
-
-        long leastSigBits = Long.decode(components[3]).longValue();
-        leastSigBits <<= 48;
-        leastSigBits |= Long.decode(components[4]).longValue();
-
-        return new UUID(mostSigBits, leastSigBits);
-    }
+//    public static UUID fromString(String name) {
+//        String[] components = name.split("-");
+//        if (components.length != 5)
+//            throw new IllegalArgumentException("Invalid UUID string: "+name);
+//        for (int i=0; i<5; i++)
+//            components[i] = "0x"+components[i];
+//
+//        long mostSigBits = Long.decode(components[0]).longValue();
+//        mostSigBits <<= 16;
+//        mostSigBits |= Long.decode(components[1]).longValue();
+//        mostSigBits <<= 16;
+//        mostSigBits |= Long.decode(components[2]).longValue();
+//
+//        long leastSigBits = Long.decode(components[3]).longValue();
+//        leastSigBits <<= 48;
+//        leastSigBits |= Long.decode(components[4]).longValue();
+//
+//        return new UUID(mostSigBits, leastSigBits);
+//    }
 
     // Field Accessor Methods
 
@@ -282,15 +282,15 @@ public final class UUID implements java.io.Serializable, Comparable<UUID> {
      * @throws UnsupportedOperationException
      *         If this UUID is not a version 1 UUID
      */
-    public long timestamp() {
-        if (version() != 1) {
-            throw new UnsupportedOperationException("Not a time-based UUID");
-        }
-
-        return (mostSigBits & 0x0FFFL) << 48
-                | ((mostSigBits >> 16) & 0x0FFFFL) << 32
-                | mostSigBits >>> 32;
-    }
+//    public long timestamp() {
+//        if (version() != 1) {
+//            throw new UnsupportedOperationException("Not a time-based UUID");
+//        }
+//
+//        return (mostSigBits & 0x0FFFL) << 48
+//                | ((mostSigBits >> 16) & 0x0FFFFL) << 32
+//                | mostSigBits >>> 32;
+//    }
 
     /**
      * The clock sequence value associated with this UUID.
@@ -308,13 +308,13 @@ public final class UUID implements java.io.Serializable, Comparable<UUID> {
      * @throws  UnsupportedOperationException
      *          If this UUID is not a version 1 UUID
      */
-    public int clockSequence() {
-        if (version() != 1) {
-            throw new UnsupportedOperationException("Not a time-based UUID");
-        }
-
-        return (int)((leastSigBits & 0x3FFF000000000000L) >>> 48);
-    }
+//    public int clockSequence() {
+//        if (version() != 1) {
+//            throw new UnsupportedOperationException("Not a time-based UUID");
+//        }
+//
+//        return (int)((leastSigBits & 0x3FFF000000000000L) >>> 48);
+//    }
 
     /**
      * The node value associated with this UUID.
@@ -332,13 +332,13 @@ public final class UUID implements java.io.Serializable, Comparable<UUID> {
      * @throws  UnsupportedOperationException
      *          If this UUID is not a version 1 UUID
      */
-    public long node() {
-        if (version() != 1) {
-            throw new UnsupportedOperationException("Not a time-based UUID");
-        }
-
-        return leastSigBits & 0x0000FFFFFFFFFFFFL;
-    }
+//    public long node() {
+//        if (version() != 1) {
+//            throw new UnsupportedOperationException("Not a time-based UUID");
+//        }
+//
+//        return leastSigBits & 0x0000FFFFFFFFFFFFL;
+//    }
 
     // Object Inherited Methods
 
@@ -377,7 +377,7 @@ public final class UUID implements java.io.Serializable, Comparable<UUID> {
     /** Returns val represented by the specified number of hex digits. */
     private static String digits(long val, int digits) {
         long hi = 1L << (digits * 4);
-        return Long.toHexString(hi | (val & (hi - 1))).substring(1);
+        return Long.toString(hi | (val & (hi - 1)), 16).substring(1);
     }
 
     /**

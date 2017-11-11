@@ -1,4 +1,4 @@
-package com.jhalkjar.caoscomp.backend;
+package com.jhalkjar.caoscomp.database;
 
 import java.util.Date;
 
