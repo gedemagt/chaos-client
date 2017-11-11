@@ -4,8 +4,13 @@ import ca.weblite.codename1.json.JSONException;
 import ca.weblite.codename1.json.JSONObject;
 import com.codename1.io.*;
 import com.codename1.l10n.ParseException;
+import com.codename1.ui.EncodedImage;
+import com.codename1.ui.FontImage;
 import com.codename1.ui.Image;
 import com.codename1.ui.events.ActionListener;
+import com.codename1.ui.plaf.UIManager;
+import com.codename1.ui.util.Resources;
+import com.codename1.util.FailureCallback;
 import com.codename1.util.SuccessCallback;
 import com.jhalkjar.caoscomp.Util;
 import com.jhalkjar.caoscomp.backend.*;
@@ -22,8 +27,8 @@ public class WebDatabase {
         host = host_;
     }
 
-//    private static String host = "https://jeshj.pythonanywhere.com";
-    private static String host = "http://localhost:5000";
+    private static String host = "https://jeshj.pythonanywhere.com";
+//    private static String host = "http://localhost:5000";
 
 
     private Map<String, Gym> gyms = new HashMap<>();
@@ -222,7 +227,7 @@ public class WebDatabase {
         r.setPost(false);
         r.setUrl(url);
         r.addResponseListener(evt);
-        NetworkManager.getInstance().addToQueueAndWait(r);
+        NetworkManager.getInstance().addToQueue(r);
     }
 
     public void post(String url, ActionListener<NetworkEvent> evt) {
@@ -230,7 +235,7 @@ public class WebDatabase {
         r.setPost(true);
         r.setUrl(url);
         r.addResponseListener(evt);
-        NetworkManager.getInstance().addToQueueAndWait(r);
+        NetworkManager.getInstance().addToQueue(r);
     }
 
     Map<String, Object> getJsonData(NetworkEvent evt) throws IOException {
@@ -239,7 +244,7 @@ public class WebDatabase {
                         new ByteArrayInputStream(evt.getConnectionRequest().getResponseData()), "UTF-8"));
     }
 
-    public String getFile(Rute r, SuccessCallback<Image> callback) {
+    public String getFile(Rute r, OnImageDownload callback) {
         String path = FileSystemStorage.getInstance().getAppHomePath() + r.getUUID() +  ".jpg";
         Log.p("Downloading picture for rute " + r.getUUID() + " @ " + path);
         if(FileSystemStorage.getInstance().exists(path)) {
@@ -251,10 +256,17 @@ public class WebDatabase {
         request.setPost(true);
         request.setUrl(host + "/download/" + r.getUUID());
         NetworkManager.getInstance().addToQueueAndWait(request);
-        request.downloadImageToFileSystem(path, callback);
+        request.downloadImageToFileSystem(path, value-> callback.onImage(value, path), (sender, err, errorCode, errorMessage) -> {
+            Log.p(errorCode+"");
+            callback.onImage(Image.createImage(200,200), "");
+        });
 
 
         return path;
+    }
+
+    public interface OnImageDownload {
+        void onImage(Image image, String path);
     }
 
 

@@ -49,5 +49,5 @@ CREATE TABLE comment (
 --
 INSERT INTO gym (uuid, name, lat, lon) VALUES ("john", 'ÅK', 0.0, 0.0);
 --
-INSERT INTO user (uuid, name, password, email, gym) VALUES ("hansi", 'Jens', 'pass', 'email@email.com', 1);
+INSERT INTO user (uuid, name, password, email, gym) VALUES ("hansi", 'Jens', 'pass', 'email@email.com', "john");
 --

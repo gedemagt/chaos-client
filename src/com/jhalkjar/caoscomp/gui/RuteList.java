@@ -39,7 +39,7 @@ public class RuteList extends Form {
     }
 
     private void refreshList() {
-        rutes = DB.getInstance().getRutes();
+        rutes = DB.getInstance().getRutes(false);
         updateUI();
 
     }
@@ -54,6 +54,7 @@ public class RuteList extends Form {
         else {
             Container list = new Container(BoxLayout.y());
             list.addPullToRefresh(() -> {
+                DB.getInstance().refresh();
                 refreshList();
                 updateUI();
             });

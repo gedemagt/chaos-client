@@ -1,10 +1,7 @@
 package com.jhalkjar.caoscomp.database;
 
 import com.codename1.io.Log;
-import com.jhalkjar.caoscomp.backend.DBRute;
-import com.jhalkjar.caoscomp.backend.Gym;
-import com.jhalkjar.caoscomp.backend.Rute;
-import com.jhalkjar.caoscomp.backend.User;
+import com.jhalkjar.caoscomp.backend.*;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -25,8 +22,23 @@ public class DB {
     private WebDatabase web = new WebDatabase();
 
     private DB() {
-        web.refresh();
         local.refresh();
+        web.refresh();
+    }
+
+    public User getUser(String uuid) {
+
+        return local.getUser(uuid);
+    }
+
+
+    public Rute getRute(String uuid) {
+        return local.getRute(uuid);
+    }
+
+
+    public Gym getGym(String uuid) {
+        return local.getGym(uuid);
     }
 
     public List<User> getUsers() {
@@ -44,11 +56,13 @@ public class DB {
         return false;
     }
 
-    public List<Rute> getRutes() {
+    public List<Rute> getRutes(boolean useLocal) {
         List<Rute> l = new ArrayList<>();
         l.addAll(local.getRutes());
-        for(Rute r : web.getRutes()) {
-            if(!contains(r, l)) l.add(r);
+        if(!useLocal) {
+            for(Rute r : web.getRutes()) {
+                if(!contains(r, l)) l.add(r);
+            }
         }
         return l;
     }

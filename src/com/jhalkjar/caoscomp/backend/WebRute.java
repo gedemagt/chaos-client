@@ -14,8 +14,9 @@ public class WebRute extends AbstractRute{
 
     public String getImageUrl() {
         if(image == null) {
-            image_url = database.getFile(this, value -> {
-                image = value;
+             database.getFile(this, (img, path) -> {
+                image_url = path;
+                image = img;
             });
         }
         return image_url;
@@ -23,8 +24,9 @@ public class WebRute extends AbstractRute{
 
     public Image getImage() {
         if(image == null) {
-            image_url = database.getFile(this, value -> {
-                image = value;
+            database.getFile(this, (img, path) -> {
+                image_url = path;
+                image = img;
             });
         }
         return image;

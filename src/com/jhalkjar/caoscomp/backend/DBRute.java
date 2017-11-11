@@ -1,5 +1,6 @@
 package com.jhalkjar.caoscomp.backend;
 
+import com.codename1.io.File;
 import com.codename1.io.FileSystemStorage;
 import com.codename1.io.Log;
 import com.codename1.ui.Image;
@@ -37,7 +38,10 @@ public class DBRute extends AbstractRute{
     }
 
     public void delete() {
-        FileSystemStorage.getInstance().delete(image_url);
+        if(FileSystemStorage.getInstance().exists(image_url)) {
+            FileSystemStorage.getInstance().delete(image_url);
+        }
+
         database.deleteRute(this);
     }
 
