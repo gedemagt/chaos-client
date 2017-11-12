@@ -17,6 +17,7 @@ import com.codename1.ui.table.TableLayout;
 import com.jhalkjar.caoscomp.backend.Rute;
 import com.jhalkjar.caoscomp.database.DB;
 
+import javax.swing.*;
 import java.util.List;
 
 
@@ -78,8 +79,7 @@ public class RuteList extends Form {
         Label gym = new Label(rute.getGym().getName());
         Label date = new Label(dateFormat.format(rute.getDate()));
 
-        TableLayout layout = new TableLayout(3, 3);
-        Container cnt = new Container(layout);
+        Container cnt = new Container(new BorderLayout());
         Button delete = new Button(FontImage.createMaterial(FontImage.MATERIAL_DELETE, s));
         delete.addActionListener(evt -> {
             rute.delete();
@@ -93,17 +93,18 @@ public class RuteList extends Form {
                 ip.dispose();
             });
         });
-        cnt.add(layout.createConstraint().widthPercentage(50).horizontalAlign(Component.LEFT), name);
-        cnt.add(layout.createConstraint().widthPercentage(50).horizontalAlign(Component.LEFT), date);
 
-        cnt.add(layout.createConstraint().widthPercentage(50).horizontalAlign(Component.LEFT), author);
-        cnt.add(layout.createConstraint().widthPercentage(50).horizontalAlign(Component.LEFT), gym);
+        cnt.add(BorderLayout.NORTH, BoxLayout.encloseX(name, date));
+
+        Button b = download;
         if(rute.isLocal()) {
-            cnt.add(layout.createConstraint().widthPercentage(50).horizontalAlign(Component.LEFT), delete);
+            b = delete;
         }
-        else {
-            cnt.add(layout.createConstraint().widthPercentage(50).horizontalAlign(Component.LEFT), download);
-        }
+
+        cnt.add(BorderLayout.CENTER, BoxLayout.encloseX(new Label(FontImage.createMaterial(FontImage.MATERIAL_HOME, s)),
+                gym,
+                new Label(FontImage.createMaterial(FontImage.MATERIAL_PERSON, s)), author, b));
+
 
         name.addPointerReleasedListener(evt -> new Editor(rute).show());
 
