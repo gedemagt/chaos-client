@@ -1,8 +1,7 @@
 package com.jhalkjar.caoscomp.gui;
 
 import com.codename1.io.Log;
-import com.codename1.ui.FontImage;
-import com.codename1.ui.Form;
+import com.codename1.ui.*;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.plaf.Style;
 import com.codename1.ui.plaf.UIManager;
@@ -15,10 +14,10 @@ public class Editor extends Form {
 
     Style s = UIManager.getInstance().getComponentStyle("Title");
     Canvas canvas;
+    Label l = new Label("Retrieving image..");
 
     public Editor(Rute r) {
         super(new BorderLayout());
-//        Log.p("Loading '" + r.getName() + "' with image url '" + r.getImageUrl() + "'!");
 
         getToolbar().addCommandToRightBar("", FontImage.createMaterial(FontImage.MATERIAL_UNDO, s), (e) -> {
             if(r.getPoints().size() > 0) r.getPoints().remove(r.getPoints().size() - 1);
@@ -29,9 +28,17 @@ public class Editor extends Form {
         getToolbar().addCommandToLeftBar("", FontImage.createMaterial(FontImage.MATERIAL_ARROW_BACK, s), (e) -> {
             new RuteList().showBack();
         });
+        add(BorderLayout.NORTH, l);
+        l.setHidden(false);
 
-        canvas = new Canvas(r.getImage(), r.getPoints());
-
+        canvas = new Canvas(r.getPoints());
+        canvas.setHidden(true);
+        r.getImage(image->{
+            canvas.setImage(image);
+            canvas.setHidden(false);
+            removeComponent(l);
+            repaint();
+        });
         canvas.addPointerDraggedListener(evt -> {
             Log.p("Dragged");
         });
@@ -48,5 +55,6 @@ public class Editor extends Form {
 
         add(BorderLayout.CENTER, canvas);
     }
+
 
 }

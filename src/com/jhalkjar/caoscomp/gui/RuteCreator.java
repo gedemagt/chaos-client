@@ -13,6 +13,7 @@ import com.codename1.ui.spinner.Picker;
 import com.codename1.ui.util.ImageIO;
 import com.jhalkjar.caoscomp.backend.Gym;
 import com.jhalkjar.caoscomp.backend.Rute;
+import com.jhalkjar.caoscomp.backend.UnknownGym;
 import com.jhalkjar.caoscomp.backend.UnknownUser;
 import com.jhalkjar.caoscomp.database.DB;
 
@@ -35,6 +36,9 @@ public class RuteCreator extends Form {
         Style s = UIManager.getInstance().getComponentStyle("Title");
 
         TextField name = new TextField("NewRute","Name of the Rute!", 20, TextArea.ANY);
+
+        gyms = DB.getInstance().getGyms();
+        gyms.add(new UnknownGym());
         Picker gym = createGymPicker();
         Button b = new Button(FontImage.createMaterial(FontImage.MATERIAL_PHOTO_CAMERA, s));
         b.addActionListener(evt -> {
@@ -46,7 +50,7 @@ public class RuteCreator extends Form {
             browsePicture();
         });
 
-        gyms = DB.getInstance().getGyms();
+
 
         FontImage.createMaterial(FontImage.MATERIAL_CAMERA, s);
 
@@ -80,7 +84,7 @@ public class RuteCreator extends Form {
         Picker stringPicker = new Picker();
         stringPicker.setType(Display.PICKER_TYPE_STRINGS);
 
-        stringPicker.setStrings(gymToString(DB.getInstance().getGyms()));
+        stringPicker.setStrings(gymToString(gyms));
         stringPicker.setSelectedStringIndex(0);
 
         return stringPicker;

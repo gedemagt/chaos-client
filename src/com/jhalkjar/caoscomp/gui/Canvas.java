@@ -20,8 +20,7 @@ public class Canvas extends ImageViewer {
 
     int size = 10;
 
-    public Canvas(Image image, List<Point> points) {
-        super(image);
+    public Canvas(List<Point> points) {
         this.points = points;
     }
 

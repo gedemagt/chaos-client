@@ -31,7 +31,7 @@ public class RuteList extends Form {
         super(new BorderLayout());
 
         refreshList();
-        updateUI();
+
         Style s = UIManager.getInstance().getComponentStyle("Title");
         getToolbar().addCommandToRightBar("", FontImage.createMaterial(FontImage.MATERIAL_ADD, s), (e) -> {
             new RuteCreator().show();

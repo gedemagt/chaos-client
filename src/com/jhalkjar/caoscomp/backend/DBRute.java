@@ -13,9 +13,9 @@ import java.util.List;
  */
 public class DBRute extends AbstractRute{
 
-    public Image getImage() {
+    public void getImage(ImageListener callback) {
         if(image == null) image = database.getImage(uuid);
-        return image;
+        callback.onImage(image);
     }
 
     public void save() {

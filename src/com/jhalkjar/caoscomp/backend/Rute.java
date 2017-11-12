@@ -1,6 +1,5 @@
 package com.jhalkjar.caoscomp.backend;
 
-import com.codename1.ui.Image;
 import com.jhalkjar.caoscomp.database.DatabaseEntry;
 import com.jhalkjar.caoscomp.gui.Point;
 
@@ -15,7 +14,7 @@ public interface Rute extends DatabaseEntry {
     User getAuthor();
     List<Point> getPoints();
     Gym getGym();
-    Image getImage();
+    void getImage(ImageListener callback);
 
     void save();
     void delete();

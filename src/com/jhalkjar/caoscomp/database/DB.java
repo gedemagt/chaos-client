@@ -2,9 +2,6 @@ package com.jhalkjar.caoscomp.database;
 
 import com.codename1.io.FileSystemStorage;
 import com.codename1.io.Log;
-import com.codename1.ui.Image;
-import com.codename1.ui.URLImage;
-import com.codename1.ui.util.ImageIO;
 import com.jhalkjar.caoscomp.backend.*;
 
 import java.util.ArrayList;

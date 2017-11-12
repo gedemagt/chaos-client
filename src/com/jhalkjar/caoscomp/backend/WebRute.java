@@ -13,8 +13,12 @@ import java.util.List;
  */
 public class WebRute extends AbstractRute{
 
-    public Image getImage() {
-        return image;
+    public void getImage(ImageListener imageListener) {
+        if(image == null) database.getImage(uuid, img-> {
+            imageListener.onImage(img);
+            this.image = img;
+        });
+        else imageListener.onImage(image);
     }
 
     public void save() {
@@ -36,7 +40,6 @@ public class WebRute extends AbstractRute{
     public WebRute(long id, String uuid, String name, User author, Gym gym, List<Point> points, Date date, WebDatabase database) {
         super(id, uuid, date, name, author, gym, points);
         this.database = database;
-        image = database.getImage(uuid);
     }
 
 }

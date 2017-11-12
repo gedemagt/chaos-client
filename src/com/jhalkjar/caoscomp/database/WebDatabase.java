@@ -256,15 +256,19 @@ public class WebDatabase {
 
     }
 
-    public Image getImage(String uuid) {
+    public void getImage(String uuid, ImageListener image) {
+        MultipartRequest request = new MultipartRequest();
+        request.setPost(false);
+        request.setUrl(host + "/download/" + uuid);
+        request.addResponseListener(evt -> {
+            Image img = EncodedImage.create(request.getResponseData());
+            image.onImage(img);
+            Log.p("Download of file " + uuid);
+        });
+        Log.p("Starting download of file " + uuid);
+        NetworkManager.getInstance().addToQueue(request);
 
-        return URLImage.createCachedImage(uuid, host + "/download/" + uuid, Image.createImage(1000,1000), URLImage.FLAG_RESIZE_SCALE);
     }
-
-    public interface OnDownload {
-        void onImage(Image image, String path);
-    }
-
 
     private ConnectionRequest sendJson(String url, String json, ActionListener<NetworkEvent> listener) {
         ConnectionRequest r = new ConnectionRequest(){
@@ -277,7 +281,7 @@ public class WebDatabase {
         r.setUrl(url);
         r.setContentType("application/json");
         r.addResponseListener(listener);
-        NetworkManager.getInstance().addToQueueAndWait(r);
+        NetworkManager.getInstance().addToQueue(r);
         return r;
     }
 
