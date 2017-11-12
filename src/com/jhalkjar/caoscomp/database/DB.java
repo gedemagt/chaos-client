@@ -57,14 +57,13 @@ public class DB {
         return false;
     }
 
-    public List<Rute> getRutes(boolean useLocal) {
+    public List<Rute> getRutes() {
         List<Rute> l = new ArrayList<>();
         l.addAll(local.getRutes());
-        if(!useLocal) {
-            for(Rute r : web.getRutes()) {
-                if(!contains(r, l)) l.add(r);
-            }
+        for(Rute r : web.getRutes()) {
+            if(!contains(r, l)) l.add(r);
         }
+
         return l;
     }
 

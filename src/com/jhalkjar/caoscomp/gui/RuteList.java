@@ -36,13 +36,16 @@ public class RuteList extends Form {
         getToolbar().addCommandToRightBar("", FontImage.createMaterial(FontImage.MATERIAL_ADD, s), (e) -> {
             new RuteCreator().show();
         });
+        getToolbar().addCommandToRightBar("", FontImage.createMaterial(FontImage.MATERIAL_REFRESH, s), (e) -> {
+            DB.getInstance().refresh();
+            refreshList();
+        });
 
     }
 
     private void refreshList() {
-        rutes = DB.getInstance().getRutes(false);
+        rutes = DB.getInstance().getRutes();
         updateUI();
-
     }
 
     private void updateUI() {
@@ -54,11 +57,6 @@ public class RuteList extends Form {
         }
         else {
             Container list = new Container(BoxLayout.y());
-            list.addPullToRefresh(() -> {
-                DB.getInstance().refresh();
-                refreshList();
-                updateUI();
-            });
             list.setScrollableY(true);
             for(Rute r : rutes) {
                 Container c = createListElement(r);
