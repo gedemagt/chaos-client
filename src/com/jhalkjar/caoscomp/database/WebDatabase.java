@@ -5,13 +5,9 @@ import ca.weblite.codename1.json.JSONObject;
 import com.codename1.io.*;
 import com.codename1.l10n.ParseException;
 import com.codename1.ui.EncodedImage;
-import com.codename1.ui.FontImage;
 import com.codename1.ui.Image;
+import com.codename1.ui.URLImage;
 import com.codename1.ui.events.ActionListener;
-import com.codename1.ui.plaf.UIManager;
-import com.codename1.ui.util.Resources;
-import com.codename1.util.FailureCallback;
-import com.codename1.util.SuccessCallback;
 import com.jhalkjar.caoscomp.Util;
 import com.jhalkjar.caoscomp.backend.*;
 
@@ -64,7 +60,7 @@ public class WebDatabase {
     }
 
 
-    public void uploadRute(Rute r) {
+    public void uploadRute(Rute r, String imageUrl) {
         JSONObject object = new JSONObject();
         try {
             object.put("name", r.getName());
@@ -76,18 +72,18 @@ public class WebDatabase {
             e.printStackTrace();
         }
         sendJson(host + "/add_rute", object.toString(), evt -> {
-            uploadImage(r);
+            uploadImage(r.getUUID(), imageUrl);
         });
         updateRutes();
     }
 
-    private void uploadImage(Rute r) {
+    private void uploadImage(String uuid, String url) {
         MultipartRequest request = new MultipartRequest();
         request.setPost(true);
-        request.setUrl(host + "/add_image/" + r.getUUID());
+        request.setUrl(host + "/add_image/" + uuid);
         try {
-            Log.p("Adding image '" + r.getImageUrl() + "'");
-            request.addData("file", r.getImageUrl(), "image/jpg");
+            Log.p("Uploading image '" + url + "'");
+            request.addData("file", url, "image/jpg");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -244,28 +240,28 @@ public class WebDatabase {
                         new ByteArrayInputStream(evt.getConnectionRequest().getResponseData()), "UTF-8"));
     }
 
-    public String getFile(Rute r, OnImageDownload callback) {
-        String path = FileSystemStorage.getInstance().getAppHomePath() + r.getUUID() +  ".jpg";
-        Log.p("Downloading picture for rute " + r.getUUID() + " @ " + path);
+    public void downloadImage(String uuid, String path, Runnable callback) {
+        Log.p("Downloading picture for rute " + uuid + " @ " + path);
         if(FileSystemStorage.getInstance().exists(path)) {
             Log.p(path + " already exists. Deleting..");
             FileSystemStorage.getInstance().delete(path);
         }
 
         MultipartRequest request = new MultipartRequest();
-        request.setPost(true);
-        request.setUrl(host + "/download/" + r.getUUID());
-        NetworkManager.getInstance().addToQueueAndWait(request);
-        request.downloadImageToFileSystem(path, value-> callback.onImage(value, path), (sender, err, errorCode, errorMessage) -> {
-            Log.p(errorCode+"");
-            callback.onImage(Image.createImage(200,200), "");
-        });
+        request.setPost(false);
+        request.setUrl(host + "/download/" + uuid);
 
+        request.downloadImageToFileSystem(path, value-> callback.run());
+        NetworkManager.getInstance().addToQueue(request);
 
-        return path;
     }
 
-    public interface OnImageDownload {
+    public Image getImage(String uuid) {
+
+        return URLImage.createCachedImage(uuid, host + "/download/" + uuid, Image.createImage(1000,1000), URLImage.FLAG_RESIZE_SCALE);
+    }
+
+    public interface OnDownload {
         void onImage(Image image, String path);
     }
 

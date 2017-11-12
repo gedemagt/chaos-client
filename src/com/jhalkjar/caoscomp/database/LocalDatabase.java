@@ -3,8 +3,10 @@ package com.jhalkjar.caoscomp.database;
 import ca.weblite.codename1.db.DAO;
 import ca.weblite.codename1.db.DAOProvider;
 import com.codename1.db.Database;
+import com.codename1.io.FileSystemStorage;
 import com.codename1.io.Log;
 import com.codename1.l10n.ParseException;
+import com.codename1.ui.Image;
 import com.jhalkjar.caoscomp.*;
 import com.jhalkjar.caoscomp.UUID;
 import com.jhalkjar.caoscomp.backend.*;
@@ -17,7 +19,7 @@ import java.util.*;
  */
 public class LocalDatabase {
     private static String configPath = "/setup.sql";
-    private String dbname = "o21k";
+    private String dbname = "o21aslsk";
 
     private Map<String, Gym> gyms = new HashMap<>();
     private Map<String, User> users = new HashMap<>();
@@ -63,7 +65,7 @@ public class LocalDatabase {
     }
 
 
-    public Rute createRute(String name, String image_url, User author, Gym gym, Date date) {
+    public Rute createRute(String name, User author, Gym gym, Date date) {
         try {
             Database db = Database.openOrCreate(dbname);
             DAOProvider provider = new DAOProvider(db, configPath, 1);
@@ -74,7 +76,6 @@ public class LocalDatabase {
             rute.put("coordinates", "[]");
             rute.put("author", author.getID());
             rute.put("gym", gym.getID());
-            rute.put("image_url", image_url);
             if(date == null) date = new Date();
             rute.put("datetime", Util.dateFormat.format(date));
             rutes.save(rute);
@@ -90,6 +91,43 @@ public class LocalDatabase {
         return null;
     }
 
+    public Image getImage(String uuid) {
+        try {
+            Database db = Database.openOrCreate(dbname);
+            DAOProvider provider = new DAOProvider(db, configPath, 1);
+            DAO games = provider.get("image");
+            Map<String, Object> result = (Map<String, Object>) games.fetchOne(new String[]{"uuid", uuid});
+            String imageurl = (String) result.get("url");
+            db.close();
+            return Image.createImage(FileSystemStorage.getInstance().openInputStream(imageurl));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void setImage(String uuid, String imageUrl) {
+        try {
+            Database db = Database.openOrCreate(dbname);
+            DAOProvider provider = new DAOProvider(db, configPath, 1);
+            DAO games = provider.get("image");
+            Map result = (Map) games.fetchOne(new String[]{"uuid", uuid});
+            if(result == null) {
+                result = (Map) games.newObject();
+                result.put("uuid", uuid);
+                result.put("url", imageUrl);
+                games.save(result);
+            }
+            else {
+                result.put("url", imageUrl);
+                games.update(result);
+            }
+            db.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void addRute(Rute r) {
         try {
             Log.p("Adding new rute");
@@ -102,7 +140,6 @@ public class LocalDatabase {
             rute.put("coordinates", Util.valsToString(r.getPoints()));
             rute.put("author", r.getAuthor().getUUID());
             rute.put("gym", r.getGym().getUUID());
-            rute.put("image_url", r.getImageUrl());
             rute.put("datetime", Util.dateFormat.format(r.getDate()));
             rutes.save(rute);
             db.close();
@@ -120,6 +157,7 @@ public class LocalDatabase {
             DAOProvider provider = new DAOProvider(db, configPath, 1);
             DAO games = provider.get("rute");
             Object obj = games.getById(r.getID());
+            db.close();
             return obj != null;
 
         } catch (IOException e) {
@@ -190,7 +228,6 @@ public class LocalDatabase {
             for(Map m : allRutes) {
 
                 String name = (String) m.get("name");
-                String image_url = (String) m.get("image_url");
                 String points = (String) m.get("coordinates");
                 String author = (String) m.get("author");
                 String gym = (String) m.get("gym");
@@ -198,7 +235,7 @@ public class LocalDatabase {
                 String uuid = (String) m.get("uuid");
                 long id = (Long) m.get("id");
 
-                DBRute r = new DBRute(id, uuid, date, name, getUser(author), getGym(gym), Util.stringToVals(points), image_url, this);
+                DBRute r = new DBRute(id, uuid, date, name, getUser(author), getGym(gym), Util.stringToVals(points), this);
                 rutes.put(uuid, r);
             }
             db.close();

@@ -4,6 +4,7 @@ package com.jhalkjar.caoscomp.gui;
  * Created by jesper on 11/5/17.
  */
 
+import com.codename1.components.InfiniteProgress;
 import com.codename1.l10n.DateFormat;
 import com.codename1.l10n.SimpleDateFormat;
 import com.codename1.ui.*;
@@ -88,8 +89,11 @@ public class RuteList extends Form {
         });
         Button download = new Button(FontImage.createMaterial(FontImage.MATERIAL_FILE_DOWNLOAD, s));
         download.addActionListener(evt -> {
-            DB.getInstance().download(rute);
-            refreshList();
+            Dialog ip = new InfiniteProgress().showInifiniteBlocking();
+            DB.getInstance().download(rute, () -> {
+                refreshList();
+                ip.dispose();
+            });
         });
         cnt.add(layout.createConstraint().widthPercentage(50).horizontalAlign(Component.LEFT), name);
         cnt.add(layout.createConstraint().widthPercentage(50).horizontalAlign(Component.LEFT), date);

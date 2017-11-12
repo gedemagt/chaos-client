@@ -1,8 +1,5 @@
 package com.jhalkjar.caoscomp.backend;
 
-import com.codename1.io.File;
-import com.codename1.io.FileSystemStorage;
-import com.codename1.io.Log;
 import com.codename1.ui.Image;
 import com.jhalkjar.caoscomp.database.DB;
 import com.jhalkjar.caoscomp.database.LocalDatabase;
@@ -16,19 +13,8 @@ import java.util.List;
  */
 public class DBRute extends AbstractRute{
 
-    public String getImageUrl() {
-        return image_url;
-    }
-
     public Image getImage() {
-        if(image == null) {
-            try {
-             image = Image.createImage(FileSystemStorage.getInstance().openInputStream(image_url));
-            } catch(Exception ex){
-                Log.e(ex);
-            }
-        }
-
+        if(image == null) image = database.getImage(uuid);
         return image;
     }
 
@@ -38,10 +24,6 @@ public class DBRute extends AbstractRute{
     }
 
     public void delete() {
-        if(FileSystemStorage.getInstance().exists(image_url)) {
-            FileSystemStorage.getInstance().delete(image_url);
-        }
-
         database.deleteRute(this);
     }
 
@@ -50,14 +32,11 @@ public class DBRute extends AbstractRute{
         return true;
     }
 
-
-    private String image_url;
     private Image image;
     private LocalDatabase database;
 
-    public DBRute(long id, String uuid, Date date, String name, User author, Gym gym, List<Point> points, String image, LocalDatabase database) {
+    public DBRute(long id, String uuid, Date date, String name, User author, Gym gym, List<Point> points, LocalDatabase database) {
         super(id, uuid, date, name, author, gym, points);
-        this.image_url = image;
         this.database = database;
 
     }

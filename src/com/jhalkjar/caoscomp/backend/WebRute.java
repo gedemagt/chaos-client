@@ -1,6 +1,7 @@
 package com.jhalkjar.caoscomp.backend;
 
 import com.codename1.ui.Image;
+import com.codename1.ui.URLImage;
 import com.jhalkjar.caoscomp.database.WebDatabase;
 import com.jhalkjar.caoscomp.gui.Point;
 
@@ -12,23 +13,7 @@ import java.util.List;
  */
 public class WebRute extends AbstractRute{
 
-    public String getImageUrl() {
-        if(image == null) {
-             database.getFile(this, (img, path) -> {
-                image_url = path;
-                image = img;
-            });
-        }
-        return image_url;
-    }
-
     public Image getImage() {
-        if(image == null) {
-            database.getFile(this, (img, path) -> {
-                image_url = path;
-                image = img;
-            });
-        }
         return image;
     }
 
@@ -45,13 +30,13 @@ public class WebRute extends AbstractRute{
         return false;
     }
 
-    private String image_url;
     private Image image;
     private WebDatabase database;
 
     public WebRute(long id, String uuid, String name, User author, Gym gym, List<Point> points, Date date, WebDatabase database) {
         super(id, uuid, date, name, author, gym, points);
         this.database = database;
+        image = database.getImage(uuid);
     }
 
 }

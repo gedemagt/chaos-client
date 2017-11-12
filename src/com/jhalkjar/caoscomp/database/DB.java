@@ -1,6 +1,10 @@
 package com.jhalkjar.caoscomp.database;
 
+import com.codename1.io.FileSystemStorage;
 import com.codename1.io.Log;
+import com.codename1.ui.Image;
+import com.codename1.ui.URLImage;
+import com.codename1.ui.util.ImageIO;
 import com.jhalkjar.caoscomp.backend.*;
 
 import java.util.ArrayList;
@@ -67,15 +71,22 @@ public class DB {
         return l;
     }
 
-    public void download(Rute r) {
+    public void download(Rute r, Runnable onSucces) {
         if(!local.hasRute(r)) {
             Log.p("Downloads rute " + r.toString());
-            local.addRute(r);
+
+            String path = FileSystemStorage.getInstance().getAppHomePath() + r.getUUID() + ".jpg";
+            web.downloadImage(r.getUUID(), path, () -> {
+                local.addRute(r);
+                local.setImage(r.getUUID(), path);
+                local.refresh();
+                onSucces.run();
+            });
         }
         else {
             Log.p("Rute already exists rute!" + r.toString());
         }
-        local.refresh();
+
     }
 
     public void syncRutes() {
@@ -85,8 +96,9 @@ public class DB {
     }
 
     public Rute createRute(String name, String image_url, User author, Gym gym, Date date) {
-        DBRute r = (DBRute) local.createRute(name, image_url, author, gym, date);
-        web.uploadRute(r);
+        Rute r = local.createRute(name, author, gym, date);
+        local.setImage(r.getUUID(), image_url);
+        web.uploadRute(r, image_url);
         return r;
     }
 

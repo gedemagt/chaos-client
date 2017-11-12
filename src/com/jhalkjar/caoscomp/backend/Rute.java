@@ -16,7 +16,6 @@ public interface Rute extends DatabaseEntry {
     List<Point> getPoints();
     Gym getGym();
     Image getImage();
-    String getImageUrl();
 
     void save();
     void delete();

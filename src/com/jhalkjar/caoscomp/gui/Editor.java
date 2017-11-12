@@ -18,7 +18,7 @@ public class Editor extends Form {
 
     public Editor(Rute r) {
         super(new BorderLayout());
-        Log.p("Loading '" + r.getName() + "' with image url '" + r.getImageUrl() + "'!");
+//        Log.p("Loading '" + r.getName() + "' with image url '" + r.getImageUrl() + "'!");
 
         getToolbar().addCommandToRightBar("", FontImage.createMaterial(FontImage.MATERIAL_UNDO, s), (e) -> {
             if(r.getPoints().size() > 0) r.getPoints().remove(r.getPoints().size() - 1);
