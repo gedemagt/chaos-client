@@ -40,6 +40,11 @@ public class RuteCreator extends Form {
         gyms = DB.getInstance().getGyms();
         gyms.add(new UnknownGym());
         Picker gym = createGymPicker();
+        gym.addActionListener(evt -> {
+            if(gym.getSelectedStringIndex() == gyms.size()) {
+                new GymCreator(this).show();
+            }
+        });
         Button b = new Button(FontImage.createMaterial(FontImage.MATERIAL_PHOTO_CAMERA, s));
         b.addActionListener(evt -> {
             picturePath = takePicture();
@@ -73,10 +78,11 @@ public class RuteCreator extends Form {
     }
 
     String[] gymToString(List<Gym> gyms) {
-        String[] r = new String[gyms.size()];
+        String[] r = new String[gyms.size()+1];
         for(int i=0; i<gyms.size(); i++) {
             r[i] = gyms.get(i).getName();
         }
+        r[gyms.size()] = "New gym..";
         return r;
     }
 

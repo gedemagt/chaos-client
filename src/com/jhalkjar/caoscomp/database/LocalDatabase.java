@@ -197,7 +197,7 @@ public class LocalDatabase {
         try {
             Database db = Database.openOrCreate(dbname);
             DAOProvider provider = new DAOProvider(db, configPath, 1);
-            DAO gyms = provider.get("user");
+            DAO gyms = provider.get("gym");
             Map gym = (Map) gyms.newObject();
             gym.put("uuid", UUID.randomUUID().toString());
             gym.put("name", name);
@@ -288,6 +288,7 @@ public class LocalDatabase {
 
                 gyms.put(uuid, new GymImpl(id, uuid, date, name, lat, lon));
             }
+            Log.p("Loaded " + gyms.size() + "gyms!");
             db.close();
 
         } catch (IOException e) {
@@ -312,6 +313,7 @@ public class LocalDatabase {
             Database db = Database.openOrCreate(dbname);
             db.execute("DELETE FROM rute WHERE id=" + r.getID());
             db.close();
+            rutes.remove(r.getUUID());
 
         } catch (IOException e) {
             Log.e(e);

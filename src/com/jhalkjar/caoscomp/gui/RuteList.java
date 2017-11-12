@@ -12,12 +12,9 @@ import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
 import com.codename1.ui.plaf.Style;
 import com.codename1.ui.plaf.UIManager;
-import com.codename1.ui.table.TableLayout;
 
 import com.jhalkjar.caoscomp.backend.Rute;
 import com.jhalkjar.caoscomp.database.DB;
-
-import javax.swing.*;
 import java.util.List;
 
 
@@ -80,30 +77,26 @@ public class RuteList extends Form {
         Label date = new Label(dateFormat.format(rute.getDate()));
 
         Container cnt = new Container(new BorderLayout());
-        Button delete = new Button(FontImage.createMaterial(FontImage.MATERIAL_DELETE, s));
-        delete.addActionListener(evt -> {
-            rute.delete();
-            refreshList();
-        });
-        Button download = new Button(FontImage.createMaterial(FontImage.MATERIAL_FILE_DOWNLOAD, s));
-        download.addActionListener(evt -> {
-            Dialog ip = new InfiniteProgress().showInifiniteBlocking();
-            DB.getInstance().download(rute, () -> {
-                refreshList();
-                ip.dispose();
-            });
-        });
+//        Button delete = new Button(FontImage.createMaterial(FontImage.MATERIAL_DELETE, s));
+//        delete.addActionListener(evt -> {
+//            rute.delete();
+//            refreshList();
+//        });
+//        Button download = new Button(FontImage.createMaterial(FontImage.MATERIAL_FILE_DOWNLOAD, s));
+//        download.addActionListener(evt -> {
+//            Dialog ip = new InfiniteProgress().showInifiniteBlocking();
+//            DB.getInstance().download(rute, () -> {
+//                refreshList();
+//                ip.dispose();
+//            });
+//        });
 
         cnt.add(BorderLayout.NORTH, BoxLayout.encloseX(name, date));
 
-        Button b = download;
-        if(rute.isLocal()) {
-            b = delete;
-        }
 
         cnt.add(BorderLayout.CENTER, BoxLayout.encloseX(new Label(FontImage.createMaterial(FontImage.MATERIAL_HOME, s)),
                 gym,
-                new Label(FontImage.createMaterial(FontImage.MATERIAL_PERSON, s)), author, b));
+                new Label(FontImage.createMaterial(FontImage.MATERIAL_PERSON, s)), author));
 
 
         name.addPointerReleasedListener(evt -> new Editor(rute).show());

@@ -47,7 +47,7 @@ public class DB {
     }
 
     public List<Gym> getGyms() {
-        return web.getGyms();
+        return local.getGyms();
     }
 
     private boolean contains(Rute r, List<Rute> rutes) {

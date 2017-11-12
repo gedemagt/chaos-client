@@ -6,6 +6,7 @@ import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.plaf.Style;
 import com.codename1.ui.plaf.UIManager;
 import com.jhalkjar.caoscomp.backend.Rute;
+import com.jhalkjar.caoscomp.database.DB;
 
 /**
  * Created by jesper on 11/5/17.
@@ -25,9 +26,30 @@ public class Editor extends Form {
             r.save();
         });
 
+
+
+
         getToolbar().addCommandToLeftBar("", FontImage.createMaterial(FontImage.MATERIAL_ARROW_BACK, s), (e) -> {
             new RuteList().showBack();
         });
+
+        if(!r.isLocal()) {
+            getToolbar().addCommandToRightBar("", FontImage.createMaterial(FontImage.MATERIAL_FILE_DOWNLOAD, s), (e) -> {
+                DB.getInstance().download(r, () ->  {
+                    e.getComponent().remove();
+                    revalidate();
+                });
+            });
+        }
+
+
+
+        getToolbar().addCommandToRightBar("", FontImage.createMaterial(FontImage.MATERIAL_DELETE, s), (e) -> {
+            r.delete();
+            new RuteList().showBack();
+        });
+
+
         add(BorderLayout.NORTH, l);
         l.setHidden(false);
 

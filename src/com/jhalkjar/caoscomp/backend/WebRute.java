@@ -26,7 +26,7 @@ public class WebRute extends AbstractRute{
     }
 
     public void delete() {
-        // Nothing
+        database.deleteRute(this);
     }
 
     @Override

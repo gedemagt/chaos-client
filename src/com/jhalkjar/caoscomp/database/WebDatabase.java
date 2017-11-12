@@ -77,6 +77,12 @@ public class WebDatabase {
         updateRutes();
     }
 
+    public void deleteRute(Rute r) {
+        post(host + "/delete/" + r.getUUID(), evt -> {
+            rutes.remove(r.getUUID());
+        });
+    }
+
     private void uploadImage(String uuid, String url) {
         MultipartRequest request = new MultipartRequest();
         request.setPost(true);
