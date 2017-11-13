@@ -20,7 +20,7 @@ public class DBRute extends AbstractRute{
 
     public void save() {
         database.updateCoordinates(this);
-        DB.getInstance().syncRutes();
+        DB.getInstance().syncRute(this);
     }
 
     public void delete() {

@@ -9,17 +9,12 @@ import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
 import com.codename1.ui.plaf.Style;
 import com.codename1.ui.plaf.UIManager;
-import com.codename1.ui.spinner.Picker;
 import com.codename1.ui.util.ImageIO;
-import com.jhalkjar.caoscomp.backend.Gym;
 import com.jhalkjar.caoscomp.backend.Rute;
-import com.jhalkjar.caoscomp.backend.UnknownGym;
-import com.jhalkjar.caoscomp.backend.UnknownUser;
 import com.jhalkjar.caoscomp.database.DB;
 
 import java.io.OutputStream;
 import java.util.Date;
-import java.util.List;
 
 
 /**
@@ -29,7 +24,6 @@ public class RuteCreator extends Form {
 
     String picturePath;
     ImageViewer iv = new ImageViewer();
-    List<Gym> gyms;
 
     public RuteCreator() {
         super(new BorderLayout());
@@ -37,14 +31,7 @@ public class RuteCreator extends Form {
 
         TextField name = new TextField("NewRute","Name of the Rute!", 20, TextArea.ANY);
 
-        gyms = DB.getInstance().getGyms();
-        gyms.add(new UnknownGym());
-        Picker gym = createGymPicker();
-        gym.addActionListener(evt -> {
-            if(gym.getSelectedStringIndex() == gyms.size()) {
-                new GymCreator(this).show();
-            }
-        });
+        GymPicker gym = new GymPicker(this);
         Button b = new Button(FontImage.createMaterial(FontImage.MATERIAL_PHOTO_CAMERA, s));
         b.addActionListener(evt -> {
             picturePath = takePicture();
@@ -54,8 +41,6 @@ public class RuteCreator extends Form {
         b2.addActionListener(evt -> {
             browsePicture();
         });
-
-
 
         FontImage.createMaterial(FontImage.MATERIAL_CAMERA, s);
 
@@ -68,32 +53,15 @@ public class RuteCreator extends Form {
                         BoxLayout.encloseX(new Label("Image"), b, b2)));
         add(BorderLayout.CENTER, iv);
         getToolbar().addCommandToRightBar("", FontImage.createMaterial(FontImage.MATERIAL_DONE, s), (e) -> {
-
-            Rute r = DB.getInstance().createRute(name.getText(), picturePath, new UnknownUser(), gyms.get(gym.getSelectedStringIndex()), new Date());
-            new Editor(r).show();
+            if(picturePath == null) Dialog.show("No image", "Please choose an image!", Dialog.TYPE_ERROR, null, "OK", null);
+            else {
+                Rute r = DB.getInstance().createRute(name.getText(), picturePath, DB.getInstance().getLoggedInUser(), gym.getGym(), new Date());
+                new Editor(r).show();
+            }
         });
         getToolbar().addCommandToLeftBar("", FontImage.createMaterial(FontImage.MATERIAL_ARROW_BACK, s), (e) -> {
             new RuteList().showBack();
         });
-    }
-
-    String[] gymToString(List<Gym> gyms) {
-        String[] r = new String[gyms.size()+1];
-        for(int i=0; i<gyms.size(); i++) {
-            r[i] = gyms.get(i).getName();
-        }
-        r[gyms.size()] = "New gym..";
-        return r;
-    }
-
-    private Picker createGymPicker() {
-        Picker stringPicker = new Picker();
-        stringPicker.setType(Display.PICKER_TYPE_STRINGS);
-
-        stringPicker.setStrings(gymToString(gyms));
-        stringPicker.setSelectedStringIndex(0);
-
-        return stringPicker;
     }
 
     private void loadPicture() {

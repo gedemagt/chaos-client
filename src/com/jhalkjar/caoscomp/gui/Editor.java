@@ -36,24 +36,30 @@ public class Editor extends Form {
         if(!r.isLocal()) {
             getToolbar().addCommandToRightBar("", FontImage.createMaterial(FontImage.MATERIAL_FILE_DOWNLOAD, s), (e) -> {
                 DB.getInstance().download(r, () ->  {
-                    e.getComponent().remove();
-                    revalidate();
+                    new RuteList().showBack();
                 });
             });
         }
 
 
-
-        getToolbar().addCommandToRightBar("", FontImage.createMaterial(FontImage.MATERIAL_DELETE, s), (e) -> {
-            r.delete();
-            new RuteList().showBack();
-        });
+        if(r.isLocal()) {
+            getToolbar().addCommandToRightBar("", FontImage.createMaterial(FontImage.MATERIAL_DELETE, s), (e) -> {
+                r.delete();
+                new RuteList().showBack();
+            });
+        }
+        else if(DB.getInstance().getLoggedInUser().equals(r.getAuthor())) {
+            getToolbar().addCommandToRightBar("", FontImage.createMaterial(FontImage.MATERIAL_DELETE, s), (e) -> {
+                r.delete();
+                new RuteList().showBack();
+            });
+        }
 
 
         add(BorderLayout.NORTH, l);
         l.setHidden(false);
-
-        canvas = new Canvas(r.getPoints());
+        boolean edit = r.getAuthor().equals(DB.getInstance().getLoggedInUser());
+        canvas = new Canvas(r.getPoints(), edit);
         canvas.setHidden(true);
         r.getImage(image->{
             canvas.setImage(image);
@@ -65,15 +71,17 @@ public class Editor extends Form {
             Log.p("Dragged");
         });
 
-        canvas.addPointerReleasedListener(evt -> {
-            if(canvas.wasDragged()) return;
+        if(edit) {
+            canvas.addPointerReleasedListener(evt -> {
+                if(canvas.wasDragged()) return;
 
-            float xdiff = ((evt.getX() - canvas.getImageX() - canvas.getAbsoluteX())/canvas.getZoom());
-            float ydiff = ((evt.getY() - canvas.getImageY() - canvas.getAbsoluteY())/canvas.getZoom());
-            canvas.addPoint(xdiff, ydiff);
-            canvas.repaint();
-            r.save();
-        });
+                float xdiff = ((evt.getX() - canvas.getImageX() - canvas.getAbsoluteX())/canvas.getZoom());
+                float ydiff = ((evt.getY() - canvas.getImageY() - canvas.getAbsoluteY())/canvas.getZoom());
+                canvas.addPoint(xdiff, ydiff);
+                canvas.repaint();
+                r.save();
+            });
+        }
 
         add(BorderLayout.CENTER, canvas);
     }

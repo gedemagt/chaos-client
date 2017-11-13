@@ -4,7 +4,7 @@ package com.jhalkjar.caoscomp.gui;
  * Created by jesper on 11/5/17.
  */
 
-import com.codename1.components.InfiniteProgress;
+import com.codename1.io.Preferences;
 import com.codename1.l10n.DateFormat;
 import com.codename1.l10n.SimpleDateFormat;
 import com.codename1.ui.*;
@@ -38,6 +38,11 @@ public class RuteList extends Form {
             DB.getInstance().refresh();
             refreshList();
         });
+        getToolbar().addCommandToOverflowMenu("Log out", null, (e)->{
+            Preferences.set("logged_in_user", "");
+            new Login().show();
+        });
+
 
     }
 
@@ -77,22 +82,8 @@ public class RuteList extends Form {
         Label date = new Label(dateFormat.format(rute.getDate()));
 
         Container cnt = new Container(new BorderLayout());
-//        Button delete = new Button(FontImage.createMaterial(FontImage.MATERIAL_DELETE, s));
-//        delete.addActionListener(evt -> {
-//            rute.delete();
-//            refreshList();
-//        });
-//        Button download = new Button(FontImage.createMaterial(FontImage.MATERIAL_FILE_DOWNLOAD, s));
-//        download.addActionListener(evt -> {
-//            Dialog ip = new InfiniteProgress().showInifiniteBlocking();
-//            DB.getInstance().download(rute, () -> {
-//                refreshList();
-//                ip.dispose();
-//            });
-//        });
 
         cnt.add(BorderLayout.NORTH, BoxLayout.encloseX(name, date));
-
 
         cnt.add(BorderLayout.CENTER, BoxLayout.encloseX(new Label(FontImage.createMaterial(FontImage.MATERIAL_HOME, s)),
                 gym,

@@ -1,5 +1,8 @@
 package com.jhalkjar.caoscomp.database;
 
+import com.jhalkjar.caoscomp.backend.User;
+import com.jhalkjar.caoscomp.backend.UserImpl;
+
 import java.util.Date;
 
 /**
@@ -30,5 +33,16 @@ public class DatabaseEntryImpl implements DatabaseEntry {
     @Override
     public Date getDate() {
         return date;
+    }
+
+    @Override
+    public boolean equals(Object u) {
+        if(u == null) return false;
+        if (!DatabaseEntry.class.isAssignableFrom(u.getClass())) {
+            return false;
+        }
+        final DatabaseEntry other = (DatabaseEntry) u;
+
+        return other.getUUID().equals(uuid);
     }
 }

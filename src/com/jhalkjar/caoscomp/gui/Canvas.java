@@ -17,10 +17,12 @@ public class Canvas extends ImageViewer {
     private List<Point> points = new ArrayList<>();
     private boolean wasDragged = false;
     private Point selected = null;
+    boolean edit;
 
     int size = 10;
 
-    public Canvas(List<Point> points) {
+    public Canvas(List<Point> points, boolean edit) {
+        this.edit = edit;
         this.points = points;
     }
 
@@ -37,7 +39,7 @@ public class Canvas extends ImageViewer {
             wasDragged = true;
         }
         else {
-            selected.setPixel(x, y, this);
+            if(edit) selected.setPixel(x, y, this);
         }
     }
 

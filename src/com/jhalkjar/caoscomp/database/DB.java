@@ -2,6 +2,7 @@ package com.jhalkjar.caoscomp.database;
 
 import com.codename1.io.FileSystemStorage;
 import com.codename1.io.Log;
+import com.codename1.io.Preferences;
 import com.jhalkjar.caoscomp.backend.*;
 
 import java.util.ArrayList;
@@ -22,14 +23,33 @@ public class DB {
     private LocalDatabase local = new LocalDatabase();
     private WebDatabase web = new WebDatabase();
 
+    public User getLoggedInUser() {
+        String username = Preferences.get("logged_in_user", "");
+        User loggedin = local.getUser(username);
+        return loggedin;
+    }
+
     private DB() {
         local.refresh();
-        web.refresh();
+        web.refresh(()-> {
+            for(Gym g : web.getGyms()) {
+                if(!local.getGyms().contains(g)) local.addGym(g.getUUID(), g.getName(), g.getLat(), g.getLon(), g.getDate());
+            }
+            for(User u : web.getUsers()) {
+                if(!local.getUsers().contains(u)) local.addUser(u.getUUID(), u.getName(), u.getEmail(), u.getPasswordHash(), u.getGym(), u.getDate());
+            }
+
+        });
+
     }
 
     public User getUser(String uuid) {
-
-        return local.getUser(uuid);
+        User u = local.getUser(uuid);
+        if(u == null) u = web.getUser(uuid);
+        if(u == null) {
+            throw new IllegalArgumentException("No such user: " + uuid);
+        }
+        return u;
     }
 
 
@@ -47,7 +67,12 @@ public class DB {
     }
 
     public List<Gym> getGyms() {
-        return local.getGyms();
+        List<Gym> l = new ArrayList<>();
+        l.addAll(local.getGyms());
+        for(Gym r : web.getGyms()) {
+            if(!l.contains(r)) l.add(r);
+        }
+        return l;
     }
 
     private boolean contains(Rute r, List<Rute> rutes) {
@@ -85,10 +110,8 @@ public class DB {
 
     }
 
-    public void syncRutes() {
-        for(Rute r : local.getRutes()) {
-            web.updateCoordinates(r);
-        }
+    public void syncRute(Rute r) {
+        web.updateCoordinates(r);
     }
 
     public Rute createRute(String name, String image_url, User author, Gym gym, Date date) {
@@ -111,7 +134,13 @@ public class DB {
     }
 
     public void refresh() {
-        web.refresh();
+        web.refresh(()->{});
         local.refresh();
     }
+
+    public User checkLogin(String username, String password) throws IllegalArgumentException {
+        return local.checkLogin(username, password);
+    }
+
+
 }

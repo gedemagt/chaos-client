@@ -41,7 +41,6 @@ public class WebDatabase {
     }
 
     public User getUser(String id) {
-        if(!users.containsKey(id)) return new UnknownUser();
         return users.get(id);
     }
 
@@ -50,7 +49,6 @@ public class WebDatabase {
     }
 
     public Gym getGym(String id) {
-        if(!gyms.containsKey(id)) return new UnknownGym();
         return gyms.get(id);
     }
 
@@ -74,7 +72,7 @@ public class WebDatabase {
         sendJson(host + "/add_rute", object.toString(), evt -> {
             uploadImage(r.getUUID(), imageUrl);
         });
-        updateRutes();
+        refresh(()->{});
     }
 
     public void deleteRute(Rute r) {
@@ -100,9 +98,9 @@ public class WebDatabase {
         JSONObject object = new JSONObject();
         try {
             object.put("username", u.getName());
-            object.put("password", "");
+            object.put("password", u.getPasswordHash());
             object.put("email", u.getEmail());
-            object.put("gym", u.getGym());
+            object.put("gym", u.getGym().getUUID());
             object.put("date", Util.dateFormat.format(u.getDate()));
             object.put("uuid", u.getUUID());
 
@@ -140,16 +138,14 @@ public class WebDatabase {
         sendJson(host + "/update_coordinates", object.toString());
     }
 
-    public void refresh() {
+    public void refresh(Runnable done) {
         Log.p("Refreshing WebDatabase..");
-        updateGyms();
-        updateUsers();
-        updateRutes();
+        updateGyms(() -> updateUsers(() -> updateRutes(() -> {done.run();})));
         Log.p("Refreshing done!");
     }
 
 
-    private void updateRutes() {
+    private void updateRutes(Runnable runnable) {
         get(host + "/get_rutes", evt -> {
             try {
                 Map<String,Object> result = getJsonData(evt);
@@ -158,13 +154,15 @@ public class WebDatabase {
                     Map<String,Object> vals = (Map<String, Object>) result.get(key);
                     String name = (String) vals.get("name");
                     String coordinates = (String) vals.get("coordinates");
-                    Gym gym = new UnknownGym();//LocalDatabase.getInstance().getGym((long) (double) vals.get("gym"));
+                    Gym gym = getGym((String) vals.get("gym"));
                     Date date = Util.dateFormat.parse((String) vals.get("date"));
-                    User author = new UnknownUser();//LocalDatabase.getInstance().getUser((long) (double)  vals.get("author"));
+                    User author = getUser((String) vals.get("author"));
                     String uuid = (String) vals.get("uuid");
                     list.put(uuid, new WebRute(-1, uuid, name, author, gym, Util.stringToVals(coordinates), date, this));
                 }
                 rutes = list;
+                Log.p("Web rutes: " + rutes.toString());
+                runnable.run();
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -175,7 +173,7 @@ public class WebDatabase {
 
     }
 
-    private void updateGyms() {
+    private void updateGyms(Runnable runnable) {
         get(host + "/get_gyms", evt -> {
             try {
                 Map<String,Object> result = getJsonData(evt);
@@ -190,6 +188,8 @@ public class WebDatabase {
                     gyms.put(uuid, new GymImpl(-1, uuid, date, name, lat, lon));
                 }
                 this.gyms = gyms;
+                Log.p("Web gyms: " + gyms.toString());
+                runnable.run();
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (ParseException e) {
@@ -200,7 +200,7 @@ public class WebDatabase {
     }
 
 
-    private void updateUsers() {
+    private void updateUsers(Runnable runnable) {
         get(host + "/get_users", evt -> {
             try {
                 Map<String, User> users = new HashMap<>();
@@ -209,13 +209,17 @@ public class WebDatabase {
                     Map<String,Object> vals = (Map<String, Object>) result.get(key);
                     String name = (String) vals.get("name");
                     String email = (String) vals.get("email");
-                    Gym gym = new UnknownGym();//LocalDatabase.getInstance().getGym((long) (double) vals.get("gym"));
+                    String password = (String) vals.get("password");
+                    Gym gym = getGym((String) vals.get("gym"));
                     Date date = Util.dateFormat.parse((String) vals.get("date"));
                     String uuid = (String) vals.get("uuid");
+                    Log.p(password);
 
-                    users.put(uuid, new UserImpl(-1, uuid, date, name, email, gym));
+                    users.put(uuid, new UserImpl(-1, uuid, date, name, email, gym, password));
                 }
                 this.users = users;
+                Log.p("Web users: " + users.toString());
+                runnable.run();
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (ParseException e) {

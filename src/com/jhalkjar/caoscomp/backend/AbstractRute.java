@@ -1,4 +1,5 @@
 package com.jhalkjar.caoscomp.backend;
+import com.codename1.io.Log;
 import com.jhalkjar.caoscomp.gui.Point;
 import java.util.Date;
 import java.util.List;

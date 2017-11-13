@@ -19,7 +19,7 @@ import java.util.*;
  */
 public class LocalDatabase {
     private static String configPath = "/setup.sql";
-    private String dbname = "o21aslsk";
+    private String dbname = "os3dsdsaasdsdsadsdadsd123s";
 
     private Map<String, Gym> gyms = new HashMap<>();
     private Map<String, User> users = new HashMap<>();
@@ -44,7 +44,6 @@ public class LocalDatabase {
     }
 
     public User getUser(String uuid) {
-        if(!users.containsKey(uuid)) return new UnknownUser();
         return users.get(uuid);
     }
 
@@ -55,7 +54,6 @@ public class LocalDatabase {
 
 
     public Gym getGym(String uuid) {
-        if(!gyms.containsKey(uuid)) return new UnknownGym();
         return gyms.get(uuid);
     }
 
@@ -74,8 +72,8 @@ public class LocalDatabase {
             rute.put("uuid", UUID.randomUUID().toString());
             rute.put("name", name);
             rute.put("coordinates", "[]");
-            rute.put("author", author.getID());
-            rute.put("gym", gym.getID());
+            rute.put("author", author.getUUID());
+            rute.put("gym", gym.getUUID());
             if(date == null) date = new Date();
             rute.put("datetime", Util.dateFormat.format(date));
             rutes.save(rute);
@@ -86,7 +84,7 @@ public class LocalDatabase {
             return getRutes().get(getRutes().size()-1);
 
         } catch (IOException e) {
-            Log.e(e);
+            e.printStackTrace();
         }
         return null;
     }
@@ -100,6 +98,25 @@ public class LocalDatabase {
             String imageurl = (String) result.get("url");
             db.close();
             return Image.createImage(FileSystemStorage.getInstance().openInputStream(imageurl));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public User checkLogin(String username, String password) throws IllegalArgumentException {
+        try {
+            Database db = Database.openOrCreate(dbname);
+            DAOProvider provider = new DAOProvider(db, configPath, 1);
+            DAO games = provider.get("user");
+            Map<String, Object> result = (Map<String, Object>) games.fetchOne(new String[]{"name", username});
+            db.close();
+            if(result == null)
+                throw new IllegalArgumentException(username + " is not a user!");
+            String dbPass = (String) result.get("password");
+            if(!password.equals(dbPass))
+                throw new IllegalArgumentException("Wrong password!");
+            return getUser((String) result.get("uuid"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -147,7 +164,7 @@ public class LocalDatabase {
             loadRutes();
 
         } catch (IOException e) {
-            Log.e(e);
+            e.printStackTrace();
         }
     }
 
@@ -162,22 +179,26 @@ public class LocalDatabase {
 
         } catch (IOException e) {
             e.printStackTrace();
-            return false;
         }
 
+        return false;
     }
 
     public User createUser(String name, String email, String passwordHash, Gym gym, Date date) {
+        return addUser(UUID.randomUUID().toString(), name, email, passwordHash, gym, date);
+    }
+
+    public User addUser(String uuid, String name, String email, String passwordHash, Gym gym, Date date) {
         try {
             Database db = Database.openOrCreate(dbname);
             DAOProvider provider = new DAOProvider(db, configPath, 1);
             DAO users = provider.get("user");
             Map user = (Map) users.newObject();
-            user.put("uuid", UUID.randomUUID().toString());
+            user.put("uuid", uuid);
             user.put("name", name);
             user.put("email", email);
             user.put("password", passwordHash);
-            user.put("gym", gym.getID());
+            user.put("gym", gym.getUUID());
             if(date == null) date = new Date();
             user.put("datetime", Util.dateFormat.format(date));
             users.save(user);
@@ -188,18 +209,22 @@ public class LocalDatabase {
             return getUsers().get(getUsers().size()-1);
 
         } catch (IOException e) {
-            Log.e(e);
+            e.printStackTrace();
         }
         return null;
     }
 
     public Gym createGym(String name, double lat, double lon, Date date) {
+        return addGym(UUID.randomUUID().toString(), name, lat, lon, date);
+    }
+
+    public Gym addGym(String uuid, String name, double lat, double lon, Date date) {
         try {
             Database db = Database.openOrCreate(dbname);
             DAOProvider provider = new DAOProvider(db, configPath, 1);
             DAO gyms = provider.get("gym");
             Map gym = (Map) gyms.newObject();
-            gym.put("uuid", UUID.randomUUID().toString());
+            gym.put("uuid", uuid);
             gym.put("name", name);
             gym.put("lat", lat);
             gym.put("lon", lon);
@@ -213,7 +238,7 @@ public class LocalDatabase {
             return getGyms().get(getGyms().size()-1);
 
         } catch (IOException e) {
-            Log.e(e);
+            e.printStackTrace();
         }
         return null;
     }
@@ -241,7 +266,7 @@ public class LocalDatabase {
             db.close();
 
         } catch (IOException e) {
-            Log.e(e);
+            e.printStackTrace();
         }
     }
 
@@ -257,16 +282,17 @@ public class LocalDatabase {
                 String name = (String) m.get("name");
                 String email = (String) m.get("email");
                 String gym = (String) m.get("gym");
+                String pass = (String) m.get("password");
                 Date date = getDate(m.get("datetime"));
                 String uuid = (String) m.get("uuid");
                 long id = (Long) m.get("id");
-
-                users.put(uuid, new UserImpl(id, uuid, date, name, email, getGym(gym)));
+                Log.p(name + ": " + gym);
+                users.put(uuid, new UserImpl(id, uuid, date, name, email, getGym(gym), pass));
             }
             db.close();
 
         } catch (IOException e) {
-            Log.e(e);
+            e.printStackTrace();
         }
     }
 
@@ -285,14 +311,14 @@ public class LocalDatabase {
                 Date date = getDate(m.get("datetime"));
                 String uuid = (String) m.get("uuid");
                 long id = (Long) m.get("id");
-
+                Log.p("Loaded gym: " + name + "(" + uuid + ")");
                 gyms.put(uuid, new GymImpl(id, uuid, date, name, lat, lon));
             }
             Log.p("Loaded " + gyms.size() + "gyms!");
             db.close();
 
         } catch (IOException e) {
-            Log.e(e);
+            e.printStackTrace();
         }
     }
 

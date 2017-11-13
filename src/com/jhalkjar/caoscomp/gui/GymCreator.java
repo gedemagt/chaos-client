@@ -20,7 +20,7 @@ public class GymCreator extends Form {
     MapComponent mapComponent = new MapComponent();
     double lat, lon;
 
-    public GymCreator(Form back) {
+    public GymCreator(Form back, GymCreationListener l) {
         super(new BorderLayout());
         Style s = UIManager.getInstance().getComponentStyle("Title");
 
@@ -37,13 +37,17 @@ public class GymCreator extends Form {
         add(BorderLayout.CENTER, mapComponent);
         getToolbar().addCommandToRightBar("", FontImage.createMaterial(FontImage.MATERIAL_DONE, s), (e) -> {
 
-            DB.getInstance().createGym(name.getText(), lat, lon, new Date());
+            Gym g = DB.getInstance().createGym(name.getText(), lat, lon, new Date());
+            l.onNewGym(g);
             back.showBack();
         });
         getToolbar().addCommandToLeftBar("", FontImage.createMaterial(FontImage.MATERIAL_ARROW_BACK, s), (e) -> {
-            new RuteList().showBack();
+            back.showBack();
         });
     }
 
+    public interface GymCreationListener {
+        void onNewGym(Gym g);
+    }
 
 }

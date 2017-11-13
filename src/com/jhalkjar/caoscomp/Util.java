@@ -5,6 +5,7 @@ import com.codename1.io.Log;
 import com.codename1.l10n.DateFormat;
 import com.codename1.l10n.SimpleDateFormat;
 import com.jhalkjar.caoscomp.gui.Point;
+import org.bouncycastle.crypto.digests.SHA1Digest;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -63,5 +64,19 @@ public class Util {
         }
 
         return lastElement;
+    }
+
+    public static String createHash(String data) {
+        SHA1Digest sha1 = new SHA1Digest();
+        try {
+            byte[] b = data.getBytes("UTF-8");
+            sha1.update(b, 0, b.length);
+            byte[] hash = new byte[sha1.getDigestSize()];
+            sha1.doFinal(hash, 0);
+            return new String(hash, "UTF-8");
+        } catch (Exception ex) {
+            Log.e(ex);
+        }
+        return null;
     }
 }

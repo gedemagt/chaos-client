@@ -1,5 +1,6 @@
 package com.jhalkjar.caoscomp.backend;
 
+import com.codename1.io.Log;
 import com.jhalkjar.caoscomp.database.DatabaseEntryImpl;
 
 import java.util.Date;
@@ -9,14 +10,15 @@ import java.util.Date;
  */
 public class UserImpl extends DatabaseEntryImpl implements User  {
 
-    private String name, email;
+    private String name, email, passwordHash;
     private Gym gym;
 
-    public UserImpl(long id, String uuid, Date date, String name, String email, Gym gym) {
+    public UserImpl(long id, String uuid, Date date, String name, String email, Gym gym, String passwordHash) {
         super(uuid, id, date);
         this.name = name;
         this.email = email;
         this.gym = gym;
+        this.passwordHash = passwordHash;
     }
 
     @Override
@@ -30,8 +32,18 @@ public class UserImpl extends DatabaseEntryImpl implements User  {
     }
 
     @Override
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    @Override
     public Gym getGym() {
         return gym;
+    }
+
+    @Override
+    public String toString() {
+        return name + "(" + uuid + ")";
     }
 
 }

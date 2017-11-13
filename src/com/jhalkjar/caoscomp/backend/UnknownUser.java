@@ -19,6 +19,11 @@ public class UnknownUser implements User {
     }
 
     @Override
+    public String getPasswordHash() {
+        return "";
+    }
+
+    @Override
     public Gym getGym() {
         return new UnknownGym();
     }

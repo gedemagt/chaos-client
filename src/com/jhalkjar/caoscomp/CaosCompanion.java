@@ -3,6 +3,8 @@ package com.jhalkjar.caoscomp;
 import com.codename1.ui.*;
 import com.codename1.ui.plaf.UIManager;
 import com.codename1.ui.util.Resources;
+import com.jhalkjar.caoscomp.database.DB;
+import com.jhalkjar.caoscomp.gui.Login;
 import com.jhalkjar.caoscomp.gui.RuteList;
 
 
@@ -31,8 +33,8 @@ public class CaosCompanion {
             return;
         }
 
-        Form editor = new RuteList();
-        editor.show();
+        if(DB.getInstance().getLoggedInUser() != null) new RuteList().show();
+        else new Login().show();
     }
 
     public void stop() {
