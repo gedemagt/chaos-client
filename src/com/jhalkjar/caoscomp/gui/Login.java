@@ -24,9 +24,11 @@ public class Login extends Form {
         Label error = new Label();
         error.setHidden(true);
         Button lgnBtn = new Button("Login");
+
         lgnBtn.addActionListener((ActionListener) (ActionEvent evt) -> {
             String username = tfUsrnm.getText();
             String hash = Util.createHash(tfPassword.getText());
+
             try {
                 User loggedin = DB.getInstance().checkLogin(username, hash);
                 Log.p("Logging in user: " + loggedin.getName() + "(" + loggedin.getUUID() + ")");

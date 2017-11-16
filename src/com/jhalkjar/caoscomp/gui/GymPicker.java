@@ -4,7 +4,6 @@ import com.codename1.ui.Display;
 import com.codename1.ui.Form;
 import com.codename1.ui.spinner.Picker;
 import com.jhalkjar.caoscomp.backend.Gym;
-import com.jhalkjar.caoscomp.backend.UnknownGym;
 import com.jhalkjar.caoscomp.backend.User;
 import com.jhalkjar.caoscomp.database.DB;
 
@@ -20,7 +19,6 @@ public class GymPicker extends Picker {
     public GymPicker(Form f) {
         setType(Display.PICKER_TYPE_STRINGS);
         gyms = DB.getInstance().getGyms();
-        gyms.add(new UnknownGym());
 
         setStrings(gymToString(gyms));
         int index = 0;
@@ -37,7 +35,6 @@ public class GymPicker extends Picker {
 
                 GymCreator creator = new GymCreator(f, gym-> {
                     gyms = DB.getInstance().getGyms();
-                    gyms.add(new UnknownGym());
                     setStrings(gymToString(gyms));
 
                     setSelectedStringIndex(gyms.indexOf(gym));

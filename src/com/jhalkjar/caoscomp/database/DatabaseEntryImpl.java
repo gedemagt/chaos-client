@@ -1,8 +1,4 @@
 package com.jhalkjar.caoscomp.database;
-
-import com.jhalkjar.caoscomp.backend.User;
-import com.jhalkjar.caoscomp.backend.UserImpl;
-
 import java.util.Date;
 
 /**

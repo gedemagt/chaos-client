@@ -17,9 +17,9 @@ import java.util.*;
 /**
  * Created by jesper on 11/5/17.
  */
-public class LocalDatabase {
+public class LocalDatabase extends ChaosDatabase{
     private static String configPath = "/setup.sql";
-    private String dbname = "os3dsdsaasdsdsadsdadsd123s";
+    private String dbname = "1sdsaddsss";
 
     private Map<String, Gym> gyms = new HashMap<>();
     private Map<String, User> users = new HashMap<>();
@@ -69,7 +69,8 @@ public class LocalDatabase {
             DAOProvider provider = new DAOProvider(db, configPath, 1);
             DAO rutes = provider.get("rute");
             Map rute = (Map) rutes.newObject();
-            rute.put("uuid", UUID.randomUUID().toString());
+            String uuid = UUID.randomUUID().toString();
+            rute.put("uuid", uuid);
             rute.put("name", name);
             rute.put("coordinates", "[]");
             rute.put("author", author.getUUID());
@@ -81,7 +82,7 @@ public class LocalDatabase {
 
             loadRutes();
 
-            return getRutes().get(getRutes().size()-1);
+            return getRute(uuid);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -89,7 +90,8 @@ public class LocalDatabase {
         return null;
     }
 
-    public Image getImage(String uuid) {
+    @Override
+    public void getImage(String uuid, ImageListener listenr) {
         try {
             Database db = Database.openOrCreate(dbname);
             DAOProvider provider = new DAOProvider(db, configPath, 1);
@@ -97,7 +99,21 @@ public class LocalDatabase {
             Map<String, Object> result = (Map<String, Object>) games.fetchOne(new String[]{"uuid", uuid});
             String imageurl = (String) result.get("url");
             db.close();
-            return Image.createImage(FileSystemStorage.getInstance().openInputStream(imageurl));
+            listenr.onImage(Image.createImage(FileSystemStorage.getInstance().openInputStream(imageurl)));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public String getImageUrl(String uuid) {
+        try {
+            Database db = Database.openOrCreate(dbname);
+            DAOProvider provider = new DAOProvider(db, configPath, 1);
+            DAO games = provider.get("image");
+            Map<String, Object> result = (Map<String, Object>) games.fetchOne(new String[]{"uuid", uuid});
+            String imageurl = (String) result.get("url");
+            db.close();
+            return imageurl;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -124,6 +140,7 @@ public class LocalDatabase {
     }
 
     public void setImage(String uuid, String imageUrl) {
+        Log.p("Sets image for " + uuid + ": " + imageUrl);
         try {
             Database db = Database.openOrCreate(dbname);
             DAOProvider provider = new DAOProvider(db, configPath, 1);
@@ -189,8 +206,9 @@ public class LocalDatabase {
     }
 
     public User addUser(String uuid, String name, String email, String passwordHash, Gym gym, Date date) {
+        Database db;
         try {
-            Database db = Database.openOrCreate(dbname);
+            db = Database.openOrCreate(dbname);
             DAOProvider provider = new DAOProvider(db, configPath, 1);
             DAO users = provider.get("user");
             Map user = (Map) users.newObject();
@@ -202,6 +220,7 @@ public class LocalDatabase {
             if(date == null) date = new Date();
             user.put("datetime", Util.dateFormat.format(date));
             users.save(user);
+
             db.close();
 
             loadUsers();
@@ -260,9 +279,10 @@ public class LocalDatabase {
                 String uuid = (String) m.get("uuid");
                 long id = (Long) m.get("id");
 
-                DBRute r = new DBRute(id, uuid, date, name, getUser(author), getGym(gym), Util.stringToVals(points), this);
+                RuteImpl r = new RuteImpl(id, uuid, date, name, getUser(author), getGym(gym), Util.stringToVals(points), this);
                 rutes.put(uuid, r);
             }
+            Log.p("Local rutes: " + getRutes().toString());
             db.close();
 
         } catch (IOException e) {
@@ -286,9 +306,9 @@ public class LocalDatabase {
                 Date date = getDate(m.get("datetime"));
                 String uuid = (String) m.get("uuid");
                 long id = (Long) m.get("id");
-                Log.p(name + ": " + gym);
                 users.put(uuid, new UserImpl(id, uuid, date, name, email, getGym(gym), pass));
             }
+            Log.p("Loaded users");
             db.close();
 
         } catch (IOException e) {
@@ -302,6 +322,7 @@ public class LocalDatabase {
             DAOProvider provider = new DAOProvider(db, configPath, 1);
             DAO games = provider.get("gym");
             List<Map> allRutes = games.fetchAll();
+
             gyms.clear();
             for(Map m : allRutes) {
 
@@ -311,10 +332,9 @@ public class LocalDatabase {
                 Date date = getDate(m.get("datetime"));
                 String uuid = (String) m.get("uuid");
                 long id = (Long) m.get("id");
-                Log.p("Loaded gym: " + name + "(" + uuid + ")");
                 gyms.put(uuid, new GymImpl(id, uuid, date, name, lat, lon));
             }
-            Log.p("Loaded " + gyms.size() + "gyms!");
+            Log.p("Loaded gyms!");
             db.close();
 
         } catch (IOException e) {
@@ -333,13 +353,16 @@ public class LocalDatabase {
         }
     }
 
-    public void deleteRute(DBRute r) {
+    @Override
+    public void delete(Rute r) {
 
         try {
             Database db = Database.openOrCreate(dbname);
             db.execute("DELETE FROM rute WHERE id=" + r.getID());
             db.close();
+            FileSystemStorage.getInstance().delete(getImageUrl(r.getUUID()));
             rutes.remove(r.getUUID());
+            for(DatabaseListener l : listeners) l.OnDeletedRute(r);
 
         } catch (IOException e) {
             Log.e(e);
@@ -347,7 +370,8 @@ public class LocalDatabase {
         loadRutes();
     }
 
-    public void updateCoordinates(DBRute r) {
+    @Override
+    public void save(Rute r) {
         try {
             Database db = Database.openOrCreate(dbname);
             DAOProvider provider = new DAOProvider(db, configPath, 1);
@@ -356,6 +380,7 @@ public class LocalDatabase {
             game.put("coordinates", Util.valsToString(r.getPoints()));
             games.update(game);
             db.close();
+            for(DatabaseListener l : listeners) l.OnSaved(r);
 
         } catch (IOException e) {
             Log.e(e);

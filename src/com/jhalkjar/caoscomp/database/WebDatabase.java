@@ -6,7 +6,6 @@ import com.codename1.io.*;
 import com.codename1.l10n.ParseException;
 import com.codename1.ui.EncodedImage;
 import com.codename1.ui.Image;
-import com.codename1.ui.URLImage;
 import com.codename1.ui.events.ActionListener;
 import com.jhalkjar.caoscomp.Util;
 import com.jhalkjar.caoscomp.backend.*;
@@ -17,7 +16,7 @@ import java.util.*;
 /**
  * Created by jesper on 11/8/17.
  */
-public class WebDatabase {
+public class WebDatabase extends ChaosDatabase {
 
     public static void setHost(String host_) {
         host = host_;
@@ -75,7 +74,8 @@ public class WebDatabase {
         refresh(()->{});
     }
 
-    public void deleteRute(Rute r) {
+    @Override
+    public void delete(Rute r) {
         post(host + "/delete/" + r.getUUID(), evt -> {
             rutes.remove(r.getUUID());
         });
@@ -127,11 +127,13 @@ public class WebDatabase {
     }
 
 
-    public void updateCoordinates(Rute r) {
+    @Override
+    public void save(Rute r) {
         JSONObject object = new JSONObject();
         try {
             object.put("uuid", r.getUUID());
             object.put("coordinates", Util.valsToString(r.getPoints()));
+            Log.p("Uploading " + r.toString());
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -158,7 +160,7 @@ public class WebDatabase {
                     Date date = Util.dateFormat.parse((String) vals.get("date"));
                     User author = getUser((String) vals.get("author"));
                     String uuid = (String) vals.get("uuid");
-                    list.put(uuid, new WebRute(-1, uuid, name, author, gym, Util.stringToVals(coordinates), date, this));
+                    list.put(uuid, new RuteImpl(-1, uuid, date, name, author, gym, Util.stringToVals(coordinates), this));
                 }
                 rutes = list;
                 Log.p("Web rutes: " + rutes.toString());
@@ -213,7 +215,6 @@ public class WebDatabase {
                     Gym gym = getGym((String) vals.get("gym"));
                     Date date = Util.dateFormat.parse((String) vals.get("date"));
                     String uuid = (String) vals.get("uuid");
-                    Log.p(password);
 
                     users.put(uuid, new UserImpl(-1, uuid, date, name, email, gym, password));
                 }

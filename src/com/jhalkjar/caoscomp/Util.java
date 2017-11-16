@@ -67,16 +67,17 @@ public class Util {
     }
 
     public static String createHash(String data) {
-        SHA1Digest sha1 = new SHA1Digest();
-        try {
-            byte[] b = data.getBytes("UTF-8");
-            sha1.update(b, 0, b.length);
-            byte[] hash = new byte[sha1.getDigestSize()];
-            sha1.doFinal(hash, 0);
-            return new String(hash, "UTF-8");
-        } catch (Exception ex) {
-            Log.e(ex);
-        }
-        return null;
+        return data;
+//        SHA1Digest sha1 = new SHA1Digest();
+//        try {
+//            byte[] b = data.getBytes("UTF-8");
+//            sha1.update(b, 0, b.length);
+//            byte[] hash = new byte[sha1.getDigestSize()];
+//            sha1.doFinal(hash, 0);
+//            return new String(hash, "UTF-8");
+//        } catch (Exception ex) {
+//            Log.e(ex);
+//        }
+//        return null;
     }
 }

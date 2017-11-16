@@ -1,5 +1,5 @@
 package com.jhalkjar.caoscomp.backend;
-import com.codename1.io.Log;
+import com.jhalkjar.caoscomp.database.DatabaseEntryImpl;
 import com.jhalkjar.caoscomp.gui.Point;
 import java.util.Date;
 import java.util.List;
@@ -7,24 +7,19 @@ import java.util.List;
 /**
  * Created by jesper on 11/9/17.
  */
-public abstract class AbstractRute implements Rute {
+public abstract class AbstractRute extends DatabaseEntryImpl implements Rute {
 
     protected String name;
     protected User author;
     protected Gym gym;
     protected List<Point> p;
-    protected long id;
-    protected Date date;
-    protected String uuid;
 
     public AbstractRute(long id, String uuid, Date date, String name, User author, Gym gym, List<Point> points) {
+        super(uuid, id, date);
         this.author = author;
         this.gym = gym;
         this.name = name;
         this.p = points;
-        this.id = id;
-        this.date = date;
-        this.uuid = uuid;
     }
 
     @Override
@@ -35,11 +30,6 @@ public abstract class AbstractRute implements Rute {
     @Override
     public User getAuthor() {
         return author;
-    }
-
-    @Override
-    public long getID() {
-        return id;
     }
 
     @Override
@@ -57,9 +47,10 @@ public abstract class AbstractRute implements Rute {
         return date;
     }
 
+
     @Override
-    public String getUUID() {
-        return uuid;
+    public boolean isLocal() {
+        return id!=-1;
     }
 
 }

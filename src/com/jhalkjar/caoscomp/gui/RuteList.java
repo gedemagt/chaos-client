@@ -13,6 +13,7 @@ import com.codename1.ui.layouts.BoxLayout;
 import com.codename1.ui.plaf.Style;
 import com.codename1.ui.plaf.UIManager;
 
+import com.codename1.ui.table.TableLayout;
 import com.jhalkjar.caoscomp.backend.Rute;
 import com.jhalkjar.caoscomp.database.DB;
 import java.util.List;
@@ -35,14 +36,13 @@ public class RuteList extends Form {
             new RuteCreator().show();
         });
         getToolbar().addCommandToRightBar("", FontImage.createMaterial(FontImage.MATERIAL_REFRESH, s), (e) -> {
-            DB.getInstance().refresh();
-            refreshList();
+            DB.getInstance().refresh(()->refreshList());
+
         });
         getToolbar().addCommandToOverflowMenu("Log out", null, (e)->{
             Preferences.set("logged_in_user", "");
             new Login().show();
         });
-
 
     }
 
@@ -77,18 +77,28 @@ public class RuteList extends Form {
 
         Style s = UIManager.getInstance().getComponentStyle("Title");
         Label name = new Label(rute.getName());
+        name.setUIID("RuteName");
+
         Label author = new Label(rute.getAuthor().getName());
         Label gym = new Label(rute.getGym().getName());
+        author.setUIID("AuthorListElement");
+        gym.setUIID("AuthorListElement");
+
         Label date = new Label(dateFormat.format(rute.getDate()));
+        date.setUIID("DateListElement");
 
-        Container cnt = new Container(new BorderLayout());
+        TableLayout tbl = new TableLayout(2, 4);
+        Container cnt = new Container(tbl);
+        cnt.setUIID("ListElement");
 
-        cnt.add(BorderLayout.NORTH, BoxLayout.encloseX(name, date));
+        cnt.add(tbl.createConstraint().widthPercentage(60).horizontalSpan(3), name);
+        cnt.add(tbl.createConstraint().widthPercentage(40).horizontalAlign(LEFT), date);
 
-        cnt.add(BorderLayout.CENTER, BoxLayout.encloseX(new Label(FontImage.createMaterial(FontImage.MATERIAL_HOME, s)),
-                gym,
-                new Label(FontImage.createMaterial(FontImage.MATERIAL_PERSON, s)), author));
 
+        cnt.add(tbl.createConstraint().widthPercentage(10), new Label(FontImage.createMaterial(FontImage.MATERIAL_HOME, s)));
+        cnt.add(tbl.createConstraint().widthPercentage(40), gym);
+        cnt.add(tbl.createConstraint().widthPercentage(10), new Label(FontImage.createMaterial(FontImage.MATERIAL_PERSON, s)));
+        cnt.add(tbl.createConstraint().widthPercentage(40), author);
 
         name.addPointerReleasedListener(evt -> new Editor(rute).show());
 

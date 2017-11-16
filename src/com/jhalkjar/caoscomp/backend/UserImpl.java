@@ -1,6 +1,5 @@
 package com.jhalkjar.caoscomp.backend;
 
-import com.codename1.io.Log;
 import com.jhalkjar.caoscomp.database.DatabaseEntryImpl;
 
 import java.util.Date;
@@ -43,7 +42,7 @@ public class UserImpl extends DatabaseEntryImpl implements User  {
 
     @Override
     public String toString() {
-        return name + "(" + uuid + ")";
+        return name + "(" + passwordHash + ")";
     }
 
 }
