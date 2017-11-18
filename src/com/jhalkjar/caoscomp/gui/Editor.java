@@ -1,7 +1,5 @@
 package com.jhalkjar.caoscomp.gui;
 
-import com.codename1.components.OnOffSwitch;
-import com.codename1.io.Log;
 import com.codename1.ui.*;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
@@ -34,31 +32,21 @@ public class Editor extends Form {
         add(BorderLayout.NORTH, l);
         l.setHidden(false);
 
-        canvas = new Canvas(r.getPoints(), edit);
-        canvas.setHidden(true);
         r.getImage(image->{
+
+            canvas = new Canvas(r.getPoints(), edit);
             canvas.setImage(image);
-            canvas.setHidden(false);
-            removeComponent(l);
-            repaint();
-        });
-        canvas.addPointerDraggedListener(evt -> {
-            Log.p("Dragged");
-        });
-
-        if(edit) {
-            canvas.addPointerReleasedListener(evt -> {
-                if(canvas.wasDragged()) return;
-
-                float xdiff = ((evt.getX() - canvas.getImageX() - canvas.getAbsoluteX())/canvas.getZoom());
-                float ydiff = ((evt.getY() - canvas.getImageY() - canvas.getAbsoluteY())/canvas.getZoom());
-                canvas.addPoint(xdiff, ydiff);
-                canvas.repaint();
-                r.save();
+            canvas.addClickListener((x, y) -> {
+                canvas.addPoint(x, y);
+                DB.getInstance().save(r);
             });
-        }
+            canvas.addSelectionListener(p -> {
 
-        add(BorderLayout.CENTER, canvas);
+            });
+            l.setHidden(true);
+            add(BorderLayout.CENTER, canvas);
+            revalidate();
+        });
     }
 
     void populateToolbar() {
@@ -66,8 +54,6 @@ public class Editor extends Form {
         getToolbar().addCommandToLeftBar("", FontImage.createMaterial(FontImage.MATERIAL_ARROW_BACK, s), (e) -> {
             new RuteList().showBack();
         });
-
-
 
         MultiToggleButton<Boolean> multiToggleButton = new MultiToggleButton<>();
         multiToggleButton.addState(true, FontImage.createMaterial(FontImage.MATERIAL_STAR, s));
@@ -77,17 +63,9 @@ public class Editor extends Form {
 
         Container cnt = new Container(BoxLayout.x());
         if(edit) {
-
-            Button b = new Button(FontImage.createMaterial(FontImage.MATERIAL_UNDO, s));
-            b.addActionListener(evt -> {
-                if(r.getPoints().size() > 0) r.getPoints().remove(r.getPoints().size() - 1);
-                canvas.repaint();
-                r.save();
-            });
-            cnt.add(b);
             Button b2 = new Button(FontImage.createMaterial(FontImage.MATERIAL_DELETE, s));
             b2.addActionListener(evt -> {
-                r.delete();
+                DB.getInstance().delete(r);
                 new RuteList().showBack();
             });
             cnt.add(b2);

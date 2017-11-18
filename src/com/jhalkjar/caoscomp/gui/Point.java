@@ -14,12 +14,12 @@ public class Point {
     }
 
     public void setPixel(int x, int y, Canvas c) {
-        this.x = ((x - c.getImageX() - c.getAbsoluteX())/c.getZoom());
-        this.y = ((y - c.getImageY() - c.getAbsoluteY())/c.getZoom());
+        this.x = ((x - c.getImageX() - c.getAbsoluteX())/c.getZoom()) / (float) (c.getWidth());
+        this.y = ((y - c.getImageY() - c.getAbsoluteY())/c.getZoom()) / (float) (c.getHeight());
     }
 
-    public int getXPixel(Canvas c) {return (int) (x * c.getZoom() + c.getImageX());}
-    public int getYPixel(Canvas c) {return (int) (y * c.getZoom() + c.getImageY());}
+    public int getXPixel(Canvas c) {return (int) (x * c.getZoom() * ((float) (c.getWidth())) + c.getImageX());}
+    public int getYPixel(Canvas c) {return (int) (y * c.getZoom() * ((float) (c.getHeight())) + c.getImageY());}
 
     public float getX() {return x;}
     public float getY() {return y;}

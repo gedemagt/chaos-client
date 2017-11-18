@@ -4,6 +4,7 @@ package com.jhalkjar.caoscomp.gui;
  * Created by jesper on 11/5/17.
  */
 
+import com.codename1.io.Log;
 import com.codename1.io.Preferences;
 import com.codename1.l10n.DateFormat;
 import com.codename1.l10n.SimpleDateFormat;
@@ -24,7 +25,7 @@ import java.util.List;
  */
 public class RuteList extends Form {
 
-    List<Rute> rutes;
+    Container centerContainer = new Container(new BorderLayout());
 
     public RuteList() {
         super(new BorderLayout());
@@ -35,28 +36,44 @@ public class RuteList extends Form {
         getToolbar().addCommandToRightBar("", FontImage.createMaterial(FontImage.MATERIAL_ADD, s), (e) -> {
             new RuteCreator().show();
         });
-        getToolbar().addCommandToRightBar("", FontImage.createMaterial(FontImage.MATERIAL_REFRESH, s), (e) -> {
-            DB.getInstance().refresh(()->refreshList());
-
-        });
         getToolbar().addCommandToOverflowMenu("Log out", null, (e)->{
             Preferences.set("logged_in_user", "");
             new Login().show();
         });
 
+        Label l =  new Label("Refreshing...");
+        add(BorderLayout.NORTH, l);
+        add(BorderLayout.CENTER, centerContainer);
+
+        l.setHidden(!DB.getInstance().isRefreshing());
+        DB.getInstance().addRefreshListener(new DB.RefreshListener() {
+            @Override
+            public void OnBeginRefresh() {
+                l.setHidden(false);
+                revalidate();
+            }
+
+            @Override
+            public void OnEndRefresh() {
+                l.setHidden(true);
+                refreshList();
+            }
+        });
+
     }
 
     private void refreshList() {
-        rutes = DB.getInstance().getRutes();
+
         updateUI();
     }
 
     private void updateUI() {
 
-        removeAll();
+        List<Rute> rutes = DB.getInstance().getRutes();
+        centerContainer.removeAll();
         if(rutes.size() == 0) {
             Label l = new Label("Please add a rute!");
-            add(BorderLayout.CENTER, l);
+            centerContainer.add(BorderLayout.CENTER, l);
         }
         else {
             Container list = new Container(BoxLayout.y());
@@ -65,7 +82,8 @@ public class RuteList extends Form {
                 Container c = createListElement(r);
                 list.add(c);
             }
-            add(BorderLayout.CENTER, list);
+            list.addPullToRefresh(() -> DB.getInstance().refresh());
+            centerContainer.add(BorderLayout.CENTER, list);
         }
         revalidate();
     }

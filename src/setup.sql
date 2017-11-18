@@ -31,7 +31,8 @@ CREATE TABLE rute (
 	coordinates VARCHAR,
 	author VARCHAR,
 	gym VARCHAR,
-	datetime TIMESTAMP DEFAULT (datetime('now'))
+	datetime TIMESTAMP DEFAULT (datetime('now')),
+	edit TIMESTAMP DEFAULT (datetime('now'))
 );
 --
 CREATE TABLE rating (

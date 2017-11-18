@@ -4,8 +4,6 @@ import com.codename1.components.ImageViewer;
 import com.codename1.io.Log;
 import com.codename1.ui.Font;
 import com.codename1.ui.Graphics;
-import com.codename1.ui.Image;
-import javafx.util.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,9 +13,10 @@ import java.util.List;
  */
 public class Canvas extends ImageViewer {
     private List<Point> points = new ArrayList<>();
-    private boolean wasDragged = false;
     private Point selected = null;
-    boolean edit;
+    boolean edit, wasDragged;
+    private List<ClickListener> clickListeners = new ArrayList<>();
+    private List<SelectionListener> selectionListeners = new ArrayList<>();
 
     int size = 10;
 
@@ -30,28 +29,26 @@ public class Canvas extends ImageViewer {
         points.add(new Point(_x, _y));
     }
 
-    public boolean wasDragged() {return this.wasDragged;}
-
     @Override
     public void pointerDragged(int x, int y) {
         if(selected == null){
             super.pointerDragged(x,y);
-            wasDragged = true;
         }
         else {
             if(edit) selected.setPixel(x, y, this);
         }
+        wasDragged = true;
     }
 
     @Override
     public void pointerPressed(int x, int y) {
-
 
         for(int i=0; i<points.size(); i++) {
             int xdiff = x - getAbsoluteX() - points.get(i).getXPixel(this);
             int ydiff = y - getAbsoluteY() - points.get(i).getYPixel(this);
             if((xdiff*xdiff + ydiff*ydiff) < size*size) {
                 selected = points.get(i);
+                if(edit) for(SelectionListener l : selectionListeners) l.OnSelect(selected);
                 break;
             }
         }
@@ -73,8 +70,17 @@ public class Canvas extends ImageViewer {
     public void pointerReleased(int x, int y) {
         if(selected == null) {
             super.pointerReleased(x,y);
+
+            float xdiff = ((x - getImageX() - getAbsoluteX())/getZoom()) / (float) (getWidth());
+            float ydiff = ((y - getImageY() - getAbsoluteY())/getZoom()) / (float) (getHeight());
+
+            Log.p(xdiff + " " + ydiff);
+            if(edit && !wasDragged) for(ClickListener cl : clickListeners) cl.OnClick(xdiff, ydiff);
         }
         else {
+            if(y<getImageY() + getAbsoluteY()|| y>(getHeight()-getImageY() + getAbsoluteY())) {
+                points.remove(selected);
+            }
             selected = null;
         }
         wasDragged = false;
@@ -96,17 +102,33 @@ public class Canvas extends ImageViewer {
             g.fillArc(p.getXPixel(this) - size/2, p.getYPixel(this) - size/2, size, size, 0, 360);
 
             g.setAlpha(255);
-            g.setColor(0xFF3333);
+
+            if(p.getYPixel(this)<getImageY()|| p.getYPixel(this)>(getHeight()-getImageY() ))
+                g.setColor(0xc09f2d);
+            else
+                g.setColor(0xFF3333);
             g.drawArc(p.getXPixel(this) - size/2, p.getYPixel(this) - size/2, size, size, 0, 360);
             g.drawArc(p.getXPixel(this) - size/2+1, p.getYPixel(this) - size/2+1, size-2, size-2, 0, 360);
 
             g.setColor(0x7caeff);
-
-//            String label = Integer.toString(i);
-
-            //g.drawString(label, p.getXPixel(this) - f.stringWidth(label)/2, p.getYPixel(this) - f.getHeight()/2);
         }
 
+    }
+
+    public void addClickListener(ClickListener l) {
+        clickListeners.add(l);
+    }
+
+    public void addSelectionListener(SelectionListener l) {
+        selectionListeners.add(l);
+    }
+
+    public interface ClickListener {
+        void OnClick(float x, float y);
+    }
+
+    public interface SelectionListener {
+        void OnSelect(Point p);
     }
 
 }

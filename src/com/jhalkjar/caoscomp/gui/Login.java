@@ -19,8 +19,9 @@ public class Login extends Form {
     public Login() {
         super(new BorderLayout());
         TextField tfUsrnm = new TextField();
-        tfUsrnm.setHint("username");
-        TextField tfPassword = new TextField("password","Name of the Rute!", 20, TextArea.PASSWORD);
+        tfUsrnm.setHint("Username");
+        TextField tfPassword = new TextField("","Name of the Rute!", 20, TextArea.PASSWORD);
+        tfPassword.setHint("Password");
         Label error = new Label();
         error.setHidden(true);
         Button lgnBtn = new Button("Login");

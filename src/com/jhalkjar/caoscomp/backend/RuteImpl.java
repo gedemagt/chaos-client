@@ -23,18 +23,23 @@ public class RuteImpl extends AbstractRute{
 
     }
 
-    public void save() {
-        database.save(this);
+    @Override
+    public Date lastEdit() {
+        return lastEdit;
     }
 
-    public void delete() {
-        DB.getInstance().delete(this);
+    @Override
+    public void setSaved(Date date) {
+        lastEdit = date;
     }
 
     @Override
     public void setLocal(boolean b) {
         if(isLocal() && !b) {
             database.delete(this);
+            List<Rute> r = DB.getInstance().getRutes();
+            this.database = ((RuteImpl) r.get(r.indexOf(this))).database;
+            this.id = -1;
             Log.p("Unlocalize " + toString());
         }
         else if(!isLocal() && b) DB.getInstance().download(this, newRute -> {
@@ -46,16 +51,18 @@ public class RuteImpl extends AbstractRute{
 
     private Image image;
     private ChaosDatabase database;
+    private Date lastEdit;
 
-    public RuteImpl(long id, String uuid, Date date, String name, User author, Gym gym, List<Point> points, ChaosDatabase database) {
+    public RuteImpl(long id, String uuid, Date date, Date lastEdit, String name, User author, Gym gym, List<Point> points, ChaosDatabase database) {
         super(id, uuid, date, name, author, gym, points);
         this.database = database;
+        this.lastEdit = lastEdit;
 
     }
 
     @Override
     public String toString() {
-        return "Rute<" + name + "@" + uuid + ">";
+        return "Rute<" + name + "@" + uuid + " - " + isLocal() +">";
     }
 
 }

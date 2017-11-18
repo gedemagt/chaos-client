@@ -7,6 +7,7 @@ import com.codename1.util.SuccessCallback;
 import com.jhalkjar.caoscomp.backend.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -16,6 +17,7 @@ import java.util.List;
 public class DB {
 
     private static final DB INSTANCE = new DB();
+    private boolean isRefreshing;
 
     public static DB getInstance() {
         return INSTANCE;
@@ -23,6 +25,8 @@ public class DB {
 
     private LocalDatabase local = new LocalDatabase();
     private WebDatabase web = new WebDatabase();
+
+    private List<RefreshListener> refreshListeners = new ArrayList<>();
 
     public User getLoggedInUser() {
         String username = Preferences.get("logged_in_user", "");
@@ -45,8 +49,14 @@ public class DB {
     }
 
     public void delete(Rute r) {
-        local.delete(r);
+        if(r.isLocal()) local.delete(r);
         web.delete(r);
+    }
+
+    public void save(Rute r) {
+        r.setSaved(new Date());
+        if(r.isLocal()) local.save(r);
+        web.save(r);
     }
 
     public Gym getGym(String uuid) {
@@ -65,10 +75,18 @@ public class DB {
     public List<Rute> getRutes() {
         List<Rute> l = new ArrayList<>();
         l.addAll(local.getRutes());
+        Log.p(l.toString());
         for(Rute r : web.getRutes()) {
             if(!l.contains(r)) l.add(r);
         }
+
+        Collections.sort(l, (o1, o2) -> o1.getName().compareTo(o2.getName()));
+
         return l;
+    }
+    
+    public boolean isRefreshing() {
+        return isRefreshing;
     }
 
     public void download(Rute r, SuccessCallback<Rute> onSucces) {
@@ -90,6 +108,8 @@ public class DB {
     }
 
     public void sync(Runnable succes) {
+        isRefreshing = true;
+        for(RefreshListener l : refreshListeners) l.OnBeginRefresh();
         local.refresh();
         web.refresh(()-> {
             for(Gym g : web.getGyms()) {
@@ -111,6 +131,8 @@ public class DB {
             }
             web.refresh(()-> {
                 succes.run();
+                isRefreshing = false;
+                for(RefreshListener l : refreshListeners) l.OnEndRefresh();
             });
 
         });
@@ -135,14 +157,28 @@ public class DB {
         return u;
     }
 
-    public void refresh(Runnable r) {
-        web.refresh(r);
+    public void refresh() {
+        isRefreshing = true;
+        for(RefreshListener l : refreshListeners) l.OnBeginRefresh();
         local.refresh();
+        web.refresh(()->{
+            isRefreshing = false;
+            for(RefreshListener l : refreshListeners) l.OnEndRefresh();
+        });
+
     }
 
     public User checkLogin(String username, String password) throws IllegalArgumentException {
         return local.checkLogin(username, password);
     }
 
+    public void addRefreshListener(RefreshListener l) {
+        refreshListeners.add(l);
+    }
+
+    public interface RefreshListener {
+        void OnBeginRefresh();
+        void OnEndRefresh();
+    }
 
 }

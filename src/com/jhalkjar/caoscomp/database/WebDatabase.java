@@ -64,6 +64,7 @@ public class WebDatabase extends ChaosDatabase {
             object.put("author", r.getAuthor().getUUID());
             object.put("gym", r.getGym().getUUID());
             object.put("date", Util.dateFormat.format(r.getDate()));
+            object.put("edit", Util.dateFormat.format(r.lastEdit()));
             object.put("uuid", r.getUUID());
         } catch (JSONException e) {
             e.printStackTrace();
@@ -76,8 +77,9 @@ public class WebDatabase extends ChaosDatabase {
 
     @Override
     public void delete(Rute r) {
+        rutes.remove(r.getUUID());
         post(host + "/delete/" + r.getUUID(), evt -> {
-            rutes.remove(r.getUUID());
+
         });
     }
 
@@ -133,6 +135,7 @@ public class WebDatabase extends ChaosDatabase {
         try {
             object.put("uuid", r.getUUID());
             object.put("coordinates", Util.valsToString(r.getPoints()));
+            object.put("edit", Util.dateFormat.format(r.lastEdit()));
             Log.p("Uploading " + r.toString());
         } catch (JSONException e) {
             e.printStackTrace();
@@ -158,9 +161,10 @@ public class WebDatabase extends ChaosDatabase {
                     String coordinates = (String) vals.get("coordinates");
                     Gym gym = getGym((String) vals.get("gym"));
                     Date date = Util.dateFormat.parse((String) vals.get("date"));
+                    Date last_edit = Util.dateFormat.parse((String) vals.get("edit"));
                     User author = getUser((String) vals.get("author"));
                     String uuid = (String) vals.get("uuid");
-                    list.put(uuid, new RuteImpl(-1, uuid, date, name, author, gym, Util.stringToVals(coordinates), this));
+                    list.put(uuid, new RuteImpl(-1, uuid, date, last_edit, name, author, gym, Util.stringToVals(coordinates), this));
                 }
                 rutes = list;
                 Log.p("Web rutes: " + rutes.toString());
