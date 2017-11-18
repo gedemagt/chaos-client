@@ -390,6 +390,7 @@ public class LocalDatabase extends ChaosDatabase{
             Map result = (Map) games.fetchOne(new String[]{"uuid", r.getUUID()});
             if(result != null) {
                 result.put("coordinates", Util.valsToString(r.getPoints()));
+                result.put("edit", Util.dateFormat.format(r.lastEdit()));
                 games.update(result);
                 for(DatabaseListener l : listeners) l.OnSaved(r);
             }

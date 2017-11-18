@@ -1,7 +1,5 @@
 package com.jhalkjar.caoscomp.gui;
 
-import com.codename1.components.InfiniteProgress;
-import com.codename1.io.Log;
 import com.codename1.ui.*;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
@@ -36,7 +34,6 @@ public class Editor extends Form {
             r.getImage(image->{
 
                 canvas = new Canvas(r.getPoints(), edit);
-                Log.p(image.getWidth() + " ");
                 canvas.doSetImage(image);
                 canvas.addClickListener((x, y) -> {
                     r.getPoints().add(new Point(x,y));

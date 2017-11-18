@@ -81,7 +81,7 @@ public class RuteList extends Form {
                 Container c = createListElement(r);
                 list.add(c);
             }
-            list.addPullToRefresh(() -> DB.getInstance().refresh());
+            list.addPullToRefresh(() -> DB.getInstance().sync());
             centerContainer.add(BorderLayout.CENTER, list);
         }
         revalidate();

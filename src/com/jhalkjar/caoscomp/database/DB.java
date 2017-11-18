@@ -133,10 +133,15 @@ public class DB {
                 }
                 else {
                     Rute webRute = web.getRute(u.getUUID());
-                    if(webRute.lastEdit().getTime() < u.lastEdit().getTime()) web.save(u);
+                    Log.p("local: " + u.lastEdit());
+                    Log.p("web: " + webRute.lastEdit());
+                    if(webRute.lastEdit().getTime() < u.lastEdit().getTime()) {
+                        web.save(u);
+                    }
                     else local.save(webRute);
                 }
             }
+            local.refresh();
             web.refresh(()-> {
                 isRefreshing = false;
                 for(RefreshListener l : refreshListeners) l.OnEndRefresh();
@@ -161,17 +166,6 @@ public class DB {
         Gym u = local.createGym(name, lat, lon, date);
         web.uploadGym(u);
         return u;
-    }
-
-    public void refresh() {
-        isRefreshing = true;
-        for(RefreshListener l : refreshListeners) l.OnBeginRefresh();
-        local.refresh();
-        web.refresh(()->{
-            isRefreshing = false;
-            for(RefreshListener l : refreshListeners) l.OnEndRefresh();
-        });
-
     }
 
     public User checkLogin(String username, String password) throws IllegalArgumentException {
