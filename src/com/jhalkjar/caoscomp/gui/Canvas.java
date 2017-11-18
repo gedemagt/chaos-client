@@ -73,22 +73,22 @@ public class Canvas extends ImageViewer {
 
     int xFloatToPixel(float x) {
         int imageDrawWidth = (int)(((float)iW) * r2 * getZoom());
-        return (int) (x * getZoom() * ((float) (imageDrawWidth)) + getImageX());
+        return (int) (x * ((float) (imageDrawWidth)) + getImageX());
     }
 
     int yFloatToPixel(float y) {
         int imageDrawHeight = (int)(((float)iH) * r2 * getZoom());
-        return (int) (y * getZoom() * ((float) (imageDrawHeight)) + getImageY());
+        return (int) (y * ((float) (imageDrawHeight)) + getImageY());
     }
 
     float xPixelToFloat(int x) {
         int imageDrawWidth = (int)(((float)iW) * r2 * getZoom());
-        return ((x - getImageX() - getAbsoluteX())/getZoom()) / (float) (imageDrawWidth);
+        return (x - getImageX() - getAbsoluteX()) / (float) (imageDrawWidth);
     }
 
     float yPixelToFloat(int y) {
         int imageDrawHeight = (int)(((float)iH) * r2 * getZoom());
-        return ((y - getImageY() - getAbsoluteY())/getZoom()) / (float) (imageDrawHeight);
+        return (y - getImageY() - getAbsoluteY()) / (float) (imageDrawHeight);
     }
 
     @Override
