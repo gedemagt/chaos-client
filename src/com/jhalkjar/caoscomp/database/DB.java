@@ -88,7 +88,7 @@ public class DB {
 
     public void download(Rute r, SuccessCallback<Rute> onSucces) {
         if(!local.hasRute(r)) {
-            Log.p("Downloads rute " + r.toString());
+            Log.p("[DB] Downloads rute " + r.toString());
 
             String path = FileSystemStorage.getInstance().getAppHomePath() + r.getUUID() + ".jpg";
             web.downloadImage(r.getUUID(), path, () -> {
@@ -99,7 +99,7 @@ public class DB {
             });
         }
         else {
-            Log.p("Rute already exists rute!" + r.toString());
+            Log.p("[DB] Rute already exists rute!" + r.toString());
         }
 
     }
@@ -130,6 +130,11 @@ public class DB {
                     } catch (NoImageException e) {
                         e.printStackTrace();
                     }
+                }
+                else {
+                    Rute webRute = web.getRute(u.getUUID());
+                    if(webRute.lastEdit().after(u.lastEdit())) web.save(u);
+                    else local.save(webRute);
                 }
             }
             web.refresh(()-> {
@@ -180,11 +185,11 @@ public class DB {
 
     public void setLocal(Rute rute, boolean b,  SuccessCallback<Rute> onSucces) {
         if(b && !local.hasRute(rute)) {
-            Log.p("Sets rute " + rute.toString() + " local");
+            Log.p("[DB] Sets rute " + rute.toString() + " local");
             download(rute, onSucces);
         }
         else if(!b) {
-            Log.p("Sets rute " + rute.toString() + " unlocal");
+            Log.p("[DB] Sets rute " + rute.toString() + " unlocal");
             local.delete(rute);
             onSucces.onSucess(web.getRute(rute.getUUID()));
         }

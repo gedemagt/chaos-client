@@ -98,9 +98,11 @@ public class LocalDatabase extends ChaosDatabase{
             DAOProvider provider = new DAOProvider(db, configPath, 1);
             DAO games = provider.get("image");
             Map<String, Object> result = (Map<String, Object>) games.fetchOne(new String[]{"uuid", uuid});
-            if(result == null) throw new NoImageException("No image for uuid " + uuid + " found!");
-            String imageurl = (String) result.get("url");
             db.close();
+            if(result == null) {
+                throw new NoImageException("No image for uuid " + uuid + " found!");
+            }
+            String imageurl = (String) result.get("url");
             listenr.onImage(Image.createImage(FileSystemStorage.getInstance().openInputStream(imageurl)));
         } catch (IOException e) {
             e.printStackTrace();
@@ -113,9 +115,11 @@ public class LocalDatabase extends ChaosDatabase{
             DAOProvider provider = new DAOProvider(db, configPath, 1);
             DAO games = provider.get("image");
             Map<String, Object> result = (Map<String, Object>) games.fetchOne(new String[]{"uuid", uuid});
-            if(result == null) throw new NoImageException("No image for uuid " + uuid + " found!");
-            String imageurl = (String) result.get("url");
             db.close();
+            if(result == null) {
+                throw new NoImageException("No image for uuid " + uuid + " found!");
+            }
+            String imageurl = (String) result.get("url");
             return imageurl;
         } catch (IOException e) {
             e.printStackTrace();

@@ -1,5 +1,7 @@
 package com.jhalkjar.caoscomp.gui;
 
+import com.codename1.components.InfiniteProgress;
+import com.codename1.io.Log;
 import com.codename1.ui.*;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
@@ -28,11 +30,8 @@ public class Editor extends Form {
         edit = r.getAuthor().equals(DB.getInstance().getLoggedInUser());
 
         populateToolbar();
-
-
         add(BorderLayout.NORTH, l);
         l.setHidden(false);
-
         try {
             r.getImage(image->{
 
@@ -42,7 +41,8 @@ public class Editor extends Form {
                     canvas.addPoint(x, y);
                     r.save();
                 });
-                canvas.addDeleteListener(p -> {
+                canvas.addMoveListener(p -> {
+                    if(p.getX()<0 || p.getX()>1.0 || p.getY()<0 || p.getY()>1.0) r.getPoints().remove(p);
                     r.save();
                 });
                 l.setHidden(true);

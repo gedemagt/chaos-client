@@ -3,6 +3,7 @@ package com.jhalkjar.caoscomp.gui;
 import com.codename1.components.ImageViewer;
 import com.codename1.ui.Font;
 import com.codename1.ui.Graphics;
+import com.codename1.util.MathUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +17,7 @@ public class Canvas extends ImageViewer {
     boolean edit, wasDragged;
     private List<ClickListener> clickListeners = new ArrayList<>();
     private List<SelectionListener> selectionListeners = new ArrayList<>();
-    private List<DeleteListener> deleteListeners = new ArrayList<>();
+    private List<MovedListener> movedListeners = new ArrayList<>();
 
     int size = 10;
 
@@ -77,10 +78,7 @@ public class Canvas extends ImageViewer {
             if(edit && !wasDragged) for(ClickListener cl : clickListeners) cl.OnClick(xdiff, ydiff);
         }
         else {
-            if(y<getImageY() + getAbsoluteY()|| y>(getHeight()-getImageY() + getAbsoluteY())) {
-                points.remove(selected);
-                for(DeleteListener dl: deleteListeners) dl.OnDelete(selected);
-            }
+            if(edit) for(MovedListener l : movedListeners) l.OnMove(selected);
             selected = null;
         }
         wasDragged = false;
@@ -99,18 +97,33 @@ public class Canvas extends ImageViewer {
 
             g.setColor(0xFFFFFF);
             g.setAlpha(100);
-            g.fillArc(p.getXPixel(this) - size/2, p.getYPixel(this) - size/2, size, size, 0, 360);
+            int x = p.getXPixel(this);
+            int y = p.getYPixel(this);
+            g.fillArc(x - size/2, y - size/2, size, size, 0, 360);
 
             g.setAlpha(255);
 
-            if(p.getYPixel(this)<getImageY()|| p.getYPixel(this)>(getHeight()-getImageY() ))
+            if(y<getImageY() || y>(getHeight()-getImageY() ))
                 g.setColor(0xc09f2d);
             else
                 g.setColor(0xFF3333);
-            g.drawArc(p.getXPixel(this) - size/2, p.getYPixel(this) - size/2, size, size, 0, 360);
-            g.drawArc(p.getXPixel(this) - size/2+1, p.getYPixel(this) - size/2+1, size-2, size-2, 0, 360);
+            g.drawArc(x - size/2, y - size/2, size, size, 0, 360);
+            g.drawArc(x - size/2+1, y - size/2+1, size-2, size-2, 0, 360);
 
             g.setColor(0x7caeff);
+
+            if(i>0) {
+                g.setColor(0xFF3333);
+                Point pBefore = points.get(i-1);
+                int xDir = x - pBefore.getXPixel(this);
+                int yDir = y - pBefore.getYPixel(this);
+                double xDiff = (double) xDir / Math.sqrt((double) xDir*xDir + yDir*yDir);
+                double yDiff = (double) yDir / Math.sqrt((double) xDir*xDir + yDir*yDir);
+                int xx = (int) Math.floor(size/2 * xDiff);
+                int yy = (int) Math.floor(size/2 * yDiff);
+                g.drawLine(x-xx,y-yy, pBefore.getXPixel(this) + xx, pBefore.getYPixel(this) + yy);
+            }
+
         }
 
     }
@@ -123,8 +136,8 @@ public class Canvas extends ImageViewer {
         selectionListeners.add(l);
     }
 
-    public void addDeleteListener(DeleteListener l) {
-        deleteListeners.add(l);
+    public void addMoveListener(MovedListener l) {
+        movedListeners.add(l);
     }
 
     public interface ClickListener {
@@ -135,8 +148,8 @@ public class Canvas extends ImageViewer {
         void OnSelect(Point p);
     }
 
-    public interface DeleteListener {
-        void OnDelete(Point p);
+    public interface MovedListener {
+        void OnMove(Point p);
     }
 
 }
