@@ -1,6 +1,5 @@
 package com.jhalkjar.caoscomp.backend;
 
-import com.codename1.io.Log;
 import com.jhalkjar.caoscomp.database.DB;
 import com.jhalkjar.caoscomp.database.NoImageException;
 import com.jhalkjar.caoscomp.gui.Point;

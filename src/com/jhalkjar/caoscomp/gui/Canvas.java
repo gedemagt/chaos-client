@@ -1,7 +1,6 @@
 package com.jhalkjar.caoscomp.gui;
 
 import com.codename1.components.ImageViewer;
-import com.codename1.io.Log;
 import com.codename1.ui.Font;
 import com.codename1.ui.Graphics;
 
@@ -75,7 +74,6 @@ public class Canvas extends ImageViewer {
             float xdiff = ((x - getImageX() - getAbsoluteX())/getZoom()) / (float) (getWidth());
             float ydiff = ((y - getImageY() - getAbsoluteY())/getZoom()) / (float) (getHeight());
 
-            Log.p(xdiff + " " + ydiff);
             if(edit && !wasDragged) for(ClickListener cl : clickListeners) cl.OnClick(xdiff, ydiff);
         }
         else {

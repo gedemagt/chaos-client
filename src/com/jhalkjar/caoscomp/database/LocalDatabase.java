@@ -26,11 +26,11 @@ public class LocalDatabase extends ChaosDatabase{
     private Map<String, Rute> rutes = new HashMap<>();
 
     public void refresh() {
-        Log.p("Refreshing LocalDatabase..");
+        Log.p("[LocalDatabase] Refreshing..");
         loadGyms();
         loadUsers();
         loadRutes();
-        Log.p("Refreshing done!");
+        Log.p("[LocalDatabase] Refreshing done!");
     }
 
 
@@ -143,7 +143,7 @@ public class LocalDatabase extends ChaosDatabase{
     }
 
     public void setImage(String uuid, String imageUrl) {
-        Log.p("Sets image for " + uuid + ": " + imageUrl);
+        Log.p("[LocalDatabase] Sets image for " + uuid + ": " + imageUrl);
         try {
             Database db = Database.openOrCreate(dbname);
             DAOProvider provider = new DAOProvider(db, configPath, 1);
@@ -167,7 +167,7 @@ public class LocalDatabase extends ChaosDatabase{
 
     public void addRute(Rute r) {
         try {
-            Log.p("Adding new rute");
+            Log.p("[LocalDatabase] Adding rute: " + r);
             Database db = Database.openOrCreate(dbname);
             DAOProvider provider = new DAOProvider(db, configPath, 1);
             DAO rutes = provider.get("rute");
@@ -286,7 +286,7 @@ public class LocalDatabase extends ChaosDatabase{
                 RuteImpl r = new RuteImpl(id, uuid, date, lastedit, name, getUser(author), getGym(gym), Util.stringToVals(points));
                 rutes.put(uuid, r);
             }
-            Log.p("Local rutes: " + getRutes().toString());
+            Log.p("[LocalDatabase] Loaded rutes: " + getRutes().toString());
             db.close();
 
         } catch (IOException e) {
@@ -312,7 +312,7 @@ public class LocalDatabase extends ChaosDatabase{
                 long id = (Long) m.get("id");
                 users.put(uuid, new UserImpl(id, uuid, date, name, email, getGym(gym), pass));
             }
-            Log.p("Loaded users");
+            Log.p("[LocalDatabase] Loaded users: " + users.values());
             db.close();
 
         } catch (IOException e) {
@@ -338,7 +338,7 @@ public class LocalDatabase extends ChaosDatabase{
                 long id = (Long) m.get("id");
                 gyms.put(uuid, new GymImpl(id, uuid, date, name, lat, lon));
             }
-            Log.p("Loaded gyms!");
+            Log.p("[LocalDatabase] Loaded gyms: " + gyms.values());
             db.close();
 
         } catch (IOException e) {
@@ -359,7 +359,7 @@ public class LocalDatabase extends ChaosDatabase{
 
     @Override
     public void delete(Rute r) {
-        Log.p("Deleting rute " + r.toString());
+        Log.p("[LocalDatabase] Deleting rute " + r.toString());
         try {
             FileSystemStorage.getInstance().delete(getImageUrl(r.getUUID()));
             Database db = Database.openOrCreate(dbname);
@@ -390,6 +390,7 @@ public class LocalDatabase extends ChaosDatabase{
                 for(DatabaseListener l : listeners) l.OnSaved(r);
             }
             db.close();
+            Log.p("[LocalDatabase] Saved rute " + r);
 
         } catch (IOException e) {
             Log.e(e);

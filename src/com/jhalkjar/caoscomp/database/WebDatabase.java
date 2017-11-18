@@ -70,16 +70,17 @@ public class WebDatabase extends ChaosDatabase {
             e.printStackTrace();
         }
         sendJson(host + "/add_rute", object.toString(), evt -> {
+            Log.p("[WebDatabase] Uploaded rute: " + r);
             uploadImage(r.getUUID(), imageUrl);
+            rutes.put(r.getUUID(), r);
         });
-        refresh(()->{});
     }
 
     @Override
     public void delete(Rute r) {
         rutes.remove(r.getUUID());
         post(host + "/delete/" + r.getUUID(), evt -> {
-
+            Log.p("[WebDatabase] Deleted rute: " + r);
         });
     }
 
@@ -88,7 +89,7 @@ public class WebDatabase extends ChaosDatabase {
         request.setPost(true);
         request.setUrl(host + "/add_image/" + uuid);
         try {
-            Log.p("Uploading image '" + url + "'");
+            Log.p("[WebDatabase] Uploading image '" + url + "'");
             request.addData("file", url, "image/jpg");
         } catch (IOException e) {
             e.printStackTrace();
@@ -109,6 +110,7 @@ public class WebDatabase extends ChaosDatabase {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        Log.p("[WebDatabase] Uploading user: " + u.toString());
         sendJson(host + "/add_user", object.toString());
 
     }
@@ -125,6 +127,7 @@ public class WebDatabase extends ChaosDatabase {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        Log.p("[WebDatabase] Uploading gym: " + g.toString());
         sendJson(host + "/add_gym", object.toString());
     }
 
@@ -136,17 +139,17 @@ public class WebDatabase extends ChaosDatabase {
             object.put("uuid", r.getUUID());
             object.put("coordinates", Util.valsToString(r.getPoints()));
             object.put("edit", Util.dateFormat.format(r.lastEdit()));
-            Log.p("Uploading " + r.toString());
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        Log.p("[WebDatabase] Saving rute: " + r.toString());
         sendJson(host + "/update_coordinates", object.toString());
     }
 
     public void refresh(Runnable done) {
-        Log.p("Refreshing WebDatabase..");
+        Log.p("[WebDatabase] Refreshing..");
         updateGyms(() -> updateUsers(() -> updateRutes(() -> {done.run();})));
-        Log.p("Refreshing done!");
+        Log.p("[WebDatabase] Refreshing done!");
     }
 
 
@@ -167,7 +170,7 @@ public class WebDatabase extends ChaosDatabase {
                     list.put(uuid, new RuteImpl(-1, uuid, date, last_edit, name, author, gym, Util.stringToVals(coordinates)));
                 }
                 rutes = list;
-                Log.p("Web rutes: " + rutes.toString());
+                Log.p("[WebDatabase] Loaded rutes: " + rutes.toString());
                 runnable.run();
 
             } catch (IOException e) {
@@ -194,7 +197,7 @@ public class WebDatabase extends ChaosDatabase {
                     gyms.put(uuid, new GymImpl(-1, uuid, date, name, lat, lon));
                 }
                 this.gyms = gyms;
-                Log.p("Web gyms: " + gyms.toString());
+                Log.p("[WebDatabase] Loaded gyms: " + this.gyms.toString());
                 runnable.run();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -223,7 +226,7 @@ public class WebDatabase extends ChaosDatabase {
                     users.put(uuid, new UserImpl(-1, uuid, date, name, email, gym, password));
                 }
                 this.users = users;
-                Log.p("Web users: " + users.toString());
+                Log.p("[WebDatabase] Loaded users: " + this.users.toString());
                 runnable.run();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -256,9 +259,9 @@ public class WebDatabase extends ChaosDatabase {
     }
 
     public void downloadImage(String uuid, String path, Runnable callback) {
-        Log.p("Downloading picture for rute " + uuid + " @ " + path);
+        Log.p("[WebDatabase] Downloading picture for rute " + uuid + " @ " + path);
         if(FileSystemStorage.getInstance().exists(path)) {
-            Log.p(path + " already exists. Deleting..");
+            Log.p("[WebDatabase] " + path + " already exists. Deleting..");
             FileSystemStorage.getInstance().delete(path);
         }
 
@@ -278,9 +281,8 @@ public class WebDatabase extends ChaosDatabase {
         request.addResponseListener(evt -> {
             Image img = EncodedImage.create(request.getResponseData());
             image.onImage(img);
-            Log.p("Download of file " + uuid);
+            Log.p("[WebDatabase] Download of image " + uuid);
         });
-        Log.p("Starting download of file " + uuid);
         NetworkManager.getInstance().addToQueue(request);
 
     }

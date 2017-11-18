@@ -35,4 +35,9 @@ public class GymImpl extends DatabaseEntryImpl implements Gym {
         return lon;
     }
 
+    @Override
+    public String toString() {
+        return "Gym<" + name + ">";
+    }
+
 }

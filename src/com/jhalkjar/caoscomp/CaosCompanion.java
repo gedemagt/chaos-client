@@ -33,7 +33,7 @@ public class CaosCompanion {
             return;
         }
 
-
+        DB.getInstance().sync();
         if(DB.getInstance().getLoggedInUser() != null) new RuteList().show();
         else new Login().show();
     }

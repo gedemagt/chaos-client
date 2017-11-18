@@ -70,7 +70,6 @@ public class RuteList extends Form {
     private void updateUI() {
 
         List<Rute> rutes = DB.getInstance().getRutes();
-        Log.p(rutes.toString());
         centerContainer.removeAll();
         if(rutes.size() == 0) {
             Label l = new Label("Please add a rute!");

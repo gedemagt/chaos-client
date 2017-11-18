@@ -37,17 +37,6 @@ public class DB {
 
     private DB() {
         imgProvider = new ImageProvider(local, web);
-        local.addDatabaseListener(new DatabaseListener() {
-            @Override
-            public void OnSaved(Rute r) {
-                web.save(r);
-            }
-
-            @Override
-            public void OnDeletedRute(Rute r) {
-            }
-        });
-        sync(()->{});
     }
 
     public boolean isLocal(Rute r) {
@@ -84,7 +73,6 @@ public class DB {
     public List<Rute> getRutes() {
         List<Rute> l = new ArrayList<>();
         l.addAll(local.getRutes());
-        Log.p(l.toString());
         for(Rute r : web.getRutes()) {
             if(!l.contains(r)) l.add(r);
         }
@@ -116,7 +104,7 @@ public class DB {
 
     }
 
-    public void sync(Runnable succes) {
+    public void sync() {
         isRefreshing = true;
         for(RefreshListener l : refreshListeners) l.OnBeginRefresh();
         local.refresh();
@@ -146,7 +134,6 @@ public class DB {
             }
             web.refresh(()-> {
                 isRefreshing = false;
-                succes.run();
                 for(RefreshListener l : refreshListeners) l.OnEndRefresh();
             });
 
