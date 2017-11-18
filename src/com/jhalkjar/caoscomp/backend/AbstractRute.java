@@ -48,9 +48,4 @@ public abstract class AbstractRute extends DatabaseEntryImpl implements Rute {
     }
 
 
-    @Override
-    public boolean isLocal() {
-        return id!=-1;
-    }
-
 }

@@ -27,6 +27,7 @@ public class DB {
     private WebDatabase web = new WebDatabase();
 
     private List<RefreshListener> refreshListeners = new ArrayList<>();
+    private ImageProvider imgProvider;
 
     public User getLoggedInUser() {
         String username = Preferences.get("logged_in_user", "");
@@ -35,6 +36,7 @@ public class DB {
     }
 
     private DB() {
+        imgProvider = new ImageProvider(local, web);
         local.addDatabaseListener(new DatabaseListener() {
             @Override
             public void OnSaved(Rute r) {
@@ -48,13 +50,16 @@ public class DB {
         sync(()->{});
     }
 
+    public boolean isLocal(Rute r) {
+        return local.hasRute(r);
+    }
+
     public void delete(Rute r) {
         if(r.isLocal()) local.delete(r);
         web.delete(r);
     }
 
     public void save(Rute r) {
-        r.setSaved(new Date());
         if(r.isLocal()) local.save(r);
         web.save(r);
     }
@@ -70,6 +75,10 @@ public class DB {
             if(!l.contains(r)) l.add(r);
         }
         return l;
+    }
+
+    public ImageProvider getImageProvider() {
+        return imgProvider;
     }
 
     public List<Rute> getRutes() {
@@ -127,11 +136,17 @@ public class DB {
             }
 
             for(Rute u : local.getRutes()) {
-                if(!web.getRutes().contains(u)) web.uploadRute(u, local.getImageUrl(u.getUUID()));
+                if(!web.getRutes().contains(u)) {
+                    try {
+                        web.uploadRute(u, local.getImageUrl(u.getUUID()));
+                    } catch (NoImageException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
             web.refresh(()-> {
-                succes.run();
                 isRefreshing = false;
+                succes.run();
                 for(RefreshListener l : refreshListeners) l.OnEndRefresh();
             });
 
@@ -174,6 +189,18 @@ public class DB {
 
     public void addRefreshListener(RefreshListener l) {
         refreshListeners.add(l);
+    }
+
+    public void setLocal(Rute rute, boolean b,  SuccessCallback<Rute> onSucces) {
+        if(b && !local.hasRute(rute)) {
+            Log.p("Sets rute " + rute.toString() + " local");
+            download(rute, onSucces);
+        }
+        else if(!b) {
+            Log.p("Sets rute " + rute.toString() + " unlocal");
+            local.delete(rute);
+            onSucces.onSucess(web.getRute(rute.getUUID()));
+        }
     }
 
     public interface RefreshListener {

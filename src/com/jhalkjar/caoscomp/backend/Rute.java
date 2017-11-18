@@ -1,6 +1,7 @@
 package com.jhalkjar.caoscomp.backend;
 
 import com.jhalkjar.caoscomp.database.DatabaseEntry;
+import com.jhalkjar.caoscomp.database.NoImageException;
 import com.jhalkjar.caoscomp.gui.Point;
 
 import java.util.Date;
@@ -15,9 +16,11 @@ public interface Rute extends DatabaseEntry {
     User getAuthor();
     List<Point> getPoints();
     Gym getGym();
-    void getImage(ImageListener callback);
+    void getImage(ImageListener callback) throws NoImageException;
     Date lastEdit();
-    void setSaved(Date date);
+
+    void save();
+    void delete();
 
     boolean isLocal();
     void setLocal(boolean b);

@@ -7,6 +7,7 @@ import com.codename1.ui.plaf.Style;
 import com.codename1.ui.plaf.UIManager;
 import com.jhalkjar.caoscomp.backend.Rute;
 import com.jhalkjar.caoscomp.database.DB;
+import com.jhalkjar.caoscomp.database.NoImageException;
 
 
 /**
@@ -32,21 +33,25 @@ public class Editor extends Form {
         add(BorderLayout.NORTH, l);
         l.setHidden(false);
 
-        r.getImage(image->{
+        try {
+            r.getImage(image->{
 
-            canvas = new Canvas(r.getPoints(), edit);
-            canvas.setImage(image);
-            canvas.addClickListener((x, y) -> {
-                canvas.addPoint(x, y);
-                DB.getInstance().save(r);
+                canvas = new Canvas(r.getPoints(), edit);
+                canvas.setImage(image);
+                canvas.addClickListener((x, y) -> {
+                    canvas.addPoint(x, y);
+                    r.save();
+                });
+                canvas.addDeleteListener(p -> {
+                    r.save();
+                });
+                l.setHidden(true);
+                add(BorderLayout.CENTER, canvas);
+                revalidate();
             });
-            canvas.addSelectionListener(p -> {
-
-            });
-            l.setHidden(true);
-            add(BorderLayout.CENTER, canvas);
-            revalidate();
-        });
+        } catch (NoImageException e) {
+            e.printStackTrace();
+        }
     }
 
     void populateToolbar() {
@@ -65,7 +70,7 @@ public class Editor extends Form {
         if(edit) {
             Button b2 = new Button(FontImage.createMaterial(FontImage.MATERIAL_DELETE, s));
             b2.addActionListener(evt -> {
-                DB.getInstance().delete(r);
+                r.delete();
                 new RuteList().showBack();
             });
             cnt.add(b2);

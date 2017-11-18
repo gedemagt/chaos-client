@@ -17,6 +17,7 @@ public class Canvas extends ImageViewer {
     boolean edit, wasDragged;
     private List<ClickListener> clickListeners = new ArrayList<>();
     private List<SelectionListener> selectionListeners = new ArrayList<>();
+    private List<DeleteListener> deleteListeners = new ArrayList<>();
 
     int size = 10;
 
@@ -80,6 +81,7 @@ public class Canvas extends ImageViewer {
         else {
             if(y<getImageY() + getAbsoluteY()|| y>(getHeight()-getImageY() + getAbsoluteY())) {
                 points.remove(selected);
+                for(DeleteListener dl: deleteListeners) dl.OnDelete(selected);
             }
             selected = null;
         }
@@ -123,12 +125,20 @@ public class Canvas extends ImageViewer {
         selectionListeners.add(l);
     }
 
+    public void addDeleteListener(DeleteListener l) {
+        deleteListeners.add(l);
+    }
+
     public interface ClickListener {
         void OnClick(float x, float y);
     }
 
     public interface SelectionListener {
         void OnSelect(Point p);
+    }
+
+    public interface DeleteListener {
+        void OnDelete(Point p);
     }
 
 }

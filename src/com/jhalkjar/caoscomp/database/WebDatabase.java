@@ -164,7 +164,7 @@ public class WebDatabase extends ChaosDatabase {
                     Date last_edit = Util.dateFormat.parse((String) vals.get("edit"));
                     User author = getUser((String) vals.get("author"));
                     String uuid = (String) vals.get("uuid");
-                    list.put(uuid, new RuteImpl(-1, uuid, date, last_edit, name, author, gym, Util.stringToVals(coordinates), this));
+                    list.put(uuid, new RuteImpl(-1, uuid, date, last_edit, name, author, gym, Util.stringToVals(coordinates)));
                 }
                 rutes = list;
                 Log.p("Web rutes: " + rutes.toString());
@@ -271,7 +271,7 @@ public class WebDatabase extends ChaosDatabase {
 
     }
 
-    public void getImage(String uuid, ImageListener image) {
+    public void getImage(String uuid, ImageListener image) throws NoImageException {
         MultipartRequest request = new MultipartRequest();
         request.setPost(false);
         request.setUrl(host + "/download/" + uuid);

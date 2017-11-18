@@ -19,7 +19,7 @@ import java.util.*;
  */
 public class LocalDatabase extends ChaosDatabase{
     private static String configPath = "/setup.sql";
-    private String dbname = "1sdsasdaddsss";
+    private String dbname = "1asdasdasdaddsæææss";
 
     private Map<String, Gym> gyms = new HashMap<>();
     private Map<String, User> users = new HashMap<>();
@@ -92,12 +92,13 @@ public class LocalDatabase extends ChaosDatabase{
     }
 
     @Override
-    public void getImage(String uuid, ImageListener listenr) {
+    public void getImage(String uuid, ImageListener listenr) throws NoImageException {
         try {
             Database db = Database.openOrCreate(dbname);
             DAOProvider provider = new DAOProvider(db, configPath, 1);
             DAO games = provider.get("image");
             Map<String, Object> result = (Map<String, Object>) games.fetchOne(new String[]{"uuid", uuid});
+            if(result == null) throw new NoImageException("No image for uuid " + uuid + " found!");
             String imageurl = (String) result.get("url");
             db.close();
             listenr.onImage(Image.createImage(FileSystemStorage.getInstance().openInputStream(imageurl)));
@@ -106,12 +107,13 @@ public class LocalDatabase extends ChaosDatabase{
         }
     }
 
-    public String getImageUrl(String uuid) {
+    public String getImageUrl(String uuid) throws NoImageException {
         try {
             Database db = Database.openOrCreate(dbname);
             DAOProvider provider = new DAOProvider(db, configPath, 1);
             DAO games = provider.get("image");
             Map<String, Object> result = (Map<String, Object>) games.fetchOne(new String[]{"uuid", uuid});
+            if(result == null) throw new NoImageException("No image for uuid " + uuid + " found!");
             String imageurl = (String) result.get("url");
             db.close();
             return imageurl;
@@ -191,9 +193,9 @@ public class LocalDatabase extends ChaosDatabase{
             Database db = Database.openOrCreate(dbname);
             DAOProvider provider = new DAOProvider(db, configPath, 1);
             DAO games = provider.get("rute");
-            Object obj = games.getById(r.getID());
+            Map result = (Map) games.fetchOne(new String[]{"uuid", r.getUUID()});
             db.close();
-            return obj != null;
+            return result != null;
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -281,7 +283,7 @@ public class LocalDatabase extends ChaosDatabase{
                 String uuid = (String) m.get("uuid");
                 long id = (Long) m.get("id");
 
-                RuteImpl r = new RuteImpl(id, uuid, date, lastedit, name, getUser(author), getGym(gym), Util.stringToVals(points), this);
+                RuteImpl r = new RuteImpl(id, uuid, date, lastedit, name, getUser(author), getGym(gym), Util.stringToVals(points));
                 rutes.put(uuid, r);
             }
             Log.p("Local rutes: " + getRutes().toString());
@@ -357,17 +359,20 @@ public class LocalDatabase extends ChaosDatabase{
 
     @Override
     public void delete(Rute r) {
-
+        Log.p("Deleting rute " + r.toString());
         try {
-            Database db = Database.openOrCreate(dbname);
-            db.execute("DELETE FROM rute WHERE id=" + r.getID());
-            db.close();
             FileSystemStorage.getInstance().delete(getImageUrl(r.getUUID()));
+            Database db = Database.openOrCreate(dbname);
+            db.execute("DELETE FROM rute WHERE uuid='" + r.getUUID() + "'");
+            db.execute("DELETE FROM image WHERE uuid='" + r.getUUID()+"'");
+            db.close();
             rutes.remove(r.getUUID());
             for(DatabaseListener l : listeners) l.OnDeletedRute(r);
 
         } catch (IOException e) {
-            Log.e(e);
+            e.printStackTrace();
+        } catch (NoImageException e) {
+            e.printStackTrace();
         }
         loadRutes();
     }
@@ -378,10 +383,10 @@ public class LocalDatabase extends ChaosDatabase{
             Database db = Database.openOrCreate(dbname);
             DAOProvider provider = new DAOProvider(db, configPath, 1);
             DAO games = provider.get("rute");
-            Map game = (Map) games.getById(r.getID(), true);
-            if(game != null) {
-                game.put("coordinates", Util.valsToString(r.getPoints()));
-                games.update(game);
+            Map result = (Map) games.fetchOne(new String[]{"uuid", r.getUUID()});
+            if(result != null) {
+                result.put("coordinates", Util.valsToString(r.getPoints()));
+                games.update(result);
                 for(DatabaseListener l : listeners) l.OnSaved(r);
             }
             db.close();
