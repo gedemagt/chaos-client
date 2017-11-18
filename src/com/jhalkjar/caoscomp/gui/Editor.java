@@ -36,9 +36,10 @@ public class Editor extends Form {
             r.getImage(image->{
 
                 canvas = new Canvas(r.getPoints(), edit);
-                canvas.setImage(image);
+                Log.p(image.getWidth() + " ");
+                canvas.doSetImage(image);
                 canvas.addClickListener((x, y) -> {
-                    canvas.addPoint(x, y);
+                    r.getPoints().add(new Point(x,y));
                     r.save();
                 });
                 canvas.addMoveListener(p -> {

@@ -133,7 +133,7 @@ public class DB {
                 }
                 else {
                     Rute webRute = web.getRute(u.getUUID());
-                    if(webRute.lastEdit().after(u.lastEdit())) web.save(u);
+                    if(webRute.lastEdit().getTime() < u.lastEdit().getTime()) web.save(u);
                     else local.save(webRute);
                 }
             }
@@ -141,7 +141,6 @@ public class DB {
                 isRefreshing = false;
                 for(RefreshListener l : refreshListeners) l.OnEndRefresh();
             });
-
         });
     }
 
