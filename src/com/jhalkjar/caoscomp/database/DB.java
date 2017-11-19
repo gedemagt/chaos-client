@@ -66,6 +66,15 @@ public class DB {
         return l;
     }
 
+    public List<User> getUsers() {
+        List<User> l = new ArrayList<>();
+        l.addAll(local.getUsers());
+        for(User r : web.getUsers()) {
+            if(!l.contains(r)) l.add(r);
+        }
+        return l;
+    }
+
     public ImageProvider getImageProvider() {
         return imgProvider;
     }
