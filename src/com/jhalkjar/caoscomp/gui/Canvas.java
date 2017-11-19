@@ -19,6 +19,7 @@ public class Canvas extends ImageViewer {
     private List<SelectionListener> selectionListeners = new ArrayList<>();
     private List<MovedListener> movedListeners = new ArrayList<>();
     Style s = getStyle();
+    private int initialImagePosition = IMAGE_FIT;
 
     float r2 = 0;
     int iW, iH;
@@ -26,10 +27,10 @@ public class Canvas extends ImageViewer {
     public Canvas(List<Point> points, boolean edit) {
         this.edit = edit;
         this.points = points;
+        setImageInitialPosition(initialImagePosition);
     }
 
     public void doSetImage(Image image) {
-
 
         super.setImage(image);
     }
@@ -123,7 +124,11 @@ public class Canvas extends ImageViewer {
             iW = getImage().getWidth();
             iH = getImage().getHeight();
 
-            r2 = Math.min(((float)width) / ((float)iW), ((float)height) / ((float)iH));
+            if(initialImagePosition == IMAGE_FIT){
+                r2 = Math.min(((float)width) / ((float)iW), ((float)height) / ((float)iH));
+            }else{
+                r2 = Math.max(((float)width) / ((float)iW), ((float)height) / ((float)iH));
+            }
         }
 
 

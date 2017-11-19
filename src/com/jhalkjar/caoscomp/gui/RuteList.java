@@ -23,6 +23,9 @@ import com.jhalkjar.caoscomp.backend.Gym;
 import com.jhalkjar.caoscomp.backend.Rute;
 import com.jhalkjar.caoscomp.backend.User;
 import com.jhalkjar.caoscomp.database.DB;
+
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 
@@ -62,10 +65,12 @@ public class RuteList extends Form {
             public void OnEndRefresh() {
                 l.setHidden(true);
                 rutes = DB.getInstance().getRutes();
+                Collections.sort(rutes, (o1, o2) -> (int) (o2.getDate().getTime() - o1.getDate().getTime()));
                 updateUI();
             }
         });
         rutes = DB.getInstance().getRutes();
+        Collections.sort(rutes, (o1, o2) -> (int) (o2.getDate().getTime() - o1.getDate().getTime()));
         updateUI();
     }
 
