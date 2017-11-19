@@ -1,6 +1,7 @@
 package com.jhalkjar.caoscomp.gui;
 
 import com.codename1.components.ImageViewer;
+import com.codename1.io.Log;
 import com.codename1.ui.Font;
 import com.codename1.ui.Graphics;
 import com.codename1.ui.Image;
@@ -19,8 +20,7 @@ public class Canvas extends ImageViewer {
     private List<ClickListener> clickListeners = new ArrayList<>();
     private List<SelectionListener> selectionListeners = new ArrayList<>();
     private List<MovedListener> movedListeners = new ArrayList<>();
-
-    int size = 10;
+    Style s = getStyle();
 
     float r2 = 0;
     int iW, iH;
@@ -42,7 +42,7 @@ public class Canvas extends ImageViewer {
             super.pointerDragged(x,y);
         }
         else {
-            if(edit) selected.set(xPixelToFloat(x), yPixelToFloat(y));
+            if(edit) selected.set(xPixelToFloat(x -  getAbsoluteX()), yPixelToFloat(y -  getAbsoluteY()));
         }
         wasDragged = true;
     }
@@ -50,9 +50,9 @@ public class Canvas extends ImageViewer {
     @Override
     public void pointerPressed(int x, int y) {
         for(int i=0; i<points.size(); i++) {
-            int xdiff = x - getAbsoluteX() - xFloatToPixel(points.get(i).getX());
-            int ydiff = y - getAbsoluteY() - yFloatToPixel(points.get(i).getY());
-            if((xdiff*xdiff + ydiff*ydiff) < size*size) {
+            int xdiff = x - xFloatToPixel(points.get(i).getX()) -  getAbsoluteX();
+            int ydiff = y - yFloatToPixel(points.get(i).getY()) - getAbsoluteY();
+            if((xdiff*xdiff + ydiff*ydiff) < wFloatToPixel(points.get(i).getSize()) * wFloatToPixel(points.get(i).getSize())) {
                 selected = points.get(i);
                 if(edit) for(SelectionListener l : selectionListeners) l.OnSelect(selected);
                 break;
@@ -83,19 +83,24 @@ public class Canvas extends ImageViewer {
 
     float xPixelToFloat(int x) {
         int imageDrawWidth = (int)(((float)iW) * r2 * getZoom());
-        return (x - getImageX() - getAbsoluteX()) / (float) (imageDrawWidth);
+        return (x - getImageX()) / (float) (imageDrawWidth);
+    }
+
+    int wFloatToPixel(float x) {
+        int imageDrawWidth = (int)(((float)iW) * r2 * getZoom());
+        return (int) ((x) * (float) (imageDrawWidth));
     }
 
     float yPixelToFloat(int y) {
         int imageDrawHeight = (int)(((float)iH) * r2 * getZoom());
-        return (y - getImageY() - getAbsoluteY()) / (float) (imageDrawHeight);
+        return (y - getImageY()) / (float) (imageDrawHeight);
     }
 
     @Override
     public void pointerReleased(int x, int y) {
         if(selected == null) {
             super.pointerReleased(x,y);
-            if(edit && !wasDragged) for(ClickListener cl : clickListeners) cl.OnClick(xPixelToFloat(x), yPixelToFloat(y));
+            if(edit && !wasDragged) for(ClickListener cl : clickListeners) cl.OnClick(xPixelToFloat(x-getAbsoluteX()), yPixelToFloat(y - getAbsoluteY()));
         }
         else {
             if(edit) for(MovedListener l : movedListeners) l.OnMove(selected);
@@ -111,7 +116,6 @@ public class Canvas extends ImageViewer {
 
 
         if(r2 == 0) {
-            Style s = getStyle();
             int width = getWidth() - s.getHorizontalPadding();
             int height = getHeight() - s.getVerticalPadding();
             iW = getImage().getWidth();
@@ -120,37 +124,10 @@ public class Canvas extends ImageViewer {
             r2 = Math.min(((float)width) / ((float)iW), ((float)height) / ((float)iH));
         }
 
-        Font f = g.getFont();
-        size = (int) (f.getHeight()*1.5 * getZoom());
+
         for(int i=0; i<points.size(); i++) {
             Point p = points.get(i);
-
-            g.setColor(0xFFFFFF);
-            g.setAlpha(100);
-            int x = xFloatToPixel(p.getX());
-            int y = yFloatToPixel(p.getY());
-            g.fillArc(x - size/2, y - size/2, size, size, 0, 360);
-
-            g.setAlpha(255);
-
-            g.setColor(0xFF3333);
-            g.drawArc(x - size/2, y - size/2, size, size, 0, 360);
-            g.drawArc(x - size/2+1, y - size/2+1, size-2, size-2, 0, 360);
-
-            g.setColor(0x7caeff);
-
-            if(i>0) {
-                g.setColor(0xFF3333);
-                Point pBefore = points.get(i-1);
-                int xDir = x - xFloatToPixel(pBefore.getX());
-                int yDir = y - yFloatToPixel(pBefore.getY());
-                double xDiff = (double) xDir / Math.sqrt((double) xDir*xDir + yDir*yDir);
-                double yDiff = (double) yDir / Math.sqrt((double) xDir*xDir + yDir*yDir);
-                int xx = (int) Math.floor(size/2 * xDiff);
-                int yy = (int) Math.floor(size/2 * yDiff);
-                g.drawLine(x-xx,y-yy, xFloatToPixel(pBefore.getX()) + xx, yFloatToPixel(pBefore.getY()) + yy);
-            }
-
+            p.render(g, xFloatToPixel(p.getX()), yFloatToPixel(p.getY()) + getY(), wFloatToPixel(p.getSize()));
         }
 
     }

@@ -27,10 +27,12 @@ public class Util {
             Map<String, Object> parsed = parser.parseJSON(new com.codename1.util.regex.StringReader(string));
             List<Object> points = (List<Object>) parsed.get("root");
             for(int i=0; i<points.size(); i++) {
-                List<Object> xy = (List<Object>) points.get(i);
-                double x = (Double) xy.get(0);
-                double y = (Double) xy.get(1);
-                result.add(new Point((float) x, (float) y));
+                Map<String, Object> xy = (Map<String, Object>) points.get(i);
+                double x = (Double) xy.get("x");
+                double y = (Double) xy.get("y");
+                double size = (Double) xy.get("size");
+//                int type = (int) (Double) xy.get("type");
+                result.add(new Point((float) x, (float) y,  (float) size));
             }
 
         } catch (IOException e) {
@@ -44,8 +46,7 @@ public class Util {
         StringBuilder sb = new StringBuilder();
         sb.append("[");
         for(int i=0; i<vals.size(); i++) {
-            sb.append(vals.get(i));
-            sb.append(",");
+            sb.append(vals.get(i).getJSON());
         }
         if(vals.size()>0) sb.deleteCharAt(sb.length()-1);
         sb.append("]");
@@ -54,17 +55,6 @@ public class Util {
 
     public static final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-
-    public static <T> T getLastElement(final Iterable<T> elements) {
-        final Iterator<T> itr = elements.iterator();
-        T lastElement = itr.next();
-
-        while(itr.hasNext()) {
-            lastElement=itr.next();
-        }
-
-        return lastElement;
-    }
 
     public static String createHash(String data) {
         return data;
