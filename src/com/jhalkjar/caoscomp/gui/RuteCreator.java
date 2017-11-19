@@ -4,6 +4,7 @@ import com.codename1.capture.Capture;
 import com.codename1.components.ImageViewer;
 import com.codename1.io.FileSystemStorage;
 import com.codename1.io.Log;
+import com.codename1.io.Util;
 import com.codename1.ui.*;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
@@ -13,6 +14,7 @@ import com.codename1.ui.util.ImageIO;
 import com.jhalkjar.caoscomp.backend.Rute;
 import com.jhalkjar.caoscomp.database.DB;
 
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Date;
 
@@ -22,8 +24,9 @@ import java.util.Date;
  */
 public class RuteCreator extends Form {
 
-    String picturePath;
     ImageViewer iv = new ImageViewer();
+    String path = FileSystemStorage.getInstance().getAppHomePath() + "TEMP_IMAGE.jpg";
+    boolean imageLoaded = false;
 
     public RuteCreator() {
         super(new BorderLayout());
@@ -34,12 +37,12 @@ public class RuteCreator extends Form {
         GymPicker gym = new GymPicker(this);
         Button b = new Button(FontImage.createMaterial(FontImage.MATERIAL_PHOTO_CAMERA, s));
         b.addActionListener(evt -> {
-            picturePath = takePicture();
-            loadPicture();
+            takePicture(path);
+            loadPicture(path);
         });
         Button b2 = new Button(FontImage.createMaterial(FontImage.MATERIAL_IMAGE, s));
         b2.addActionListener(evt -> {
-            browsePicture();
+            browsePicture(path);
         });
 
         FontImage.createMaterial(FontImage.MATERIAL_CAMERA, s);
@@ -53,9 +56,9 @@ public class RuteCreator extends Form {
                         BoxLayout.encloseX(new Label("Image"), b, b2)));
         add(BorderLayout.CENTER, iv);
         getToolbar().addCommandToRightBar("", FontImage.createMaterial(FontImage.MATERIAL_DONE, s), (e) -> {
-            if(picturePath == null) Dialog.show("No image", "Please choose an image!", Dialog.TYPE_ERROR, null, "OK", null);
+            if(!imageLoaded) Dialog.show("No image", "Please choose an image!", Dialog.TYPE_ERROR, null, "OK", null);
             else {
-                Rute r = DB.getInstance().createRute(name.getText(), picturePath, DB.getInstance().getLoggedInUser(), gym.getGym(), new Date());
+                Rute r = DB.getInstance().createRute(name.getText(), path, DB.getInstance().getLoggedInUser(), gym.getGym(), new Date());
                 new Editor(r).show();
             }
         });
@@ -64,39 +67,43 @@ public class RuteCreator extends Form {
         });
     }
 
-    private void loadPicture() {
+    private void loadPicture(String path) {
         try {
-            Image image = Image.createImage(FileSystemStorage.getInstance().openInputStream(picturePath));
+            Image image = Image.createImage(FileSystemStorage.getInstance().openInputStream(path));
             iv.setImage(image);
         } catch(Exception ex){
             Log.e(ex);
         }
     }
 
-    private String takePicture() {
+    private void takePicture(String path) {
         String filePath = Capture.capturePhoto();
-        String pathToBeStored = null;
         if (filePath != null) {
             try {
-                pathToBeStored = FileSystemStorage.getInstance().getAppHomePath() + System.currentTimeMillis() +  ".jpg";
                 Image img = Image.createImage(filePath);
-                OutputStream os = FileSystemStorage.getInstance().openOutputStream(pathToBeStored );
+                OutputStream os = FileSystemStorage.getInstance().openOutputStream(path);
                 ImageIO.getImageIO().save(img, os, ImageIO.FORMAT_JPEG, 0.9f);
+                imageLoaded = true;
                 os.close();
             }
             catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        return pathToBeStored;
     }
 
-    private void browsePicture() {
+    private void browsePicture(String path) {
         Display.getInstance().openGallery(ev-> {
 
             if (ev != null && ev.getSource() != null) {
-                picturePath = (String) ev.getSource();
-                loadPicture();
+                String picturePath = (String) ev.getSource();
+                try {
+                    Util.copy(FileSystemStorage.getInstance().openInputStream(picturePath), FileSystemStorage.getInstance().openOutputStream(path));
+                    imageLoaded = true;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                loadPicture(path);
             }
 
         }, Display.GALLERY_IMAGE);

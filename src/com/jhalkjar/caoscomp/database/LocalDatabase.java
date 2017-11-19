@@ -19,7 +19,7 @@ import java.util.*;
  */
 public class LocalDatabase extends ChaosDatabase{
     private static String configPath = "/setup.sql";
-    private String dbname = "1asdasdasdaddsæææss";
+    private String dbname = "1aasd";
 
     private Map<String, Gym> gyms = new HashMap<>();
     private Map<String, User> users = new HashMap<>();

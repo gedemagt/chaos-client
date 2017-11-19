@@ -160,8 +160,11 @@ public class DB {
 
     public Rute createRute(String name, String image_url, User author, Gym gym, Date date) {
         Rute r = local.createRute(name, author, gym, date);
-        local.setImage(r.getUUID(), image_url);
-        web.uploadRute(r, image_url);
+        String new_url = r.getUUID() + ".jpg";
+        FileSystemStorage.getInstance().rename(image_url, new_url);
+        new_url = FileSystemStorage.getInstance().getAppHomePath() + new_url;
+        local.setImage(r.getUUID(), new_url);
+        web.uploadRute(r, new_url);
         return r;
     }
 

@@ -6,6 +6,7 @@ import com.codename1.ui.Font;
 import com.codename1.ui.Graphics;
 import com.codename1.ui.Image;
 import com.codename1.ui.plaf.Style;
+import com.codename1.util.MathUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,9 +51,13 @@ public class Canvas extends ImageViewer {
     @Override
     public void pointerPressed(int x, int y) {
         for(int i=0; i<points.size(); i++) {
-            int xdiff = x - xFloatToPixel(points.get(i).getX()) -  getAbsoluteX();
-            int ydiff = y - yFloatToPixel(points.get(i).getY()) - getAbsoluteY();
-            if((xdiff*xdiff + ydiff*ydiff) < wFloatToPixel(points.get(i).getSize()) * wFloatToPixel(points.get(i).getSize())) {
+            int size = wFloatToPixel(points.get(i).getSize())/2;
+            int xP = xFloatToPixel(points.get(i).getX());
+            int yP = yFloatToPixel(points.get(i).getY());
+            int diffx = Math.abs(xP - (x - getAbsoluteX()));
+            int diffy = Math.abs(yP - (y - getAbsoluteY()));
+
+            if(diffx < size && diffy<size){
                 selected = points.get(i);
                 if(edit) for(SelectionListener l : selectionListeners) l.OnSelect(selected);
                 break;
