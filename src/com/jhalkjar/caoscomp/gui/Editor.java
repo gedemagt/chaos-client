@@ -32,17 +32,19 @@ public class Editor extends Form {
         edit = r.getAuthor().equals(DB.getInstance().getLoggedInUser());
         isLocal = r.isLocal();
 
-        addOrientationListener(evt -> {
-            removeComponent(editorBar);
-            editorBar = createEditorBar();
-            add(isVertical() ? BorderLayout.WEST : BorderLayout.NORTH, editorBar);
-            revalidate();
-        });
-
         populateToolbar();
         add(BorderLayout.NORTH, l);
-        editorBar = createEditorBar();
-        add(isVertical() ? BorderLayout.WEST : BorderLayout.NORTH, editorBar);
+
+        if(edit) {
+            editorBar = createEditorBar();
+            add(isVertical() ? BorderLayout.WEST : BorderLayout.NORTH, editorBar);
+            addOrientationListener(evt -> {
+                removeComponent(editorBar);
+                editorBar = createEditorBar();
+                add(isVertical() ? BorderLayout.WEST : BorderLayout.NORTH, editorBar);
+                revalidate();
+            });
+        }
         l.setHidden(false);
         try {
             r.getImage(image->{

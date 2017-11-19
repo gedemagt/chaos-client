@@ -6,6 +6,7 @@ import com.codename1.ui.layouts.BoxLayout;
 import com.codename1.ui.plaf.Style;
 import com.codename1.ui.plaf.UIManager;
 import com.jhalkjar.caoscomp.Util;
+import com.jhalkjar.caoscomp.backend.User;
 import com.jhalkjar.caoscomp.database.DB;
 
 import java.util.Date;
@@ -15,7 +16,6 @@ import java.util.Date;
  * Created by jesper on 11/5/17.
  */
 public class UserCreator extends Form {
-
 
     public UserCreator(Form f) {
         super(new BorderLayout());
@@ -27,11 +27,18 @@ public class UserCreator extends Form {
 
         GymPicker gym = new GymPicker(this);
 
+        Label usernameError = new Label("Username already taken!");
+        usernameError.setHidden(true);
+
+        name.addDataChangedListener((type, index) -> {
+            usernameError.setHidden(freeUsername(name.getText()));
+        });
 
         add(BorderLayout.CENTER,
                 BoxLayout.encloseY(
                         new Label("Name"),
                         name,
+                        usernameError,
                         new Label("Email"),
                         email,
                         new Label("Gym"),
@@ -39,9 +46,11 @@ public class UserCreator extends Form {
                         new Label("Password"),
                         password));
         getToolbar().addCommandToRightBar("", FontImage.createMaterial(FontImage.MATERIAL_DONE, s), (e) -> {
-
-            DB.getInstance().createUser(name.getText(), email.getText(), Util.createHash(password.getText()), gym.getGym(), new Date());
-            f.showBack();
+            if(!freeUsername(name.getText())) Dialog.show("Invalid username", "Username already taken. Please pick a new one!", "OK", null);
+            else {
+                DB.getInstance().createUser(name.getText(), email.getText(), Util.createHash(password.getText()), gym.getGym(), new Date());
+                f.showBack();
+            }
 
         });
         getToolbar().addCommandToLeftBar("", FontImage.createMaterial(FontImage.MATERIAL_ARROW_BACK, s), (e) -> {
@@ -49,5 +58,14 @@ public class UserCreator extends Form {
         });
     }
 
+
+    private boolean freeUsername(String s) {
+        for(User u : DB.getInstance().getUsers()) {
+            if(u.getName().equals(s)) {
+                return false;
+            }
+        }
+        return true;
+    }
 
 }

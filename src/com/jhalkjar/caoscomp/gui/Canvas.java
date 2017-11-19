@@ -1,12 +1,9 @@
 package com.jhalkjar.caoscomp.gui;
 
 import com.codename1.components.ImageViewer;
-import com.codename1.io.Log;
-import com.codename1.ui.Font;
 import com.codename1.ui.Graphics;
 import com.codename1.ui.Image;
 import com.codename1.ui.plaf.Style;
-import com.codename1.util.MathUtil;
 
 import java.util.ArrayList;
 import java.util.List;
