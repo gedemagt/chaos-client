@@ -19,6 +19,7 @@ public class CaosCompanion {
 
     public void init(Object context) {
         theme = UIManager.initFirstTheme("/theme");
+//        theme = UIManager.initNamedTheme("/theme", "Theme 1")
 
         // Enable Toolbar on all Forms by default
         Toolbar.setGlobalToolbar(true);

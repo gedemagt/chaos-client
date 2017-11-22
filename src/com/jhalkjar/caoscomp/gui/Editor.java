@@ -2,6 +2,7 @@ package com.jhalkjar.caoscomp.gui;
 
 import com.codename1.ui.*;
 import com.codename1.ui.layouts.BorderLayout;
+import com.codename1.ui.layouts.BoxLayout;
 import com.codename1.ui.plaf.Style;
 import com.codename1.ui.plaf.UIManager;
 import com.jhalkjar.caoscomp.backend.Rute;
@@ -89,12 +90,20 @@ public class Editor extends Form {
 
     Component createEditorBar() {
 
-
+        if(sl != null) removeComponent(sl);
+        if(delete != null) removeComponent(delete);
         sl.setVertical(isVertical());
         sl.setMinValue(2);
         sl.setMaxValue(50);
         sl.setEditable(true);
         sl.setProgress(10);
+        sl.addDataChangedListener((k,u) -> {
+
+            if(selected != null) {
+                selected.setSize((float) sl.getProgress() / 100.0f);
+                canvas.repaint();
+            }
+        });
         sl.addActionListener(evt -> {
 
             if(selected != null) {
@@ -102,17 +111,17 @@ public class Editor extends Form {
                 r.save();
                 canvas.repaint();
             }
-
         });
 
         Container c = new Container(new BorderLayout());
-        c.add(BorderLayout.CENTER, sl);
+        c.add(BorderLayout.CENTER, BoxLayout.encloseY(sl));
         if(isVertical()) {
             c.add(BorderLayout.SOUTH, delete);
         }
         else {
             c.add(BorderLayout.EAST, delete);
         }
+        revalidate();
         return c;
     }
 

@@ -36,32 +36,43 @@ public class Canvas extends ImageViewer {
     }
 
     @Override
+    public void pointerDragged(int[] x, int[] y) {
+        wasDragged = true;
+        super.pointerDragged(x,y);
+    }
+
+    @Override
     public void pointerDragged(int x, int y) {
-        if(selected == null){
-            super.pointerDragged(x,y);
+
+        if(selected != null){
+            selected.set(xPixelToFloat(x -  getAbsoluteX()), yPixelToFloat(y -  getAbsoluteY()));
         }
         else {
-            if(edit) selected.set(xPixelToFloat(x -  getAbsoluteX()), yPixelToFloat(y -  getAbsoluteY()));
+            super.pointerDragged(x,y);
         }
-        wasDragged = true;
+
     }
 
     @Override
     public void pointerPressed(int x, int y) {
-        for(int i=0; i<points.size(); i++) {
-            int size = wFloatToPixel(points.get(i).getSize())/2;
-            int xP = xFloatToPixel(points.get(i).getX());
-            int yP = yFloatToPixel(points.get(i).getY());
-            int diffx = Math.abs(xP - (x - getAbsoluteX()));
-            int diffy = Math.abs(yP - (y - getAbsoluteY()));
+        super.pointerPressed(x,y);
+        if(edit) {
+            for(int i=0; i<points.size(); i++) {
+                int size = wFloatToPixel(points.get(i).getSize())/2;
+                int xP = xFloatToPixel(points.get(i).getX());
+                int yP = yFloatToPixel(points.get(i).getY());
+                int diffx = Math.abs(xP - (x - getAbsoluteX()));
+                int diffy = Math.abs(yP - (y - getAbsoluteY()));
 
-            if(diffx < size && diffy<size){
-                selected = points.get(i);
-                if(edit) for(SelectionListener l : selectionListeners) l.OnSelect(selected);
-                break;
+                if(diffx < size && diffy<size){
+                    selected = points.get(i);
+                    for(SelectionListener l : selectionListeners) l.OnSelect(selected);
+                    break;
+                }
             }
         }
-        if(selected == null) super.pointerPressed(x,y);
+
+
     }
 
     @Override
@@ -101,14 +112,20 @@ public class Canvas extends ImageViewer {
 
     @Override
     public void pointerReleased(int x, int y) {
+        super.pointerReleased(x,y);
         if(selected == null) {
-            super.pointerReleased(x,y);
-            if(edit && !wasDragged) for(ClickListener cl : clickListeners) cl.OnClick(xPixelToFloat(x-getAbsoluteX()), yPixelToFloat(y - getAbsoluteY()));
+
+            if(edit && !wasDragged) {
+                for(ClickListener cl : clickListeners) {
+                    cl.OnClick(xPixelToFloat(x-getAbsoluteX()), yPixelToFloat(y - getAbsoluteY()));
+                }
+            }
         }
         else {
             if(edit) for(MovedListener l : movedListeners) l.OnMove(selected);
             selected = null;
         }
+
         wasDragged = false;
     }
 
@@ -134,7 +151,7 @@ public class Canvas extends ImageViewer {
 
         for(int i=0; i<points.size(); i++) {
             Point p = points.get(i);
-            p.render(g, xFloatToPixel(p.getX()), yFloatToPixel(p.getY()) + getY(), wFloatToPixel(p.getSize()));
+            p.render(g, xFloatToPixel(p.getX()) + getX(), yFloatToPixel(p.getY()) + getY(), wFloatToPixel(p.getSize()));
         }
 
     }

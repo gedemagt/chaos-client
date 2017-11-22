@@ -4,20 +4,16 @@ package com.jhalkjar.caoscomp.gui;
  * Created by jesper on 11/5/17.
  */
 
-import com.codename1.io.Log;
 import com.codename1.io.Preferences;
 import com.codename1.l10n.DateFormat;
 import com.codename1.l10n.SimpleDateFormat;
 import com.codename1.ui.*;
-import com.codename1.ui.events.ActionEvent;
-import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
 import com.codename1.ui.plaf.Style;
 import com.codename1.ui.plaf.UIManager;
 
 import com.codename1.ui.spinner.Picker;
-import com.codename1.ui.table.Table;
 import com.codename1.ui.table.TableLayout;
 import com.jhalkjar.caoscomp.backend.Gym;
 import com.jhalkjar.caoscomp.backend.Rute;
@@ -25,7 +21,6 @@ import com.jhalkjar.caoscomp.backend.User;
 import com.jhalkjar.caoscomp.database.DB;
 
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 
@@ -149,7 +144,7 @@ public class RuteList extends Form {
     }
 
     DateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy");
-    Style s = UIManager.getInstance().getComponentStyle("Title");
+    Style s = UIManager.getInstance().getComponentStyle("Label");
 
 
     private Container createListElement(Rute rute) {
@@ -159,8 +154,8 @@ public class RuteList extends Form {
 
         Label author = new Label(rute.getAuthor().getName());
         Label gym = new Label(rute.getGym().getName());
-        author.setUIID("AuthorListElement");
-        gym.setUIID("AuthorListElement");
+        author.setUIID("DetailListElement");
+        gym.setUIID("DetailListElement");
 
         Label date = new Label(dateFormat.format(rute.getDate()));
         date.setUIID("DateListElement");
@@ -178,7 +173,10 @@ public class RuteList extends Form {
         cnt.add(tbl.createConstraint().widthPercentage(10), new Label(FontImage.createMaterial(FontImage.MATERIAL_PERSON, s)));
         cnt.add(tbl.createConstraint().widthPercentage(40), author);
 
-        name.addPointerReleasedListener(evt -> new Editor(rute).show());
+        for(int i=0; i<cnt.getComponentCount(); i++) {
+            cnt.getComponentAt(i).addPointerReleasedListener(evt -> new Editor(rute).show());
+        }
+        cnt.addPointerReleasedListener(evt -> new Editor(rute).show());
 
         return cnt;
     }
