@@ -9,6 +9,8 @@ import com.jhalkjar.caoscomp.backend.Rute;
 import com.jhalkjar.caoscomp.database.DB;
 import com.jhalkjar.caoscomp.database.NoImageException;
 
+import java.util.Date;
+
 
 /**
  * Created by jesper on 11/5/17.
@@ -16,13 +18,14 @@ import com.jhalkjar.caoscomp.database.NoImageException;
 public class Editor extends Form {
 
     Style s = UIManager.getInstance().getComponentStyle("Title");
+    Style s2 = UIManager.getInstance().getComponentStyle("Label");
     Canvas canvas;
     Label l = new Label("Retrieving image..");
     Rute r;
     boolean edit;
 
     Slider sl = new Slider();
-    CheckBox delete = new CheckBox(FontImage.createMaterial(FontImage.MATERIAL_DELETE, s));
+    CheckBox delete = new CheckBox(FontImage.createMaterial(FontImage.MATERIAL_REMOVE_CIRCLE_OUTLINE, s));
 
     Component editorBar;
 
@@ -144,13 +147,34 @@ public class Editor extends Form {
 
         });
 
+        tb.addCommandToOverflowMenu("Copy", FontImage.createMaterial(FontImage.MATERIAL_CONTENT_COPY, s2), (e) -> {
+            Dialog d = new Dialog();
+            d.setUIID("Form");
+            TextField name = new TextField("");
+            Button ok = new Button("OK");
+            CheckBox cb = new CheckBox("Copy points");
+            cb.setSelected(false);
+            ok.addActionListener(evt -> {
+                Rute newR = DB.getInstance().createRute(name.getText(), null, DB.getInstance().getLoggedInUser(), r.getGym(), new Date(), r.getImageUUID());
+                if(cb.isSelected()) {
+                    for(Point p : r.getPoints()) newR.getPoints().add(new Point(p));
+                    newR.save();
+                }
+                new Editor(newR).show();
+            });
+            d.add(BoxLayout.encloseY(new Label("Name"), name, cb, ok));
+            d.show();
+        });
+
         if(edit) {
-            getToolbar().addCommandToOverflowMenu("Delete", null, evt -> {
+            getToolbar().addCommandToOverflowMenu("Delete", FontImage.createMaterial(FontImage.MATERIAL_DELETE, s2), evt -> {
 
                 r.delete();
                 new RuteList().showBack();
             });
         }
+
+        tb.setTitle(r.getName());
         revalidate();
     }
 

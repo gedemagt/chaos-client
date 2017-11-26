@@ -19,7 +19,7 @@ import java.util.*;
  */
 public class LocalDatabase extends ChaosDatabase{
     private static String configPath = "/setup.sql";
-    private String dbname = "1aasassaddd";
+    private String dbname = "1aasdsasdasdddd";
 
     private Map<String, Gym> gyms = new HashMap<>();
     private Map<String, User> users = new HashMap<>();
@@ -63,14 +63,14 @@ public class LocalDatabase extends ChaosDatabase{
     }
 
 
-    public Rute createRute(String name, User author, Gym gym, Date date) {
+    public Rute createRute(String name, User author, Gym gym, Date date, String imageUUID) {
         try {
             Database db = Database.openOrCreate(dbname);
             DAOProvider provider = new DAOProvider(db, configPath, 1);
             DAO rutes = provider.get("rute");
             Map rute = (Map) rutes.newObject();
             String uuid = UUID.randomUUID().toString();
-            String imageUUID = UUID.randomUUID().toString();
+            if(imageUUID == null) imageUUID = UUID.randomUUID().toString();
             rute.put("uuid", uuid);
             rute.put("name", name);
             rute.put("coordinates", "[]");
@@ -79,7 +79,7 @@ public class LocalDatabase extends ChaosDatabase{
             if(date == null) date = new Date();
             rute.put("datetime", Util.dateFormat.format(date));
             rute.put("edit", Util.dateFormat.format(date));
-            rute.put("image", UUID.randomUUID().toString());
+            rute.put("image", imageUUID);
             rutes.save(rute);
             db.close();
 
@@ -370,7 +370,7 @@ public class LocalDatabase extends ChaosDatabase{
     public void delete(Rute r) {
         Log.p("[LocalDatabase] Deleting rute " + r.toString());
         try {
-            FileSystemStorage.getInstance().delete(getImageUrl(r.getImageUUID()));
+
             Database db = Database.openOrCreate(dbname);
             db.execute("DELETE FROM rute WHERE uuid='" + r.getUUID() + "'");
             db.execute("DELETE FROM image WHERE uuid='" + r.getImageUUID()+"'");
@@ -380,8 +380,11 @@ public class LocalDatabase extends ChaosDatabase{
 
         } catch (IOException e) {
             e.printStackTrace();
+        }
+        try {
+            FileSystemStorage.getInstance().delete(getImageUrl(r.getImageUUID()));
         } catch (NoImageException e) {
-            e.printStackTrace();
+            Log.p("[LocalDatabase] Could not find image to delete. Carry on..!");
         }
         loadRutes();
     }

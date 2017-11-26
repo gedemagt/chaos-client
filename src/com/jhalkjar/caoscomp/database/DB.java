@@ -99,7 +99,7 @@ public class DB {
         if(!local.hasRute(r)) {
             Log.p("[DB] Downloads rute " + r.toString());
 
-            String path = FileSystemStorage.getInstance().getAppHomePath() + r.getUUID() + ".jpg";
+            String path = FileSystemStorage.getInstance().getAppHomePath() + r.getImageUUID() + ".jpg";
             web.downloadImage(r.getImageUUID(), path, () -> {
                 local.addRute(r);
                 local.setImage(r.getImageUUID(), path);
@@ -135,7 +135,7 @@ public class DB {
             for(Rute u : local.getRutes()) {
                 if(!web.getRutes().contains(u)) {
                     try {
-                        web.uploadRute(u, local.getImageUrl(u.getUUID()));
+                        web.uploadRute(u, local.getImageUrl(u.getImageUUID()));
                     } catch (NoImageException e) {
                         e.printStackTrace();
                     }
@@ -158,13 +158,17 @@ public class DB {
         });
     }
 
-    public Rute createRute(String name, String image_url, User author, Gym gym, Date date) {
-        Rute r = local.createRute(name, author, gym, date);
-        String new_url = r.getUUID() + ".jpg";
-        FileSystemStorage.getInstance().rename(image_url, new_url);
-        new_url = FileSystemStorage.getInstance().getAppHomePath() + new_url;
-        local.setImage(r.getImageUUID(), new_url);
-        web.uploadRute(r, new_url);
+    public Rute createRute(String name, String image_url, User author, Gym gym, Date date, String imageUUID) {
+        Rute r = local.createRute(name, author, gym, date, imageUUID);
+        String uploadURL = null;
+        if(image_url != null) {
+            String new_url = r.getImageUUID() + ".jpg";
+            String long_new_url = FileSystemStorage.getInstance().getAppHomePath() + new_url;
+            FileSystemStorage.getInstance().rename(image_url, new_url);
+            local.setImage(r.getImageUUID(), long_new_url);
+            uploadURL = long_new_url;
+        }
+        web.uploadRute(r, uploadURL);
         return r;
     }
 

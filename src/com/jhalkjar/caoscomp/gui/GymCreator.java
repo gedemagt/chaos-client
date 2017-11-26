@@ -24,7 +24,7 @@ public class GymCreator extends Form {
         super(new BorderLayout());
         Style s = UIManager.getInstance().getComponentStyle("Title");
 
-        TextField name = new TextField("GymName","Name of the Rute!", 20, TextArea.ANY);
+        TextComponent name = new TextComponent().label("Name");
         mapComponent.addMapListener((source, zoom, center) -> {
             lat = center.getLatitude();
             lon = center.getLongitude();
@@ -37,7 +37,7 @@ public class GymCreator extends Form {
         add(BorderLayout.CENTER, mapComponent);
         getToolbar().addCommandToRightBar("", FontImage.createMaterial(FontImage.MATERIAL_DONE, s), (e) -> {
 
-            Gym g = DB.getInstance().createGym(name.getText(), lat, lon, new Date());
+            Gym g = DB.getInstance().createGym(name.getField().getText(), lat, lon, new Date());
             l.onNewGym(g);
             back.showBack();
         });

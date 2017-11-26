@@ -1,8 +1,10 @@
 package com.jhalkjar.caoscomp.gui;
 
-import com.codename1.ui.Display;
+import com.codename1.ui.Component;
+import com.codename1.ui.Container;
 import com.codename1.ui.Form;
-import com.codename1.ui.spinner.Picker;
+import com.codename1.ui.PickerComponent;
+import com.codename1.ui.layouts.BorderLayout;
 import com.jhalkjar.caoscomp.backend.Gym;
 import com.jhalkjar.caoscomp.backend.User;
 import com.jhalkjar.caoscomp.database.DB;
@@ -12,15 +14,16 @@ import java.util.List;
 /**
  * Created by jesper on 11/13/17.
  */
-public class GymPicker extends Picker {
+public class GymPicker extends Container {
 
     List<Gym> gyms;
+    PickerComponent pc;
 
     public GymPicker(Form f) {
-        setType(Display.PICKER_TYPE_STRINGS);
+        super(new BorderLayout());
         gyms = DB.getInstance().getGyms();
+        pc = PickerComponent.createStrings(gymToString(gyms));
 
-        setStrings(gymToString(gyms));
         int index = 0;
         User loggedIn = DB.getInstance().getLoggedInUser();
         if(loggedIn != null && gyms.indexOf(loggedIn.getGym()) != -1) {
@@ -28,24 +31,25 @@ public class GymPicker extends Picker {
         }
 
 
-        setSelectedStringIndex(index);
+        pc.getPicker().setSelectedStringIndex(index);
 
-        addActionListener(evt -> {
-            if(getSelectedStringIndex() == gyms.size()) {
+        pc.getPicker().addActionListener(evt -> {
+            if(pc.getPicker().getSelectedStringIndex() == gyms.size()) {
 
                 GymCreator creator = new GymCreator(f, gym-> {
                     gyms = DB.getInstance().getGyms();
-                    setStrings(gymToString(gyms));
+                    pc.getPicker().setStrings(gymToString(gyms));
 
-                    setSelectedStringIndex(gyms.indexOf(gym));
+                    pc.getPicker().setSelectedStringIndex(gyms.indexOf(gym));
                 });
                 creator.show();
             }
         });
+        add(BorderLayout.CENTER, pc);
     }
 
     public Gym getGym() {
-        return gyms.get(getSelectedStringIndex());
+        return gyms.get(pc.getPicker().getSelectedStringIndex());
     }
 
     private String[] gymToString(List<Gym> gyms) {

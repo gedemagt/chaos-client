@@ -5,6 +5,9 @@ import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
 import com.codename1.ui.plaf.Style;
 import com.codename1.ui.plaf.UIManager;
+import com.codename1.ui.validation.Constraint;
+import com.codename1.ui.validation.RegexConstraint;
+import com.codename1.ui.validation.Validator;
 import com.jhalkjar.caoscomp.Util;
 import com.jhalkjar.caoscomp.backend.User;
 import com.jhalkjar.caoscomp.database.DB;
@@ -21,34 +24,37 @@ public class UserCreator extends Form {
         super(new BorderLayout());
         Style s = UIManager.getInstance().getComponentStyle("Title");
 
-        TextField name = new TextField("username","Name of the Rute!", 20, TextArea.ANY);
-        TextField email = new TextField("email","Name of the Rute!", 20, TextArea.ANY);
-        TextField password = new TextField("password","Name of the Rute!", 20, TextArea.PASSWORD);
+        TextComponent name = new TextComponent().label("Username");
+        TextComponent email = new TextComponent().label("Email");
+        TextComponent password = new TextComponent().label("Password");
+        password.getField().setConstraint(TextArea.PASSWORD);
 
         GymPicker gym = new GymPicker(this);
 
-        Label usernameError = new Label("Username already taken!");
-        usernameError.setHidden(true);
+        Validator val = new Validator();
+        val.addConstraint(name, new Constraint() {
+            @Override
+            public boolean isValid(Object value) {
+                return freeUsername((String) value);
+            }
 
-        name.addDataChangedListener((type, index) -> {
-            usernameError.setHidden(freeUsername(name.getText()));
+            @Override
+            public String getDefaultFailMessage() {
+                return "Username already taken!";
+            }
         });
+        val.addConstraint(email, RegexConstraint.validEmail());
 
         add(BorderLayout.CENTER,
                 BoxLayout.encloseY(
-                        new Label("Name"),
                         name,
-                        usernameError,
-                        new Label("Email"),
                         email,
-                        new Label("Gym"),
-                        gym,
-                        new Label("Password"),
-                        password));
+                        password,
+                        gym));
         getToolbar().addCommandToRightBar("", FontImage.createMaterial(FontImage.MATERIAL_DONE, s), (e) -> {
-            if(!freeUsername(name.getText())) Dialog.show("Invalid username", "Username already taken. Please pick a new one!", "OK", null);
+            if(!freeUsername(name.toString())) Dialog.show("Invalid username", "Username already taken. Please pick a new one!", "OK", null);
             else {
-                DB.getInstance().createUser(name.getText(), email.getText(), Util.createHash(password.getText()), gym.getGym(), new Date());
+                DB.getInstance().createUser(name.getField().getText(), email.getField().getText(), Util.createHash(password.getField().getText()), gym.getGym(), new Date());
                 f.showBack();
             }
 

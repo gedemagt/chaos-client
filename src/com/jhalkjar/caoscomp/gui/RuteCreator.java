@@ -11,6 +11,8 @@ import com.codename1.ui.layouts.BoxLayout;
 import com.codename1.ui.plaf.Style;
 import com.codename1.ui.plaf.UIManager;
 import com.codename1.ui.util.ImageIO;
+import com.codename1.ui.validation.LengthConstraint;
+import com.codename1.ui.validation.Validator;
 import com.jhalkjar.caoscomp.backend.Rute;
 import com.jhalkjar.caoscomp.database.DB;
 
@@ -32,7 +34,7 @@ public class RuteCreator extends Form {
         super(new BorderLayout());
         Style s = UIManager.getInstance().getComponentStyle("Title");
 
-        TextField name = new TextField("NewRute","Name of the Rute!", 20, TextArea.ANY);
+        TextComponent name = new TextComponent().label("Name");
 
         GymPicker gym = new GymPicker(this);
         Button b = new Button(FontImage.createMaterial(FontImage.MATERIAL_PHOTO_CAMERA, s));
@@ -47,18 +49,19 @@ public class RuteCreator extends Form {
 
         FontImage.createMaterial(FontImage.MATERIAL_CAMERA, s);
 
+        Validator val = new Validator();
+        val.addConstraint(name, new LengthConstraint(1));
+
         add(BorderLayout.NORTH,
                 BoxLayout.encloseY(
-                        new Label("Name"),
                         name,
-                        new Label("Gym"),
                         gym,
                         BoxLayout.encloseX(new Label("Image"), b, b2)));
         add(BorderLayout.CENTER, iv);
         getToolbar().addCommandToRightBar("", FontImage.createMaterial(FontImage.MATERIAL_DONE, s), (e) -> {
             if(!imageLoaded) Dialog.show("No image", "Please choose an image!", Dialog.TYPE_ERROR, null, "OK", null);
             else {
-                Rute r = DB.getInstance().createRute(name.getText(), path, DB.getInstance().getLoggedInUser(), gym.getGym(), new Date());
+                Rute r = DB.getInstance().createRute(name.getField().getText(), path, DB.getInstance().getLoggedInUser(), gym.getGym(), new Date(), null);
                 new Editor(r).show();
             }
         });

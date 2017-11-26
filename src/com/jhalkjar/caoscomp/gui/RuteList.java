@@ -76,37 +76,34 @@ public class RuteList extends Form {
         TableLayout tbl = new TableLayout(1,4);
         Container cnt = new Container(tbl);
 
-        Picker gyms = new Picker();
-        gyms.setType(Display.PICKER_TYPE_STRINGS);
+
         List<Gym> gymList = DB.getInstance().getGyms();
         String[] gymStrings = new String[gymList.size()+1];
         gymStrings[0]="All";
         for(int i=0; i<gymList.size(); i++) gymStrings[i+1] = gymList.get(i).getName();
-        gyms.setStrings(gymStrings);
+        PickerComponent gyms = PickerComponent.createStrings(gymStrings);
         int selected = gymList.indexOf(gymFilter);
         if(selected == -1) selected = 0;
         else selected +=1;
-        gyms.setSelectedStringIndex(selected);
+        gyms.getPicker().setSelectedStringIndex(selected);
 
-        Picker users = new Picker();
-        users.setType(Display.PICKER_TYPE_STRINGS);
         List<User> userList = DB.getInstance().getUsers();
         String[] userStrings = new String[userList.size()+1];
         userStrings[0]="All";
         for(int i=0; i<userList.size(); i++) userStrings[i+1] = userList.get(i).getName();
-        users.setStrings(userStrings);
+        PickerComponent users = PickerComponent.createStrings(userStrings);
         selected = userList.indexOf(userFilter);
         if(selected == -1) selected = 0;
         else selected +=1;
-        users.setSelectedStringIndex(selected);
+        users.getPicker().setSelectedStringIndex(selected);
 
-        gyms.addActionListener(evt -> {
-            int selectedGym = gyms.getSelectedStringIndex()-1;
+        gyms.getPicker().addActionListener(evt -> {
+            int selectedGym = gyms.getPicker().getSelectedStringIndex()-1;
             gymFilter = selectedGym>=0 ? gymList.get(selectedGym) : null;
             updateUI();
         });
-        users.addActionListener(evt -> {
-            int selectedUser = users.getSelectedStringIndex()-1;
+        users.getPicker().addActionListener(evt -> {
+            int selectedUser = users.getPicker().getSelectedStringIndex()-1;
             userFilter = selectedUser>=0 ? userList.get(selectedUser) : null;
             updateUI();
         });

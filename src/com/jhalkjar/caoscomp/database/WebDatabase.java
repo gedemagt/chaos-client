@@ -70,11 +70,13 @@ public class WebDatabase extends ChaosDatabase {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
         sendJson(host + "/add_rute", object.toString(), evt -> {
             Log.p("[WebDatabase] Uploaded rute: " + r);
-            uploadImage(r.getImageUUID(), imageUrl);
+            if(imageUrl != null) {uploadImage(r.getImageUUID(), imageUrl);}
             rutes.put(r.getUUID(), r);
         });
+
     }
 
     @Override

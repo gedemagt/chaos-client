@@ -12,6 +12,13 @@ public class Point {
     private float y;
     private boolean selected;
 
+    public Point(Point p) {
+        this.x = p.x;
+        this.y = p.y;
+        this.size = p.size;
+        this.selected = false;
+    }
+
     public Point(float x, float y, float size) {
         this.x = x;
         this.y = y;
