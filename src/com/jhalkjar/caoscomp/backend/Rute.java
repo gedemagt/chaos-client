@@ -19,6 +19,8 @@ public interface Rute extends DatabaseEntry {
     void getImage(ImageListener callback) throws NoImageException;
     Date lastEdit();
 
+    String getImageUUID();
+
     void save();
     void delete();
 

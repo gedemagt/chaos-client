@@ -22,8 +22,8 @@ public class WebDatabase extends ChaosDatabase {
         host = host_;
     }
 
-    private static String host = "https://jeshj.pythonanywhere.com";
-//    private static String host = "http://localhost:5000";
+//    private static String host = "https://jeshj.pythonanywhere.com";
+    private static String host = "http://localhost:5000";
 
 
     private Map<String, Gym> gyms = new HashMap<>();
@@ -66,12 +66,13 @@ public class WebDatabase extends ChaosDatabase {
             object.put("date", Util.dateFormat.format(r.getDate()));
             object.put("edit", Util.dateFormat.format(r.lastEdit()));
             object.put("uuid", r.getUUID());
+            object.put("image", r.getImageUUID());
         } catch (JSONException e) {
             e.printStackTrace();
         }
         sendJson(host + "/add_rute", object.toString(), evt -> {
             Log.p("[WebDatabase] Uploaded rute: " + r);
-            uploadImage(r.getUUID(), imageUrl);
+            uploadImage(r.getImageUUID(), imageUrl);
             rutes.put(r.getUUID(), r);
         });
     }
@@ -167,7 +168,8 @@ public class WebDatabase extends ChaosDatabase {
                     Date last_edit = Util.dateFormat.parse((String) vals.get("edit"));
                     User author = getUser((String) vals.get("author"));
                     String uuid = (String) vals.get("uuid");
-                    list.put(uuid, new RuteImpl(-1, uuid, date, last_edit, name, author, gym, Util.stringToVals(coordinates)));
+                    String image = (String) vals.get("image");
+                    list.put(uuid, new RuteImpl(-1, uuid, image, date, last_edit, name, author, gym, Util.stringToVals(coordinates)));
                 }
                 rutes = list;
                 Log.p("[WebDatabase] Loaded rutes: " + rutes.toString());
@@ -276,7 +278,7 @@ public class WebDatabase extends ChaosDatabase {
 
     public void getImage(String uuid, ImageListener image) throws NoImageException {
         MultipartRequest request = new MultipartRequest();
-        request.setPost(false);
+        request.setPost(true);
         request.setUrl(host + "/download/" + uuid);
         request.addResponseListener(evt -> {
             Image img = EncodedImage.create(request.getResponseData());

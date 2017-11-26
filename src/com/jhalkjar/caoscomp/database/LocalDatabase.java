@@ -19,7 +19,7 @@ import java.util.*;
  */
 public class LocalDatabase extends ChaosDatabase{
     private static String configPath = "/setup.sql";
-    private String dbname = "1aasd";
+    private String dbname = "1aasassaddd";
 
     private Map<String, Gym> gyms = new HashMap<>();
     private Map<String, User> users = new HashMap<>();
@@ -70,6 +70,7 @@ public class LocalDatabase extends ChaosDatabase{
             DAO rutes = provider.get("rute");
             Map rute = (Map) rutes.newObject();
             String uuid = UUID.randomUUID().toString();
+            String imageUUID = UUID.randomUUID().toString();
             rute.put("uuid", uuid);
             rute.put("name", name);
             rute.put("coordinates", "[]");
@@ -78,10 +79,12 @@ public class LocalDatabase extends ChaosDatabase{
             if(date == null) date = new Date();
             rute.put("datetime", Util.dateFormat.format(date));
             rute.put("edit", Util.dateFormat.format(date));
+            rute.put("image", UUID.randomUUID().toString());
             rutes.save(rute);
             db.close();
 
             loadRutes();
+            Log.p("[LocalDatabase] Created rute with UUID=" + uuid + " and imageUUID=" + imageUUID);
 
             return getRute(uuid);
 
@@ -182,6 +185,7 @@ public class LocalDatabase extends ChaosDatabase{
             rute.put("author", r.getAuthor().getUUID());
             rute.put("gym", r.getGym().getUUID());
             rute.put("datetime", Util.dateFormat.format(r.getDate()));
+            rute.put("image", r.getImageUUID());
             rutes.save(rute);
             db.close();
 
@@ -285,9 +289,10 @@ public class LocalDatabase extends ChaosDatabase{
                 Date date = getDate(m.get("datetime"));
                 Date lastedit = getDate(m.get("edit"));
                 String uuid = (String) m.get("uuid");
+                String image = (String) m.get("image");
                 long id = (Long) m.get("id");
 
-                RuteImpl r = new RuteImpl(id, uuid, date, lastedit, name, getUser(author), getGym(gym), Util.stringToVals(points));
+                RuteImpl r = new RuteImpl(id, uuid, image, date, lastedit, name, getUser(author), getGym(gym), Util.stringToVals(points));
                 rutes.put(uuid, r);
             }
             Log.p("[LocalDatabase] Loaded rutes: " + getRutes().toString());
@@ -365,10 +370,10 @@ public class LocalDatabase extends ChaosDatabase{
     public void delete(Rute r) {
         Log.p("[LocalDatabase] Deleting rute " + r.toString());
         try {
-            FileSystemStorage.getInstance().delete(getImageUrl(r.getUUID()));
+            FileSystemStorage.getInstance().delete(getImageUrl(r.getImageUUID()));
             Database db = Database.openOrCreate(dbname);
             db.execute("DELETE FROM rute WHERE uuid='" + r.getUUID() + "'");
-            db.execute("DELETE FROM image WHERE uuid='" + r.getUUID()+"'");
+            db.execute("DELETE FROM image WHERE uuid='" + r.getImageUUID()+"'");
             db.close();
             rutes.remove(r.getUUID());
             for(DatabaseListener l : listeners) l.OnDeletedRute(r);

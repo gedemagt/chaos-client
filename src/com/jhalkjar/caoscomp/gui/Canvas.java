@@ -71,8 +71,6 @@ public class Canvas extends ImageViewer {
                 }
             }
         }
-
-
     }
 
     @Override

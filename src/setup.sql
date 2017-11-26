@@ -21,7 +21,8 @@ CREATE TABLE user (
 CREATE TABLE image (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	uuid VARCHAR,
-	url VARCHAR
+	url VARCHAR,
+	datetime TIMESTAMP DEFAULT (datetime('now'))
 );
 --
 CREATE TABLE rute (
@@ -29,6 +30,7 @@ CREATE TABLE rute (
 	uuid VARCHAR,
 	name VARCHAR,
 	coordinates VARCHAR,
+	image VARCHAR,
 	author VARCHAR,
 	gym VARCHAR,
 	datetime TIMESTAMP DEFAULT (datetime('now')),

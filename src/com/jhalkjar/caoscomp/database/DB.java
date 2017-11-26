@@ -100,9 +100,9 @@ public class DB {
             Log.p("[DB] Downloads rute " + r.toString());
 
             String path = FileSystemStorage.getInstance().getAppHomePath() + r.getUUID() + ".jpg";
-            web.downloadImage(r.getUUID(), path, () -> {
+            web.downloadImage(r.getImageUUID(), path, () -> {
                 local.addRute(r);
-                local.setImage(r.getUUID(), path);
+                local.setImage(r.getImageUUID(), path);
                 local.refresh();
                 onSucces.onSucess(local.getRute(r.getUUID()));
             });
@@ -163,7 +163,7 @@ public class DB {
         String new_url = r.getUUID() + ".jpg";
         FileSystemStorage.getInstance().rename(image_url, new_url);
         new_url = FileSystemStorage.getInstance().getAppHomePath() + new_url;
-        local.setImage(r.getUUID(), new_url);
+        local.setImage(r.getImageUUID(), new_url);
         web.uploadRute(r, new_url);
         return r;
     }

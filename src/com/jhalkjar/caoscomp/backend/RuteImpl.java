@@ -14,12 +14,17 @@ import java.util.List;
 public class RuteImpl extends AbstractRute{
 
     public void getImage(ImageListener callback) throws NoImageException {
-        DB.getInstance().getImageProvider().getImage(uuid, callback);
+        DB.getInstance().getImageProvider().getImage(imageuuid, callback);
     }
 
     @Override
     public Date lastEdit() {
         return lastEdit;
+    }
+
+    @Override
+    public String getImageUUID() {
+        return imageuuid;
     }
 
     @Override
@@ -46,10 +51,12 @@ public class RuteImpl extends AbstractRute{
     }
 
     private Date lastEdit;
+    private String imageuuid;
 
-    public RuteImpl(long id, String uuid, Date date, Date lastEdit, String name, User author, Gym gym, List<Point> points) {
+    public RuteImpl(long id, String uuid, String imageuuid, Date date, Date lastEdit, String name, User author, Gym gym, List<Point> points) {
         super(id, uuid, date, name, author, gym, points);
         this.lastEdit = lastEdit;
+        this.imageuuid = imageuuid;
     }
 
     @Override
