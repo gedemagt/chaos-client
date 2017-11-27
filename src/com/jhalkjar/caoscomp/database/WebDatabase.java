@@ -22,8 +22,8 @@ public class WebDatabase extends ChaosDatabase {
         host = host_;
     }
 
-//    private static String host = "https://jeshj.pythonanywhere.com";
-    private static String host = "http://localhost:5000";
+    private static String host = "https://jeshj.pythonanywhere.com";
+//    private static String host = "http://localhost:5000";
 
 
     private Map<String, Gym> gyms = new HashMap<>();

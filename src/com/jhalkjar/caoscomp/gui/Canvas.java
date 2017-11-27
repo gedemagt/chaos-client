@@ -133,23 +133,23 @@ public class Canvas extends ImageViewer {
         g.setAntiAliased(true);
 
 
-        if(r2 == 0) {
-            int width = getWidth() - s.getHorizontalPadding();
-            int height = getHeight() - s.getVerticalPadding();
-            iW = getImage().getWidth();
-            iH = getImage().getHeight();
-
-            if(initialImagePosition == IMAGE_FIT){
-                r2 = Math.min(((float)width) / ((float)iW), ((float)height) / ((float)iH));
-            }else{
-                r2 = Math.max(((float)width) / ((float)iW), ((float)height) / ((float)iH));
-            }
-        }
-
-
         for(int i=0; i<points.size(); i++) {
             Point p = points.get(i);
             p.render(g, xFloatToPixel(p.getX()) + getX(), yFloatToPixel(p.getY()) + getY(), wFloatToPixel(p.getSize()));
+        }
+
+    }
+
+    public void updateSize() {
+        int width = getWidth() - s.getHorizontalPadding();
+        int height = getHeight() - s.getVerticalPadding();
+        iW = getImage().getWidth();
+        iH = getImage().getHeight();
+
+        if(initialImagePosition == IMAGE_FIT){
+            r2 = Math.min(((float)width) / ((float)iW), ((float)height) / ((float)iH));
+        }else{
+            r2 = Math.max(((float)width) / ((float)iW), ((float)height) / ((float)iH));
         }
 
     }

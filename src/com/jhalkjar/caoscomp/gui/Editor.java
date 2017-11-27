@@ -3,6 +3,8 @@ package com.jhalkjar.caoscomp.gui;
 import com.codename1.ui.*;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
+import com.codename1.ui.layouts.FlowLayout;
+import com.codename1.ui.plaf.Border;
 import com.codename1.ui.plaf.Style;
 import com.codename1.ui.plaf.UIManager;
 import com.jhalkjar.caoscomp.backend.Rute;
@@ -24,10 +26,10 @@ public class Editor extends Form {
     Rute r;
     boolean edit;
 
-    Slider sl = new Slider();
-    CheckBox delete = new CheckBox(FontImage.createMaterial(FontImage.MATERIAL_REMOVE_CIRCLE_OUTLINE, s));
 
     Component editorBar;
+    Slider sl;
+    CheckBox delete;
 
     public Editor(Rute rute) {
         super(new BorderLayout());
@@ -47,6 +49,7 @@ public class Editor extends Form {
                 editorBar = createEditorBar();
                 add(isVertical() ? BorderLayout.WEST : BorderLayout.NORTH, editorBar);
                 revalidate();
+                canvas.updateSize();
             });
         }
         l.setHidden(false);
@@ -78,6 +81,7 @@ public class Editor extends Form {
                 l.setHidden(true);
                 add(BorderLayout.CENTER, canvas);
                 revalidate();
+                canvas.updateSize();
             });
         } catch (NoImageException e) {
             e.printStackTrace();
@@ -93,9 +97,8 @@ public class Editor extends Form {
 
     Component createEditorBar() {
 
-        if(sl != null) removeComponent(sl);
-        if(delete != null) removeComponent(delete);
-        sl.setVertical(isVertical());
+        sl = createStarRankSlider(isVertical());
+        delete = new CheckBox(FontImage.createMaterial(FontImage.MATERIAL_REMOVE_CIRCLE_OUTLINE, s2));
         sl.setMinValue(2);
         sl.setMaxValue(50);
         sl.setEditable(true);
@@ -117,14 +120,13 @@ public class Editor extends Form {
         });
 
         Container c = new Container(new BorderLayout());
-        c.add(BorderLayout.CENTER, BoxLayout.encloseY(sl));
+        c.add(BorderLayout.CENTER, FlowLayout.encloseCenter(sl));
         if(isVertical()) {
-            c.add(BorderLayout.SOUTH, delete);
+            c.add(BorderLayout.NORTH, delete);
         }
         else {
             c.add(BorderLayout.EAST, delete);
         }
-        revalidate();
         return c;
     }
 
@@ -176,6 +178,37 @@ public class Editor extends Form {
 
         tb.setTitle(r.getName());
         revalidate();
+    }
+
+
+    private Slider createStarRankSlider(boolean vertical) {
+        Slider starRank = new Slider();
+        starRank.setEditable(true);
+        starRank.setMinValue(2);
+        starRank.setMaxValue(50);
+        starRank.setEditable(true);
+        String uuid = "Slider";
+        if(vertical) uuid += "V";
+        starRank.setUIID(uuid);
+        starRank.setVertical(vertical);
+//        Style s = new Style(0xffff33, 0, getAllStyles().getFont(), (byte)0);
+//        Image fullStar = FontImage.createMaterial(FontImage.MATERIAL_LENS, s).toImage();
+//        s.setOpacity(100);
+//        s.setFgColor(0);
+//        Image emptyStar = FontImage.createMaterial(FontImage.MATERIAL_LENS, s).toImage();
+//        initStarRankStyle(starRank.getSliderEmptySelectedStyle(), emptyStar);
+//        initStarRankStyle(starRank.getSliderEmptyUnselectedStyle(), emptyStar);
+//        initStarRankStyle(starRank.getSliderFullSelectedStyle(), fullStar);
+//        initStarRankStyle(starRank.getSliderFullUnselectedStyle(), fullStar);
+//        Dimension d;
+//        if(vertical) {
+//            d = new Dimension(fullStar.getWidth(), fullStar.getHeight() * 5);
+//        }
+//        else {
+//            d = new Dimension(fullStar.getWidth() * 5, fullStar.getHeight());
+//        }
+//        starRank.setPreferredSize(d);
+        return starRank;
     }
 
 }
