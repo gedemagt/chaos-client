@@ -50,6 +50,7 @@ public class Point {
     }
 
     public void render(Graphics g, int x, int y, int size) {
+        if(size == 0) size = 10;
         g.setColor(0xFFFFFF);
         g.setAlpha(100);
         g.fillArc(x - size/2, y - size/2, size, size, 0, 360);
