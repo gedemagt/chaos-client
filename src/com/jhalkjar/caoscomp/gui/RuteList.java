@@ -4,6 +4,7 @@ package com.jhalkjar.caoscomp.gui;
  * Created by jesper on 11/5/17.
  */
 
+import com.codename1.components.FloatingActionButton;
 import com.codename1.io.Preferences;
 import com.codename1.l10n.DateFormat;
 import com.codename1.l10n.SimpleDateFormat;
@@ -13,7 +14,6 @@ import com.codename1.ui.layouts.BoxLayout;
 import com.codename1.ui.plaf.Style;
 import com.codename1.ui.plaf.UIManager;
 
-import com.codename1.ui.spinner.Picker;
 import com.codename1.ui.table.TableLayout;
 import com.jhalkjar.caoscomp.backend.Gym;
 import com.jhalkjar.caoscomp.backend.Rute;
@@ -31,20 +31,32 @@ public class RuteList extends Form {
 
     Container centerContainer = new Container(new BorderLayout());
     List<Rute> rutes;
+    Container selectionContainer;
 
     public RuteList() {
         super(new BorderLayout());
 
         Style s = UIManager.getInstance().getComponentStyle("Title");
-        getToolbar().addCommandToRightBar("", FontImage.createMaterial(FontImage.MATERIAL_ADD, s), (e) -> {
+        getToolbar().setTitle("Rutes");
+        FloatingActionButton fab = FloatingActionButton.createFAB(FontImage.MATERIAL_ADD);
+        fab.setUIID("FaB");
+        fab.addActionListener(evt -> {
             new RuteCreator().show();
         });
+        fab.bindFabToContainer(getContentPane());
         getToolbar().addCommandToOverflowMenu("Log out", null, (e)->{
             Preferences.set("logged_in_user", "");
             new Login().show();
         });
+        getToolbar().addCommandToRightBar("", FontImage.createMaterial(FontImage.MATERIAL_FILTER_LIST, s), evt -> {
+            selectionContainer.setHidden(!selectionContainer.isHidden());
+            selectionContainer.animateLayout(2);
+            revalidate();
+        });
 
         Label l =  new Label("Refreshing...");
+        selectionContainer = createSelectionContainer();
+        selectionContainer.setHidden(true);
         add(BorderLayout.NORTH, l);
         add(BorderLayout.CENTER, centerContainer);
 
@@ -75,6 +87,7 @@ public class RuteList extends Form {
     Container createSelectionContainer() {
         TableLayout tbl = new TableLayout(1,4);
         Container cnt = new Container(tbl);
+        cnt.setUIID("SelectionContainer ");
 
 
         List<Gym> gymList = DB.getInstance().getGyms();
@@ -134,7 +147,7 @@ public class RuteList extends Form {
                 list.add(c);
             }
             list.addPullToRefresh(() -> DB.getInstance().sync());
-            centerContainer.add(BorderLayout.NORTH, createSelectionContainer());
+            centerContainer.add(BorderLayout.NORTH, selectionContainer);
             centerContainer.add(BorderLayout.CENTER, list);
         }
         revalidate();
@@ -175,7 +188,15 @@ public class RuteList extends Form {
         }
         cnt.addPointerReleasedListener(evt -> new Editor(rute).show());
 
-        return cnt;
+        return BoxLayout.encloseY(cnt, new Spacer());
+    }
+
+    private class Spacer extends Container {
+
+        public Spacer() {
+            setUIID("Spacer");
+        }
+
     }
 
 }

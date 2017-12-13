@@ -5,6 +5,7 @@ import com.codename1.io.Log;
 import com.codename1.l10n.DateFormat;
 import com.codename1.l10n.SimpleDateFormat;
 import com.jhalkjar.caoscomp.gui.Point;
+import com.jhalkjar.caoscomp.gui.Type;
 import org.bouncycastle.crypto.digests.SHA1Digest;
 
 import java.io.IOException;
@@ -31,8 +32,14 @@ public class Util {
                 double x = (Double) xy.get("x");
                 double y = (Double) xy.get("y");
                 double size = (Double) xy.get("size");
-//                int type = (int) (Double) xy.get("type");
-                result.add(new Point((float) x, (float) y,  (float) size));
+                String type;
+                Object typeParsed = xy.get("type");
+                if(!(typeParsed instanceof String)) type = "NORMAL";
+                else type = (String) typeParsed;
+                Type t = Type.valueOf(type);
+                Point p = new Point((float) x, (float) y, (float) size);
+                p.setType(t);
+                result.add(p);
             }
 
         } catch (IOException e) {
