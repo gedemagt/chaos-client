@@ -2,9 +2,11 @@ package com.jhalkjar.caoscomp.gui;
 
 import com.codename1.ui.*;
 import com.codename1.ui.events.ActionEvent;
+import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
 import com.codename1.ui.layouts.LayeredLayout;
+import com.codename1.ui.plaf.Border;
 import com.codename1.ui.plaf.Style;
 import com.codename1.ui.plaf.UIManager;
 import com.jhalkjar.caoscomp.backend.Rute;
@@ -24,37 +26,44 @@ public class Editor extends Form {
     private Canvas canvas;
     private Label l = new Label("Retrieving image..");
     private Rute r;
-    private boolean edit, isLocal;
+    private boolean edit, isLocal, editMode;
 
     private Axis axis;
     private State state = new IdleState();
 
     private Component cnt;
-    private Component editorBar = createEditorComponent();
+    private Component editorBar;
     private Button delete = new Button(FontImage.createMaterial(FontImage.MATERIAL_DELETE, s));
+
+    private ActionListener pressListener = evt -> state = state.onPress(evt);
+    private ActionListener dragListener = evt -> state = state.onDrag(evt);
+    private ActionListener releaseListener = evt -> state = state.onRelease(evt);
 
     public Editor(Rute rute) {
         super(new BorderLayout());
 
         r = rute;
+        for(Point p : r.getPoints()) p.setSelected(false);
         edit = r.getAuthor().equals(DB.getInstance().getLoggedInUser());
         isLocal = r.isLocal();
 
         canvas = new Canvas();
         axis = new Axis(canvas);
 
-        delete.setVisible(false);
-        editorBar.setVisible(false);
 
-        populateToolbar();
+        populateToolbar(edit);
         add(BorderLayout.NORTH, l);
         if(edit) {
+            editorBar = createEditorComponent();
             cnt = LayeredLayout.encloseIn(delete, editorBar);
+
             add(isVertical() ? BorderLayout.EAST : BorderLayout.SOUTH, cnt);
             addOrientationListener(evt -> {
                 removeComponent(cnt);
                 removeComponent(delete);
                 removeComponent(editorBar);
+                editorBar = createEditorComponent();
+                cnt = LayeredLayout.encloseIn(delete, editorBar);
                 add(isVertical() ? BorderLayout.EAST : BorderLayout.SOUTH, cnt);
 
                 revalidate();
@@ -62,10 +71,9 @@ public class Editor extends Form {
                 repaint();
             });
 
-            addPointerPressedListener(evt -> state = state.onPress(evt));
-            canvas.addPointerLongPressListener(evt -> state = state.onPress(evt));
-            addPointerDraggedListener(evt -> state = state.onDrag(evt));
-            addPointerReleasedListener(evt -> state = state.onRelease(evt));
+            delete.setVisible(false);
+            editorBar.setVisible(true);
+
         }
         l.setHidden(false);
         try {
@@ -92,7 +100,27 @@ public class Editor extends Form {
             e.printStackTrace();
         }
 
+        axis.updateSize();
+        repaint();
+        toggleEditMode(false);
     }
+
+    void toggleEditMode(boolean editMode) {
+        this.editMode = editMode;
+        if(cnt != null) cnt.setHidden(!editMode);
+        if(editMode) {
+            addPointerPressedListener(pressListener);
+            addPointerDraggedListener(dragListener);
+            addPointerReleasedListener(releaseListener);
+        }
+        else {
+            removePointerPressedListener(pressListener);
+            removePointerDraggedListener(dragListener);
+            removePointerReleasedListener(releaseListener);
+        }
+        revalidate();
+    }
+
 
     boolean isInDeleteRegion(ActionEvent evt) {
         return delete.getSelectedRect().contains(evt.getX(),evt.getY());
@@ -124,11 +152,23 @@ public class Editor extends Form {
         });
 
         RadioButton start = new RadioButton(FontImage.createMaterial(FontImage.MATERIAL_ADJUST, s));
-        start.addActionListener(evt -> {state.selected.setType(Type.START); canvas.repaint();});
+        start.addActionListener(evt -> {
+            state.selected.setType(Type.START);
+            canvas.repaint();
+            r.save();
+        });
         RadioButton normal = new RadioButton(FontImage.createMaterial(FontImage.MATERIAL_PANORAMA_FISH_EYE, s));
-        normal.addActionListener(evt -> {state.selected.setType(Type.NORMAL); canvas.repaint();});
+        normal.addActionListener(evt -> {
+            state.selected.setType(Type.NORMAL);
+            canvas.repaint();
+            r.save();
+        });
         RadioButton end = new RadioButton(FontImage.createMaterial(FontImage.MATERIAL_BRIGHTNESS_1, s));
-        end.addActionListener(evt -> {state.selected.setType(Type.END); canvas.repaint();});
+        end.addActionListener(evt -> {
+            state.selected.setType(Type.END);
+            canvas.repaint();
+            r.save();
+        });
 
         addPointerReleasedListener(evt -> {
             if(state.selected != null) {
@@ -143,8 +183,18 @@ public class Editor extends Form {
         end.setToggle(true);
 
         new ButtonGroup(start, normal, end);
-
-        return BorderLayout.centerCenterEastWest(null, BoxLayout.encloseX(decrease, increase), BoxLayout.encloseX(start, normal, end));
+        if(isVertical()) {
+            Container c = new Container(new BorderLayout());
+            c.add(BorderLayout.SOUTH, BoxLayout.encloseY(increase, decrease));
+            c.add(BorderLayout.NORTH, BoxLayout.encloseY(start, normal, end));
+            return c;
+        }
+        else {
+            Container c = new Container(new BorderLayout());
+            c.add(BorderLayout.EAST, BoxLayout.encloseX(decrease, increase));
+            c.add(BorderLayout.WEST, BoxLayout.encloseX(start, normal, end));
+            return c;
+        }
     }
 
 
@@ -162,7 +212,7 @@ public class Editor extends Form {
     }
 
 
-    void populateToolbar() {
+    void populateToolbar(boolean canEdit) {
         Toolbar tb = new Toolbar();
         setToolbar(tb);
 
@@ -170,12 +220,21 @@ public class Editor extends Form {
             new RuteList().showBack();
         });
 
-        char image = isLocal ? FontImage.MATERIAL_STAR : FontImage.MATERIAL_STAR_BORDER;
-        tb.addCommandToRightBar("", FontImage.createMaterial(image, s), evt -> {
+        if(canEdit) {
+            char image = editMode ? FontImage.MATERIAL_VISIBILITY : FontImage.MATERIAL_EDIT;
+            tb.addCommandToRightBar("", FontImage.createMaterial(image, s), evt -> {
+                toggleEditMode(!editMode);
+                populateToolbar(canEdit);
+                if(!editMode) for(Point p : r.getPoints()) p.setSelected(false);
+            });
+        }
+
+        char image = isLocal ? FontImage.MATERIAL_CLOUD : FontImage.MATERIAL_FILE_DOWNLOAD;
+        String text = isLocal ? "Remove locally!" : "Download!";
+        tb.addCommandToOverflowMenu(text, FontImage.createMaterial(image, s2), evt -> {
 
             r.setLocal(!isLocal);
             isLocal = !isLocal;
-            populateToolbar();
 
         });
 
@@ -248,7 +307,6 @@ public class Editor extends Form {
 
                 canvas.setImmediatelyDrag(true);
                 newSelected.setSelected(true);
-                if(evt.isLongEvent()) return new ScaleState(selected).onPress(evt);
                 if(newSelected.equals(selected)) return new MoveState(selected).onPress(evt);
                 selected = newSelected;
             }
@@ -268,35 +326,6 @@ public class Editor extends Form {
             revalidate();
             return this;
         }
-    }
-
-    private class ScaleState extends State {
-        protected  ScaleState(Point p) {super(p); initialSize = p.getSize();}
-
-        private float initialX, initialSize;
-
-        @Override
-        State onPress(ActionEvent evt) {
-
-            initialX = axis.xPixelToFloat(evt.getX());
-            return this;
-        }
-
-        @Override
-        State onDrag(ActionEvent evt) {
-
-            float x = axis.xPixelToFloat(evt.getX()) - initialX;
-            selected.setSize(x + initialSize);
-            repaint();
-            return this;
-        }
-
-        @Override
-        State onRelease(ActionEvent evt) {
-            return new IdleState(selected).onRelease(evt);
-        }
-
-
     }
 
     private class MoveState extends State {

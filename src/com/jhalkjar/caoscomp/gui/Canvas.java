@@ -1,11 +1,6 @@
 package com.jhalkjar.caoscomp.gui;
 
 import com.codename1.components.ImageViewer;
-import com.codename1.ui.events.ActionEvent;
-import com.codename1.ui.events.ActionListener;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by jesper on 11/5/17.
@@ -15,20 +10,6 @@ public class Canvas extends ImageViewer {
     private boolean wasMultiDragged = false;
     private boolean immedateDrag = false;
     private boolean diablePointerDrag = false;
-
-    private List<ActionListener> longPressListeners = new ArrayList<>();
-
-    public void addPointerLongPressListener(ActionListener l) {
-        longPressListeners.add(l);
-    }
-
-    @Override
-    public void longPointerPress(int x, int y) {
-        for(ActionListener l : longPressListeners) {
-            l.actionPerformed(new ActionEvent(this, x, y, true));
-        }
-        super.pointerPressed(x,y);
-    }
 
     @Override
     public void pointerPressed(int[] x, int[] y) {
