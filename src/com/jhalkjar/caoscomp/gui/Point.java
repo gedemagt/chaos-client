@@ -74,9 +74,6 @@ public class Point {
         if(type == Type.END) g.setColor(0xFF0000);
 
 
-
-
-
         g.drawArc(x - size/2, y - size/2, size, size, 0, 360);
         g.drawArc(x - size/2+1, y - size/2+1, size-2, size-2, 0, 360);
 

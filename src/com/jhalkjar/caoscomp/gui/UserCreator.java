@@ -59,7 +59,7 @@ public class UserCreator extends Form {
             }
 
         });
-        getToolbar().addCommandToLeftBar("", FontImage.createMaterial(FontImage.MATERIAL_ARROW_BACK, s), (e) -> {
+        setBackCommand("", FontImage.createMaterial(FontImage.MATERIAL_ARROW_BACK, s), (e) -> {
             f.showBack();
         });
     }

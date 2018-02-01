@@ -5,6 +5,7 @@ package com.jhalkjar.caoscomp.gui;
  */
 
 import com.codename1.components.FloatingActionButton;
+import com.codename1.io.Log;
 import com.codename1.io.Preferences;
 import com.codename1.l10n.DateFormat;
 import com.codename1.l10n.SimpleDateFormat;
@@ -54,7 +55,7 @@ public class RuteList extends Form {
             revalidate();
         });
 
-        Label l =  new Label("Refreshing...");
+        Label l =  new Label("Network error!");
         selectionContainer = createSelectionContainer();
         selectionContainer.setHidden(true);
         add(BorderLayout.NORTH, l);
@@ -64,8 +65,6 @@ public class RuteList extends Form {
         DB.getInstance().addRefreshListener(new DB.RefreshListener() {
             @Override
             public void OnBeginRefresh() {
-                l.setHidden(false);
-                revalidate();
             }
 
             @Override
@@ -74,6 +73,12 @@ public class RuteList extends Form {
                 rutes = DB.getInstance().getRutes();
                 Collections.sort(rutes, (o1, o2) -> (int) (o2.getDate().getTime() - o1.getDate().getTime()));
                 updateUI();
+            }
+
+            @Override
+            public void OnRefreshError() {
+                l.setHidden(false);
+                revalidate();
             }
         });
         rutes = DB.getInstance().getRutes();

@@ -18,11 +18,7 @@ import java.util.*;
  */
 public class WebDatabase extends ChaosDatabase {
 
-    public static void setHost(String host_) {
-        host = host_;
-    }
-
-    private static String host = "https://jeshj.pythonanywhere.com";
+    private static final String host = "https://jeshj.pythonanywhere.com";
 //    private static String host = "http://localhost:5000";
 
 
@@ -30,6 +26,9 @@ public class WebDatabase extends ChaosDatabase {
     private Map<String, User> users = new HashMap<>();
     private Map<String, Rute> rutes = new HashMap<>();
 
+    public WebDatabase() {
+
+    }
 
     public List<User> getUsers() {
         return new ArrayList<>(users.values());

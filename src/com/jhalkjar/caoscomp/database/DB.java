@@ -2,6 +2,7 @@ package com.jhalkjar.caoscomp.database;
 
 import com.codename1.io.FileSystemStorage;
 import com.codename1.io.Log;
+import com.codename1.io.NetworkManager;
 import com.codename1.io.Preferences;
 import com.codename1.util.SuccessCallback;
 import com.jhalkjar.caoscomp.backend.*;
@@ -36,8 +37,14 @@ public class DB {
     }
 
     private DB() {
+
         imgProvider = new ImageProvider(local, web);
+        NetworkManager.getInstance().addErrorListener(evt -> {
+            for(RefreshListener l : refreshListeners) l.OnEndRefresh();
+            evt.consume();
+        });
     }
+
 
     public boolean isLocal(Rute r) {
         return local.hasRute(r);
@@ -207,6 +214,7 @@ public class DB {
     public interface RefreshListener {
         void OnBeginRefresh();
         void OnEndRefresh();
+        void OnRefreshError();
     }
 
 }
