@@ -34,7 +34,7 @@ public class RuteCreator extends Form {
         super(new BorderLayout());
         Style s = UIManager.getInstance().getComponentStyle("Title");
 
-        TextComponent name = new TextComponent().label("Name");
+        TextComponent name = new TextComponent().label("Name").text("Mysterious Rute");
 
         GymPicker gym = new GymPicker(this);
         Button b = new Button(FontImage.createMaterial(FontImage.MATERIAL_PHOTO_CAMERA, s));
