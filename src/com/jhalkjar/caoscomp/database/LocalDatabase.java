@@ -19,7 +19,7 @@ import java.util.*;
  */
 public class LocalDatabase extends ChaosDatabase{
     private static String configPath = "/setup.sql";
-    private String dbname = "1aasdsasdsdasdasdddd";
+    private String dbname = "test3";
 
     private Map<String, Gym> gyms = new HashMap<>();
     private Map<String, User> users = new HashMap<>();
@@ -63,7 +63,7 @@ public class LocalDatabase extends ChaosDatabase{
     }
 
 
-    public Rute createRute(String name, User author, Gym gym, Date date, String imageUUID) {
+    public Rute createRute(String name, User author, Gym gym, Date date, String imageUUID, Grade grade) {
         try {
             Database db = Database.openOrCreate(dbname);
             DAOProvider provider = new DAOProvider(db, configPath, 1);
@@ -80,6 +80,7 @@ public class LocalDatabase extends ChaosDatabase{
             rute.put("datetime", Util.dateFormat.format(date));
             rute.put("edit", Util.dateFormat.format(date));
             rute.put("image", imageUUID);
+            rute.put("grade", grade.name());
             rutes.save(rute);
             db.close();
 
@@ -186,6 +187,7 @@ public class LocalDatabase extends ChaosDatabase{
             rute.put("gym", r.getGym().getUUID());
             rute.put("datetime", Util.dateFormat.format(r.getDate()));
             rute.put("image", r.getImageUUID());
+            rute.put("grade", r.getGrade().name());
             rutes.save(rute);
             db.close();
 
@@ -291,8 +293,9 @@ public class LocalDatabase extends ChaosDatabase{
                 String uuid = (String) m.get("uuid");
                 String image = (String) m.get("image");
                 long id = (Long) m.get("id");
+                Grade grade = Grade.valueOf((String) (m.get("grade")));
 
-                RuteImpl r = new RuteImpl(id, uuid, image, date, lastedit, name, getUser(author), getGym(gym), Util.stringToVals(points));
+                RuteImpl r = new RuteImpl(id, uuid, image, date, lastedit, name, getUser(author), getGym(gym), Util.stringToVals(points), grade);
                 rutes.put(uuid, r);
             }
             Log.p("[LocalDatabase] Loaded rutes: " + getRutes().toString());

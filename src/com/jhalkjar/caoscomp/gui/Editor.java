@@ -6,8 +6,11 @@ import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
 import com.codename1.ui.layouts.LayeredLayout;
+import com.codename1.ui.plaf.Border;
 import com.codename1.ui.plaf.Style;
 import com.codename1.ui.plaf.UIManager;
+import com.codename1.ui.spinner.Picker;
+import com.jhalkjar.caoscomp.backend.Grade;
 import com.jhalkjar.caoscomp.backend.Rute;
 import com.jhalkjar.caoscomp.database.DB;
 import com.jhalkjar.caoscomp.database.NoImageException;
@@ -25,6 +28,7 @@ public class Editor extends Form {
     private Canvas canvas;
     private Label l = new Label("Retrieving image..");
     private Rute r;
+
     private boolean edit, isLocal, editMode;
 
     private Axis axis;
@@ -169,6 +173,23 @@ public class Editor extends Form {
             r.save();
         });
 
+        Picker gradePicker = new Picker();
+        gradePicker.setType(Display.PICKER_TYPE_STRINGS);
+        gradePicker.setStrings(
+                Grade.green.name(),
+                Grade.yellow.name(),
+                Grade.blue.name(),
+                Grade.purple.name(),
+                Grade.red.name(),
+                Grade.black.name(),
+                Grade.white.name());
+        gradePicker.setText(r.getGrade().name());
+        gradePicker.addActionListener( evt ->{
+            r.setGrade(Grade.valueOf(gradePicker.getSelectedString()));
+            r.save();
+        });
+
+
         addPointerReleasedListener(evt -> {
             if(state.selected != null) {
                 if(state.selected.getType() == Type.NORMAL) normal.setSelected(true);
@@ -192,6 +213,7 @@ public class Editor extends Form {
             Container c = new Container(new BorderLayout());
             c.add(BorderLayout.EAST, BoxLayout.encloseX(decrease, increase));
             c.add(BorderLayout.WEST, BoxLayout.encloseX(start, normal, end));
+            c.add(BorderLayout.CENTER, BoxLayout.encloseY(gradePicker));
             return c;
         }
     }
@@ -245,7 +267,7 @@ public class Editor extends Form {
             CheckBox cb = new CheckBox("Copy points");
             cb.setSelected(false);
             ok.addActionListener(evt -> {
-                Rute newR = DB.getInstance().createRute(name.getText(), null, DB.getInstance().getLoggedInUser(), r.getGym(), new Date(), r.getImageUUID());
+                Rute newR = DB.getInstance().createRute(name.getText(), null, DB.getInstance().getLoggedInUser(), r.getGym(), new Date(), r.getImageUUID(), r.getGrade());
                 if(cb.isSelected()) {
                     for(Point p : r.getPoints()) newR.getPoints().add(new Point(p));
                     newR.save();

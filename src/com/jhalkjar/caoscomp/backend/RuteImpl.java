@@ -53,8 +53,8 @@ public class RuteImpl extends AbstractRute{
     private Date lastEdit;
     private String imageuuid;
 
-    public RuteImpl(long id, String uuid, String imageuuid, Date date, Date lastEdit, String name, User author, Gym gym, List<Point> points) {
-        super(id, uuid, date, name, author, gym, points);
+    public RuteImpl(long id, String uuid, String imageuuid, Date date, Date lastEdit, String name, User author, Gym gym, List<Point> points, Grade grade) {
+        super(id, uuid, date, name, author, gym, points, grade);
         this.lastEdit = lastEdit;
         this.imageuuid = imageuuid;
     }
@@ -62,6 +62,10 @@ public class RuteImpl extends AbstractRute{
     @Override
     public String toString() {
         return "Rute<" + name + "@" + uuid +">";
+    }
+
+    public void setGrade(Grade grade) {
+        this.grade = grade;
     }
 
 }
