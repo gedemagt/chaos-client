@@ -171,7 +171,7 @@ public class WebDatabase extends ChaosDatabase {
                     User author = getUser((String) vals.get("author"));
                     String uuid = (String) vals.get("uuid");
                     String image = (String) vals.get("image");
-                    Grade grade = (Grade) vals.get("grade");
+                    Grade grade = Grade.valueOf((String) vals.get("grade"));
                     list.put(uuid, new RuteImpl(-1, uuid, image, date, last_edit, name, author, gym, Util.stringToVals(coordinates), grade));
                 }
                 rutes = list;
