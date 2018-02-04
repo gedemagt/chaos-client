@@ -13,6 +13,16 @@ import java.util.List;
  */
 public class RuteImpl extends AbstractRute{
 
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public void setGym(Gym gym) {
+        this.gym = gym;
+    }
+
     public void getImage(ImageListener callback) throws NoImageException {
         DB.getInstance().getImageProvider().getImage(imageuuid, callback);
     }

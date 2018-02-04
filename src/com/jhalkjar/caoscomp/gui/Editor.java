@@ -1,5 +1,6 @@
 package com.jhalkjar.caoscomp.gui;
 
+import com.codename1.io.Log;
 import com.codename1.ui.*;
 import com.codename1.ui.events.ActionEvent;
 import com.codename1.ui.events.ActionListener;
@@ -256,6 +257,17 @@ public class Editor extends Form {
             d.show();
         });
 
+        TextField title = new TextField(r.getName());
+        title.setUIID("Title");
+        title.getAllStyles().setAlignment(Component.LEFT);
+
+        title.setEditable(editMode);
+        title.addDataChangedListener((type, index) -> {
+            r.setName(title.getText());
+            r.save();
+        });
+        tb.setTitleComponent(title);
+
         if(edit) {
             getToolbar().addCommandToOverflowMenu("Delete", FontImage.createMaterial(FontImage.MATERIAL_DELETE, s2), evt -> {
 
@@ -264,7 +276,7 @@ public class Editor extends Form {
             });
         }
 
-        tb.setTitle(r.getName());
+
         revalidate();
     }
 
