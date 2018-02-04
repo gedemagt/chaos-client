@@ -289,7 +289,7 @@ public class Editor extends Form {
         }
 
         public IdleState() {
-            super(new Point(0,0,0));
+            super(new Point(0,0,0.05f));
         }
 
         @Override
