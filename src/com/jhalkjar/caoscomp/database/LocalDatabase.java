@@ -19,7 +19,7 @@ import java.util.*;
  */
 public class LocalDatabase extends ChaosDatabase{
     private static String configPath = "/setup.sql";
-    private String dbname = "1aasdsasdsdasdasdddd";
+    private String dbname = "t2";
 
     private Map<String, Gym> gyms = new HashMap<>();
     private Map<String, User> users = new HashMap<>();
@@ -399,6 +399,8 @@ public class LocalDatabase extends ChaosDatabase{
             if(result != null) {
                 result.put("coordinates", Util.valsToString(r.getPoints()));
                 result.put("edit", Util.dateFormat.format(r.lastEdit()));
+                result.put("name", r.getName());
+                result.put("gym", r.getGym().getUUID());
                 games.update(result);
                 for(DatabaseListener l : listeners) l.OnSaved(r);
             }

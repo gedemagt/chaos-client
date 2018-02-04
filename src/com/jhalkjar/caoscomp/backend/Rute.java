@@ -13,9 +13,11 @@ import java.util.List;
 public interface Rute extends DatabaseEntry {
 
     String getName();
+    void setName(String name);
     User getAuthor();
     List<Point> getPoints();
     Gym getGym();
+    void setGym(Gym gym);
     void getImage(ImageListener callback) throws NoImageException;
     Date lastEdit();
 
