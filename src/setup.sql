@@ -33,7 +33,7 @@ CREATE TABLE rute (
 	image VARCHAR,
 	author VARCHAR,
 	gym VARCHAR,
-  grade VARCHAR,
+	grade VARCHAR,
 	datetime TIMESTAMP DEFAULT (datetime('now')),
 	edit TIMESTAMP DEFAULT (datetime('now'))
 );
