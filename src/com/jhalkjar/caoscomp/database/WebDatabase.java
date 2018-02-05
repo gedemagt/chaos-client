@@ -18,7 +18,9 @@ import java.util.*;
  */
 public class WebDatabase extends ChaosDatabase {
 
+
 //    private static final String host = "https://jeshj.pythonanywhere.com";
+
     private static String host = "http://localhost:5000";
 
 
@@ -66,6 +68,7 @@ public class WebDatabase extends ChaosDatabase {
             object.put("edit", Util.dateFormat.format(r.lastEdit()));
             object.put("uuid", r.getUUID());
             object.put("image", r.getImageUUID());
+            object.put("grade", r.getGrade().name());
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -172,7 +175,8 @@ public class WebDatabase extends ChaosDatabase {
                     User author = getUser((String) vals.get("author"));
                     String uuid = (String) vals.get("uuid");
                     String image = (String) vals.get("image");
-                    list.put(uuid, new RuteImpl(-1, uuid, image, date, last_edit, name, author, gym, Util.stringToVals(coordinates)));
+                    Grade grade = Grade.valueOf((String) vals.get("grade"));
+                    list.put(uuid, new RuteImpl(-1, uuid, image, date, last_edit, name, author, gym, Util.stringToVals(coordinates), grade));
                 }
                 rutes = list;
                 Log.p("[WebDatabase] Loaded rutes: " + rutes.toString());

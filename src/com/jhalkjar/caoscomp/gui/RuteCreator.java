@@ -13,6 +13,7 @@ import com.codename1.ui.plaf.UIManager;
 import com.codename1.ui.util.ImageIO;
 import com.codename1.ui.validation.LengthConstraint;
 import com.codename1.ui.validation.Validator;
+import com.jhalkjar.caoscomp.backend.Grade;
 import com.jhalkjar.caoscomp.backend.Rute;
 import com.jhalkjar.caoscomp.database.DB;
 
@@ -61,7 +62,7 @@ public class RuteCreator extends Form {
         getToolbar().addCommandToRightBar("", FontImage.createMaterial(FontImage.MATERIAL_DONE, s), (e) -> {
             if(!imageLoaded) Dialog.show("No image", "Please choose an image!", Dialog.TYPE_ERROR, null, "OK", null);
             else {
-                Rute r = DB.getInstance().createRute(name.getField().getText(), path, DB.getInstance().getLoggedInUser(), gym.getGym(), new Date(), null);
+                Rute r = DB.getInstance().createRute(name.getField().getText(), path, DB.getInstance().getLoggedInUser(), gym.getGym(), new Date(), null, Grade.green);
                 new Editor(r).show();
             }
         });

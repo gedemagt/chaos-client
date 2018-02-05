@@ -165,8 +165,8 @@ public class DB {
         });
     }
 
-    public Rute createRute(String name, String image_url, User author, Gym gym, Date date, String imageUUID) {
-        Rute r = local.createRute(name, author, gym, date, imageUUID);
+    public Rute createRute(String name, String image_url, User author, Gym gym, Date date, String imageUUID, Grade grade) {
+        Rute r = local.createRute(name, author, gym, date, imageUUID, grade);
         String uploadURL = null;
         if(image_url != null) {
             String new_url = r.getImageUUID() + ".jpg";

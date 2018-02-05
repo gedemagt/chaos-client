@@ -18,6 +18,10 @@ public interface Rute extends DatabaseEntry {
     List<Point> getPoints();
     Gym getGym();
     void setGym(Gym gym);
+  
+    Grade getGrade();
+    void setGrade(Grade grade);
+  
     void getImage(ImageListener callback) throws NoImageException;
     Date lastEdit();
 
@@ -28,5 +32,6 @@ public interface Rute extends DatabaseEntry {
 
     boolean isLocal();
     void setLocal(boolean b);
+
 
 }

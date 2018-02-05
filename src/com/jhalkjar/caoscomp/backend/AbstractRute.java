@@ -13,13 +13,15 @@ public abstract class AbstractRute extends DatabaseEntryImpl implements Rute {
     protected User author;
     protected Gym gym;
     protected List<Point> p;
+    protected Grade grade;
 
-    public AbstractRute(long id, String uuid, Date date, String name, User author, Gym gym, List<Point> points) {
+    public AbstractRute(long id, String uuid, Date date, String name, User author, Gym gym, List<Point> points, Grade grade) {
         super(uuid, id, date);
         this.author = author;
         this.gym = gym;
         this.name = name;
         this.p = points;
+        this.grade = grade;
     }
 
     @Override
@@ -47,5 +49,12 @@ public abstract class AbstractRute extends DatabaseEntryImpl implements Rute {
         return date;
     }
 
+    @Override
+    public Grade getGrade() {   return grade; }
 
+    @Override
+    public void setGrade(Grade grade) {
+        this.grade = grade;
+    }
 }
+
