@@ -177,13 +177,13 @@ public class Editor extends Form {
         Picker gradePicker = new Picker();
         gradePicker.setType(Display.PICKER_TYPE_STRINGS);
         gradePicker.setStrings(
-                Grade.green.name(),
-                Grade.yellow.name(),
-                Grade.blue.name(),
-                Grade.purple.name(),
-                Grade.red.name(),
-                Grade.black.name(),
-                Grade.white.name());
+                Grade.GREEN.name(),
+                Grade.YELLOW.name(),
+                Grade.BLUE.name(),
+                Grade.PURPLE.name(),
+                Grade.RED.name(),
+                Grade.BLACK.name(),
+                Grade.WHITE.name());
         gradePicker.setText(r.getGrade().name());
         gradePicker.addActionListener( evt ->{
             r.setGrade(Grade.valueOf(gradePicker.getSelectedString()));

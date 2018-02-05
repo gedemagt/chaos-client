@@ -21,6 +21,7 @@ public class LocalDatabase extends ChaosDatabase{
     private static String configPath = "/setup.sql";
 
     private String dbname = "t2";
+    private static int VERSION = 2;
 
 
     private Map<String, Gym> gyms = new HashMap<>();
@@ -68,7 +69,7 @@ public class LocalDatabase extends ChaosDatabase{
     public Rute createRute(String name, User author, Gym gym, Date date, String imageUUID, Grade grade) {
         try {
             Database db = Database.openOrCreate(dbname);
-            DAOProvider provider = new DAOProvider(db, configPath, 1);
+            DAOProvider provider = new DAOProvider(db, configPath, VERSION);
             DAO rutes = provider.get("rute");
             Map rute = (Map) rutes.newObject();
             String uuid = UUID.randomUUID().toString();
@@ -101,7 +102,7 @@ public class LocalDatabase extends ChaosDatabase{
     public void getImage(String uuid, ImageListener listenr) throws NoImageException {
         try {
             Database db = Database.openOrCreate(dbname);
-            DAOProvider provider = new DAOProvider(db, configPath, 1);
+            DAOProvider provider = new DAOProvider(db, configPath, VERSION);
             DAO games = provider.get("image");
             Map<String, Object> result = (Map<String, Object>) games.fetchOne(new String[]{"uuid", uuid});
             db.close();
@@ -118,7 +119,7 @@ public class LocalDatabase extends ChaosDatabase{
     public String getImageUrl(String uuid) throws NoImageException {
         try {
             Database db = Database.openOrCreate(dbname);
-            DAOProvider provider = new DAOProvider(db, configPath, 1);
+            DAOProvider provider = new DAOProvider(db, configPath, VERSION);
             DAO games = provider.get("image");
             Map<String, Object> result = (Map<String, Object>) games.fetchOne(new String[]{"uuid", uuid});
             db.close();
@@ -136,7 +137,7 @@ public class LocalDatabase extends ChaosDatabase{
     public User checkLogin(String username, String password) throws IllegalArgumentException {
         try {
             Database db = Database.openOrCreate(dbname);
-            DAOProvider provider = new DAOProvider(db, configPath, 1);
+            DAOProvider provider = new DAOProvider(db, configPath, VERSION);
             DAO games = provider.get("user");
             Map<String, Object> result = (Map<String, Object>) games.fetchOne(new String[]{"name", username});
             db.close();
@@ -156,7 +157,7 @@ public class LocalDatabase extends ChaosDatabase{
         Log.p("[LocalDatabase] Sets image for " + uuid + ": " + imageUrl);
         try {
             Database db = Database.openOrCreate(dbname);
-            DAOProvider provider = new DAOProvider(db, configPath, 1);
+            DAOProvider provider = new DAOProvider(db, configPath, VERSION);
             DAO games = provider.get("image");
             Map result = (Map) games.fetchOne(new String[]{"uuid", uuid});
             if(result == null) {
@@ -179,7 +180,7 @@ public class LocalDatabase extends ChaosDatabase{
         try {
             Log.p("[LocalDatabase] Adding rute: " + r);
             Database db = Database.openOrCreate(dbname);
-            DAOProvider provider = new DAOProvider(db, configPath, 1);
+            DAOProvider provider = new DAOProvider(db, configPath, VERSION);
             DAO rutes = provider.get("rute");
             Map rute = (Map) rutes.newObject();
             rute.put("uuid", r.getUUID());
@@ -203,7 +204,7 @@ public class LocalDatabase extends ChaosDatabase{
     public boolean hasRute(Rute r) {
         try {
             Database db = Database.openOrCreate(dbname);
-            DAOProvider provider = new DAOProvider(db, configPath, 1);
+            DAOProvider provider = new DAOProvider(db, configPath, VERSION);
             DAO games = provider.get("rute");
             Map result = (Map) games.fetchOne(new String[]{"uuid", r.getUUID()});
             db.close();
@@ -224,7 +225,7 @@ public class LocalDatabase extends ChaosDatabase{
         Database db;
         try {
             db = Database.openOrCreate(dbname);
-            DAOProvider provider = new DAOProvider(db, configPath, 1);
+            DAOProvider provider = new DAOProvider(db, configPath, VERSION);
             DAO users = provider.get("user");
             Map user = (Map) users.newObject();
             user.put("uuid", uuid);
@@ -255,7 +256,7 @@ public class LocalDatabase extends ChaosDatabase{
     public Gym addGym(String uuid, String name, double lat, double lon, Date date) {
         try {
             Database db = Database.openOrCreate(dbname);
-            DAOProvider provider = new DAOProvider(db, configPath, 1);
+            DAOProvider provider = new DAOProvider(db, configPath, VERSION);
             DAO gyms = provider.get("gym");
             Map gym = (Map) gyms.newObject();
             gym.put("uuid", uuid);
@@ -280,7 +281,7 @@ public class LocalDatabase extends ChaosDatabase{
     private void loadRutes() {
         try {
             Database db = Database.openOrCreate(dbname);
-            DAOProvider provider = new DAOProvider(db, configPath, 1);
+            DAOProvider provider = new DAOProvider(db, configPath, VERSION);
             DAO games = provider.get("rute");
             List<Map> allRutes = games.fetchAll();
             rutes.clear();
@@ -295,7 +296,14 @@ public class LocalDatabase extends ChaosDatabase{
                 String uuid = (String) m.get("uuid");
                 String image = (String) m.get("image");
                 long id = (Long) m.get("id");
-                Grade grade = Grade.valueOf((String) (m.get("grade")));
+                String grader = (String) (m.get("grade"));
+                Grade grade;
+                try {
+                    grade = Grade.valueOf(grader);
+                } catch (IllegalArgumentException|NullPointerException e) {
+                    grade = Grade.NO_GRADE;
+                }
+
 
                 RuteImpl r = new RuteImpl(id, uuid, image, date, lastedit, name, getUser(author), getGym(gym), Util.stringToVals(points), grade);
                 rutes.put(uuid, r);
@@ -311,7 +319,7 @@ public class LocalDatabase extends ChaosDatabase{
     private void loadUsers() {
         try {
             Database db = Database.openOrCreate(dbname);
-            DAOProvider provider = new DAOProvider(db, configPath, 1);
+            DAOProvider provider = new DAOProvider(db, configPath, VERSION);
             DAO games = provider.get("user");
             List<Map> allRutes = games.fetchAll();
             users.clear();
@@ -337,7 +345,7 @@ public class LocalDatabase extends ChaosDatabase{
     private void loadGyms() {
         try {
             Database db = Database.openOrCreate(dbname);
-            DAOProvider provider = new DAOProvider(db, configPath, 1);
+            DAOProvider provider = new DAOProvider(db, configPath, VERSION);
             DAO games = provider.get("gym");
             List<Map> allRutes = games.fetchAll();
 
@@ -398,7 +406,7 @@ public class LocalDatabase extends ChaosDatabase{
     public void save(Rute r) {
         try {
             Database db = Database.openOrCreate(dbname);
-            DAOProvider provider = new DAOProvider(db, configPath, 1);
+            DAOProvider provider = new DAOProvider(db, configPath, VERSION);
             DAO games = provider.get("rute");
             Map result = (Map) games.fetchOne(new String[]{"uuid", r.getUUID()});
             if(result != null) {
@@ -406,6 +414,7 @@ public class LocalDatabase extends ChaosDatabase{
                 result.put("edit", Util.dateFormat.format(r.lastEdit()));
                 result.put("name", r.getName());
                 result.put("gym", r.getGym().getUUID());
+                result.put("grade", r.getGrade());
                 games.update(result);
                 for(DatabaseListener l : listeners) l.OnSaved(r);
             }

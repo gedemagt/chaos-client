@@ -62,7 +62,7 @@ public class RuteCreator extends Form {
         getToolbar().addCommandToRightBar("", FontImage.createMaterial(FontImage.MATERIAL_DONE, s), (e) -> {
             if(!imageLoaded) Dialog.show("No image", "Please choose an image!", Dialog.TYPE_ERROR, null, "OK", null);
             else {
-                Rute r = DB.getInstance().createRute(name.getField().getText(), path, DB.getInstance().getLoggedInUser(), gym.getGym(), new Date(), null, Grade.green);
+                Rute r = DB.getInstance().createRute(name.getField().getText(), path, DB.getInstance().getLoggedInUser(), gym.getGym(), new Date(), null, Grade.NO_GRADE);
                 new Editor(r).show();
             }
         });
