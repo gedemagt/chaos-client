@@ -18,7 +18,9 @@ import java.util.*;
  */
 public class WebDatabase extends ChaosDatabase {
 
-    //private static final String host = "https://jeshj.pythonanywhere.com";
+
+//    private static final String host = "https://jeshj.pythonanywhere.com";
+
     private static String host = "http://localhost:5000";
 
 
@@ -142,6 +144,8 @@ public class WebDatabase extends ChaosDatabase {
             object.put("uuid", r.getUUID());
             object.put("coordinates", Util.valsToString(r.getPoints()));
             object.put("edit", Util.dateFormat.format(r.lastEdit()));
+            object.put("name", r.getName());
+            object.put("gym", r.getGym().getUUID());
         } catch (JSONException e) {
             e.printStackTrace();
         }
