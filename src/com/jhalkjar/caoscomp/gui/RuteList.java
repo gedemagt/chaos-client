@@ -6,7 +6,6 @@ package com.jhalkjar.caoscomp.gui;
 
 import com.codename1.charts.util.ColorUtil;
 import com.codename1.components.FloatingActionButton;
-import com.codename1.io.Log;
 import com.codename1.io.Preferences;
 import com.codename1.l10n.DateFormat;
 import com.codename1.l10n.SimpleDateFormat;

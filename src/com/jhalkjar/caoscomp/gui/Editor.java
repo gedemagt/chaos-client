@@ -7,6 +7,7 @@ import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.geom.Dimension;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
+import com.codename1.ui.layouts.GridLayout;
 import com.codename1.ui.layouts.LayeredLayout;
 import com.codename1.ui.plaf.Border;
 import com.codename1.ui.plaf.Style;
@@ -45,7 +46,9 @@ public class Editor extends Form {
     private ActionListener dragListener = evt -> state = state.onDrag(evt);
     private ActionListener releaseListener = evt -> state = state.onRelease(evt);
 
-    TextField title = new TextField();
+    private TextField title = new TextField();
+
+    private GradePicker gp = new GradePicker();
 
     public Editor(Rute rute) {
         super(new BorderLayout());
@@ -182,20 +185,9 @@ public class Editor extends Form {
             canvas.repaint();
             r.save();
         });
-
-        Picker gradePicker = new Picker();
-        gradePicker.setType(Display.PICKER_TYPE_STRINGS);
-        gradePicker.setStrings(
-                Grade.GREEN.name(),
-                Grade.YELLOW.name(),
-                Grade.BLUE.name(),
-                Grade.PURPLE.name(),
-                Grade.RED.name(),
-                Grade.BLACK.name(),
-                Grade.GRAY.name());
-        gradePicker.setText(r.getGrade().name());
-        gradePicker.addActionListener( evt ->{
-            r.setGrade(Grade.valueOf(gradePicker.getSelectedString()));
+        Button gradePicker = new Button(FontImage.createMaterial(FontImage.MATERIAL_GRADE, s));
+        gradePicker.addActionListener(evt -> {
+            r.setGrade(gp.getGrade());
             r.save();
             updateColor();
         });
@@ -444,5 +436,7 @@ public class Editor extends Form {
             return new IdleState(selected).onRelease(evt);
         }
     }
+
+
 
 }
