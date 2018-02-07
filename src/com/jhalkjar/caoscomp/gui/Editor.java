@@ -43,6 +43,9 @@ public class Editor extends Form {
     private ActionListener dragListener = evt -> state = state.onDrag(evt);
     private ActionListener releaseListener = evt -> state = state.onRelease(evt);
 
+    TextField title = new TextField();
+
+
     public Editor(Rute rute) {
         super(new BorderLayout());
 
@@ -54,6 +57,9 @@ public class Editor extends Form {
         canvas = new Canvas();
         axis = new Axis(canvas);
 
+
+        title.setText(r.getName());
+        title.setUIID("Title");
         populateToolbar(edit);
         add(BorderLayout.NORTH, l);
         if(edit) {
@@ -234,8 +240,7 @@ public class Editor extends Form {
 
 
     void populateToolbar(boolean canEdit) {
-        Toolbar tb = new Toolbar();
-        setToolbar(tb);
+        Toolbar tb = getToolbar();
 
         tb.addCommandToLeftBar("", FontImage.createMaterial(FontImage.MATERIAL_ARROW_BACK, s), (e) -> {
             new RuteList().showBack();
@@ -278,10 +283,6 @@ public class Editor extends Form {
             d.show();
         });
 
-        TextField title = new TextField(r.getName());
-        title.setUIID("Title");
-        title.getAllStyles().setAlignment(Component.LEFT);
-
         title.setEditable(editMode);
         title.addDataChangedListener((type, index) -> {
             r.setName(title.getText());
@@ -297,8 +298,6 @@ public class Editor extends Form {
             });
         }
 
-
-        revalidate();
     }
 
     private abstract class State {
