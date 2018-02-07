@@ -10,6 +10,8 @@ import com.codename1.io.Preferences;
 import com.codename1.l10n.DateFormat;
 import com.codename1.l10n.SimpleDateFormat;
 import com.codename1.ui.*;
+import com.codename1.ui.Container;
+import com.codename1.ui.Label;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
 import com.codename1.ui.plaf.Style;
@@ -22,6 +24,7 @@ import com.jhalkjar.caoscomp.backend.Rute;
 import com.jhalkjar.caoscomp.backend.User;
 import com.jhalkjar.caoscomp.database.DB;
 
+import java.awt.*;
 import java.util.Collections;
 import java.util.List;
 
@@ -180,8 +183,10 @@ public class RuteList extends Form {
         Container cnt = new Container(tbl);
         cnt.setUIID("ListElement");
 
-        cnt.add(tbl.createConstraint().widthPercentage(60).horizontalSpan(3), name);
-        cnt.add(tbl.createConstraint().widthPercentage(40).horizontalAlign(LEFT), date);
+        cnt.add(tbl.createConstraint().widthPercentage(60).horizontalSpan(2), name);
+        cnt.add(tbl.createConstraint().widthPercentage(30).horizontalAlign(LEFT), date);
+        cnt.add(tbl.createConstraint().widthPercentage(10).horizontalAlign(RIGHT).verticalAlign(CENTER),
+                BorderLayout.center(new ColoredSquare(Grade.getColorInt(rute.getGrade()), 20)));
 
         cnt.add(tbl.createConstraint().widthPercentage(10), new Label(FontImage.createMaterial(FontImage.MATERIAL_HOME, s)));
         cnt.add(tbl.createConstraint().widthPercentage(40), gym);
@@ -192,11 +197,6 @@ public class RuteList extends Form {
             cnt.getComponentAt(i).addPointerReleasedListener(evt -> new Editor(rute).show());
         }
         cnt.addPointerReleasedListener(evt -> new Editor(rute).show());
-        cnt.getAllStyles().setBackgroundGradientEndColor(ColorUtil.WHITE);
-        cnt.getAllStyles().setBackgroundGradientStartColor(Grade.getColorInt(rute.getGrade()));
-        cnt.getAllStyles().setBackgroundGradientRelativeSize(10);
-        cnt.getAllStyles().setBackgroundGradientRelativeX(0.1f);
-        cnt.getAllStyles().setBackgroundGradientRelativeY(0.7f);
 
         return BoxLayout.encloseY(cnt, new Spacer());
     }
