@@ -1,8 +1,10 @@
 package com.jhalkjar.caoscomp.gui;
 
+import com.codename1.io.Log;
 import com.codename1.ui.*;
 import com.codename1.ui.events.ActionEvent;
 import com.codename1.ui.events.ActionListener;
+import com.codename1.ui.geom.Dimension;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
 import com.codename1.ui.layouts.LayeredLayout;
@@ -15,6 +17,7 @@ import com.jhalkjar.caoscomp.backend.Rute;
 import com.jhalkjar.caoscomp.database.DB;
 import com.jhalkjar.caoscomp.database.NoImageException;
 
+import javax.tools.Tool;
 import java.util.Date;
 
 
@@ -35,7 +38,7 @@ public class Editor extends Form {
     private State state = new IdleState();
 
     private Component cnt;
-    private Component editorBar;
+    private Component editorBar, colormaker;
     private Button delete = new Button(FontImage.createMaterial(FontImage.MATERIAL_DELETE, s));
 
     private ActionListener pressListener = evt -> state = state.onPress(evt);
@@ -43,7 +46,6 @@ public class Editor extends Form {
     private ActionListener releaseListener = evt -> state = state.onRelease(evt);
 
     TextField title = new TextField();
-
 
     public Editor(Rute rute) {
         super(new BorderLayout());
@@ -56,11 +58,13 @@ public class Editor extends Form {
         canvas = new Canvas();
         axis = new Axis(canvas);
 
-
         title.setText(r.getName());
         title.setUIID("Title");
+
+        colormaker = new Container();
+        colormaker.setUIID("SpacerThick");
+
         populateToolbar(edit);
-        add(BorderLayout.NORTH, l);
         if(edit) {
             editorBar = createEditorComponent();
             cnt = LayeredLayout.encloseIn(delete, editorBar);
@@ -111,6 +115,7 @@ public class Editor extends Form {
         axis.updateSize();
         repaint();
         toggleEditMode(false);
+        add(BorderLayout.NORTH, BoxLayout.encloseY(colormaker, l));
     }
 
     void toggleEditMode(boolean editMode) {
@@ -187,14 +192,12 @@ public class Editor extends Form {
                 Grade.PURPLE.name(),
                 Grade.RED.name(),
                 Grade.BLACK.name(),
-                Grade.WHITE.name());
+                Grade.GRAY.name());
         gradePicker.setText(r.getGrade().name());
         gradePicker.addActionListener( evt ->{
             r.setGrade(Grade.valueOf(gradePicker.getSelectedString()));
             r.save();
-            populateToolbar(edit);
-
-
+            updateColor();
         });
 
 
@@ -226,6 +229,11 @@ public class Editor extends Form {
         }
     }
 
+    private void updateColor() {
+        colormaker.getAllStyles().setBgColor(Grade.getColorInt(r.getGrade()));
+        colormaker.repaint();
+    }
+
 
     private Point select(float x, float y) {
         for(int i=0; i<r.getPoints().size(); i++) {
@@ -242,12 +250,13 @@ public class Editor extends Form {
 
 
     void populateToolbar(boolean canEdit) {
-        tb = getToolbar();
-        tb.getStyle().setBorder(Border.createEmpty());
-        tb.getStyle().setBgColor(Grade.getColorInt(r.getGrade()));
+        Toolbar tb = new Toolbar(false);
+        setToolbar(tb);
         tb.addCommandToLeftBar("", FontImage.createMaterial(FontImage.MATERIAL_ARROW_BACK, s), (e) -> {
             new RuteList().showBack();
         });
+
+        updateColor();
 
         if(canEdit) {
             char image = editMode ? FontImage.MATERIAL_VISIBILITY : FontImage.MATERIAL_EDIT;

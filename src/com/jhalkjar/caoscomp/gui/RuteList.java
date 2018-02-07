@@ -4,6 +4,7 @@ package com.jhalkjar.caoscomp.gui;
  * Created by jesper on 11/5/17.
  */
 
+import com.codename1.charts.util.ColorUtil;
 import com.codename1.components.FloatingActionButton;
 import com.codename1.io.Log;
 import com.codename1.io.Preferences;
@@ -12,7 +13,6 @@ import com.codename1.l10n.SimpleDateFormat;
 import com.codename1.ui.*;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
-import com.codename1.ui.plaf.Border;
 import com.codename1.ui.plaf.Style;
 import com.codename1.ui.plaf.UIManager;
 
@@ -184,7 +184,6 @@ public class RuteList extends Form {
         cnt.add(tbl.createConstraint().widthPercentage(60).horizontalSpan(3), name);
         cnt.add(tbl.createConstraint().widthPercentage(40).horizontalAlign(LEFT), date);
 
-
         cnt.add(tbl.createConstraint().widthPercentage(10), new Label(FontImage.createMaterial(FontImage.MATERIAL_HOME, s)));
         cnt.add(tbl.createConstraint().widthPercentage(40), gym);
         cnt.add(tbl.createConstraint().widthPercentage(10), new Label(FontImage.createMaterial(FontImage.MATERIAL_PERSON, s)));
@@ -194,6 +193,11 @@ public class RuteList extends Form {
             cnt.getComponentAt(i).addPointerReleasedListener(evt -> new Editor(rute).show());
         }
         cnt.addPointerReleasedListener(evt -> new Editor(rute).show());
+        cnt.getAllStyles().setBackgroundGradientEndColor(ColorUtil.WHITE);
+        cnt.getAllStyles().setBackgroundGradientStartColor(Grade.getColorInt(rute.getGrade()));
+        cnt.getAllStyles().setBackgroundGradientRelativeSize(10);
+        cnt.getAllStyles().setBackgroundGradientRelativeX(0.1f);
+        cnt.getAllStyles().setBackgroundGradientRelativeY(0.7f);
 
         return BoxLayout.encloseY(cnt, new Spacer());
     }

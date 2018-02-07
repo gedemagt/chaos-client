@@ -5,22 +5,22 @@ import com.codename1.charts.util.ColorUtil;
 import static com.codename1.charts.util.ColorUtil.*;
 
 public enum Grade {
-    GREEN, YELLOW, BLUE, PURPLE, RED, BLACK, WHITE, NO_GRADE;
+    GREEN, YELLOW, BLUE, PURPLE, RED, BLACK, GRAY, NO_GRADE;
 
     public static int getColorInt(Grade grade){
-        if (grade == green){
+        if (grade == GREEN){
             return ColorUtil.GREEN;
-        }else if(grade == yellow){
+        }else if(grade == YELLOW){
             return ColorUtil.YELLOW;
-        }else if(grade == blue){
+        }else if(grade == BLUE){
             return ColorUtil.BLUE;
-        }else if(grade == purple){
+        }else if(grade == PURPLE){
             return ColorUtil.MAGENTA;
-        }else if(grade == red){
+        }else if(grade == RED){
             return ColorUtil.red(255);
-        }else if(grade == black){
+        }else if(grade == BLACK){
             return ColorUtil.BLACK;
-        }else if(grade == gray){
+        }else if(grade == GRAY){
             return ColorUtil.LTGRAY;
         }else{
             return 0;
