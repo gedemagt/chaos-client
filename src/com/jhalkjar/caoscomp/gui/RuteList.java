@@ -4,7 +4,6 @@ package com.jhalkjar.caoscomp.gui;
  * Created by jesper on 11/5/17.
  */
 
-import com.codename1.charts.util.ColorUtil;
 import com.codename1.components.FloatingActionButton;
 import com.codename1.io.Preferences;
 import com.codename1.l10n.DateFormat;
@@ -24,7 +23,6 @@ import com.jhalkjar.caoscomp.backend.Rute;
 import com.jhalkjar.caoscomp.backend.User;
 import com.jhalkjar.caoscomp.database.DB;
 
-import java.awt.*;
 import java.util.Collections;
 import java.util.List;
 
