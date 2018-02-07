@@ -12,10 +12,12 @@ import com.codename1.l10n.SimpleDateFormat;
 import com.codename1.ui.*;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
+import com.codename1.ui.plaf.Border;
 import com.codename1.ui.plaf.Style;
 import com.codename1.ui.plaf.UIManager;
 
 import com.codename1.ui.table.TableLayout;
+import com.jhalkjar.caoscomp.backend.Grade;
 import com.jhalkjar.caoscomp.backend.Gym;
 import com.jhalkjar.caoscomp.backend.Rute;
 import com.jhalkjar.caoscomp.backend.User;

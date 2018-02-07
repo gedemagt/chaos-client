@@ -1,6 +1,5 @@
 package com.jhalkjar.caoscomp.gui;
 
-import com.codename1.io.Log;
 import com.codename1.ui.*;
 import com.codename1.ui.events.ActionEvent;
 import com.codename1.ui.events.ActionListener;
@@ -193,6 +192,9 @@ public class Editor extends Form {
         gradePicker.addActionListener( evt ->{
             r.setGrade(Grade.valueOf(gradePicker.getSelectedString()));
             r.save();
+            populateToolbar(edit);
+
+
         });
 
 
@@ -240,8 +242,9 @@ public class Editor extends Form {
 
 
     void populateToolbar(boolean canEdit) {
-        Toolbar tb = getToolbar();
-
+        tb = getToolbar();
+        tb.getStyle().setBorder(Border.createEmpty());
+        tb.getStyle().setBgColor(Grade.getColorInt(r.getGrade()));
         tb.addCommandToLeftBar("", FontImage.createMaterial(FontImage.MATERIAL_ARROW_BACK, s), (e) -> {
             new RuteList().showBack();
         });
@@ -298,6 +301,8 @@ public class Editor extends Form {
             });
         }
 
+        tb.setTitle(r.getName());
+        revalidate();
     }
 
     private abstract class State {
