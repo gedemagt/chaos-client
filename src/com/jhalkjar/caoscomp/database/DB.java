@@ -141,10 +141,15 @@ public class DB {
 
             for(Rute u : local.getRutes()) {
                 if(!web.getRutes().contains(u)) {
-                    try {
-                        web.uploadRute(u, local.getImageUrl(u.getImageUUID()));
-                    } catch (NoImageException e) {
-                        e.printStackTrace();
+                    if(u.getAuthor().equals(DB.getInstance().getLoggedInUser())) {
+                        try {
+                            web.uploadRute(u, local.getImageUrl(u.getImageUUID()));
+                        } catch (NoImageException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    else {
+                        local.delete(u);
                     }
                 }
                 else {

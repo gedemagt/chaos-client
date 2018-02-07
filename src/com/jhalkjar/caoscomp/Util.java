@@ -6,11 +6,9 @@ import com.codename1.l10n.DateFormat;
 import com.codename1.l10n.SimpleDateFormat;
 import com.jhalkjar.caoscomp.gui.Point;
 import com.jhalkjar.caoscomp.gui.Type;
-import org.bouncycastle.crypto.digests.SHA1Digest;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 

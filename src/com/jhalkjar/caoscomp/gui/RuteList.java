@@ -184,7 +184,7 @@ public class RuteList extends Form {
         cnt.add(tbl.createConstraint().widthPercentage(60).horizontalSpan(2), name);
         cnt.add(tbl.createConstraint().widthPercentage(30).horizontalAlign(LEFT), date);
         cnt.add(tbl.createConstraint().widthPercentage(10).horizontalAlign(RIGHT).verticalAlign(CENTER),
-                BorderLayout.center(new ColoredSquare(Grade.getColorInt(rute.getGrade()), 20)));
+                BorderLayout.center(new ColoredSquare(Grade.getColorInt(rute.getGrade()), name.getStyle().getFont().getHeight())));
 
         cnt.add(tbl.createConstraint().widthPercentage(10), new Label(FontImage.createMaterial(FontImage.MATERIAL_HOME, s)));
         cnt.add(tbl.createConstraint().widthPercentage(40), gym);
