@@ -1,5 +1,6 @@
 package com.jhalkjar.caoscomp.gui;
 
+import com.codename1.charts.util.ColorUtil;
 import com.codename1.ui.*;
 import com.codename1.ui.events.ActionEvent;
 import com.codename1.ui.events.ActionListener;
@@ -34,6 +35,7 @@ public class Editor extends Form {
     private Axis axis;
     private State state = new IdleState();
 
+    private Toolbar tb;
     private Component cnt;
     private Component editorBar;
     private Button delete = new Button(FontImage.createMaterial(FontImage.MATERIAL_DELETE, s));
@@ -182,11 +184,14 @@ public class Editor extends Form {
                 Grade.purple.name(),
                 Grade.red.name(),
                 Grade.black.name(),
-                Grade.white.name());
+                Grade.gray.name());
         gradePicker.setText(r.getGrade().name());
         gradePicker.addActionListener( evt ->{
             r.setGrade(Grade.valueOf(gradePicker.getSelectedString()));
             r.save();
+            populateToolbar(edit);
+
+
         });
 
 
@@ -234,9 +239,10 @@ public class Editor extends Form {
 
 
     void populateToolbar(boolean canEdit) {
-        Toolbar tb = new Toolbar();
+        tb = new Toolbar(false);
         setToolbar(tb);
-
+        tb.getStyle().setBorder(Border.createEmpty());
+        tb.getStyle().setBgColor(Grade.getColorInt(r.getGrade()));
         tb.addCommandToLeftBar("", FontImage.createMaterial(FontImage.MATERIAL_ARROW_BACK, s), (e) -> {
             new RuteList().showBack();
         });
