@@ -41,12 +41,11 @@ public class Editor extends Form {
     private Component cnt;
     private Component editorBar, colormaker;
     private Button delete = new Button(FontImage.createMaterial(FontImage.MATERIAL_DELETE, s));
+    private TextField title = new TextField();
 
     private ActionListener pressListener = evt -> state = state.onPress(evt);
     private ActionListener dragListener = evt -> state = state.onDrag(evt);
     private ActionListener releaseListener = evt -> state = state.onRelease(evt);
-
-    private TextField title = new TextField();
 
     private GradePicker gp = new GradePicker();
 
@@ -61,11 +60,17 @@ public class Editor extends Form {
         canvas = new Canvas();
         axis = new Axis(canvas);
 
-        title.setText(r.getName());
-        title.setUIID("Title");
-
         colormaker = new Container();
         colormaker.setUIID("SpacerThick");
+
+        title.setUIID("Title");
+        title.setText(r.getName());
+        title.setEditable(editMode);
+        title.setAlignment(Component.LEFT);
+        title.addDataChangedListener((type, index) -> {
+            r.setName(title.getText());
+            r.save();
+        });
 
         populateToolbar(edit);
         if(edit) {
@@ -287,11 +292,9 @@ public class Editor extends Form {
             d.show();
         });
 
+
         title.setEditable(editMode);
-        title.addDataChangedListener((type, index) -> {
-            r.setName(title.getText());
-            r.save();
-        });
+        removeComponent(title);
         tb.setTitleComponent(title);
 
         if(edit) {
@@ -302,7 +305,6 @@ public class Editor extends Form {
             });
         }
 
-        tb.setTitle(r.getName());
         revalidate();
     }
 

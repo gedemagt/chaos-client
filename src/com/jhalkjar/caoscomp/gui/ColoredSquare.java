@@ -1,9 +1,6 @@
 package com.jhalkjar.caoscomp.gui;
 
-import com.codename1.charts.util.ColorUtil;
-import com.codename1.io.Log;
 import com.codename1.ui.Component;
-import com.codename1.ui.Container;
 import com.codename1.ui.Graphics;
 import com.codename1.ui.geom.Dimension;
 
