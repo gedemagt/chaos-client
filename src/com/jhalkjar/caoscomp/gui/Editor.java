@@ -54,7 +54,6 @@ public class Editor extends Form {
         canvas = new Canvas();
         axis = new Axis(canvas);
 
-
         populateToolbar(edit);
         add(BorderLayout.NORTH, l);
         if(edit) {
