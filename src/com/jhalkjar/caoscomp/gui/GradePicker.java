@@ -32,7 +32,7 @@ public class GradePicker {
     }
 
     public Grade getGrade() {
-        Dialog dlg = new Dialog("Pick grade!");
+        Dialog dlg = new Dialog("Pick grade");
         dlg.setLayout(new BorderLayout());
 
         Container cnt = new Container(new GridLayout(4,3));
@@ -40,9 +40,10 @@ public class GradePicker {
         cnt.add(createButton(Grade.YELLOW));
         cnt.add(createButton(Grade.BLUE));
         cnt.add(createButton(Grade.PURPLE));
+        cnt.add(createButton(Grade.RED));
         cnt.add(createButton(Grade.BLACK));
         cnt.add(createButton(Grade.GRAY));
-        cnt.add(createButton(Grade.NO_GRADE));
+
 
         dlg.add(BorderLayout.CENTER, cnt);
 

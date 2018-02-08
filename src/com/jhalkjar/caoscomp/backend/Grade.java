@@ -2,7 +2,6 @@ package com.jhalkjar.caoscomp.backend;
 
 import com.codename1.charts.util.ColorUtil;
 
-import static com.codename1.charts.util.ColorUtil.*;
 
 public enum Grade {
     GREEN, YELLOW, BLUE, PURPLE, RED, BLACK, GRAY, NO_GRADE;
@@ -17,13 +16,14 @@ public enum Grade {
         }else if(grade == PURPLE){
             return ColorUtil.MAGENTA;
         }else if(grade == RED){
-            return ColorUtil.red(255);
+            return ColorUtil.rgb(255,0,0);
         }else if(grade == BLACK){
             return ColorUtil.BLACK;
         }else if(grade == GRAY){
             return ColorUtil.LTGRAY;
-        }else{
-            return 0;
+        }else if (grade == NO_GRADE){
+            return ColorUtil.WHITE;
+        }else{return 0;}
         }
-    }
-}
+   }
+
