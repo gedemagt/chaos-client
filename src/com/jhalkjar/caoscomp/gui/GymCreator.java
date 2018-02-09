@@ -41,9 +41,9 @@ public class GymCreator extends Form {
             l.onNewGym(g);
             back.showBack();
         });
-        getToolbar().addCommandToLeftBar("", FontImage.createMaterial(FontImage.MATERIAL_ARROW_BACK, s), (e) -> {
+        setBackCommand(getToolbar().addCommandToLeftBar("", FontImage.createMaterial(FontImage.MATERIAL_ARROW_BACK, s), (e) -> {
             back.showBack();
-        });
+        }));
     }
 
     public interface GymCreationListener {
