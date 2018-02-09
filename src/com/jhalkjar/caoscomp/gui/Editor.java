@@ -68,19 +68,7 @@ public class Editor extends Form {
             editorBar = createEditorComponent();
             cnt = LayeredLayout.encloseIn(delete, editorBar);
 
-            add(isVertical() ? BorderLayout.EAST : BorderLayout.SOUTH, cnt);
-            addOrientationListener(evt -> {
-                removeComponent(cnt);
-                removeComponent(delete);
-                removeComponent(editorBar);
-                editorBar = createEditorComponent();
-                cnt = LayeredLayout.encloseIn(delete, editorBar);
-                add(isVertical() ? BorderLayout.EAST : BorderLayout.SOUTH, cnt);
-
-                revalidate();
-                axis.updateSize();
-                repaint();
-            });
+            add(BorderLayout.SOUTH, cnt);
 
             delete.setVisible(false);
             editorBar.setVisible(true);
@@ -137,11 +125,6 @@ public class Editor extends Form {
 
     boolean isInDeleteRegion(ActionEvent evt) {
         return delete.getSelectedRect().contains(evt.getX(),evt.getY());
-    }
-
-    private boolean isVertical() {
-        return Display.getInstance().getDisplayWidth() > Display.getInstance().getDisplayHeight();
-
     }
 
     Component createEditorComponent() {
@@ -202,19 +185,11 @@ public class Editor extends Form {
         end.setToggle(true);
 
         new ButtonGroup(start, normal, end);
-        if(isVertical()) {
-            Container c = new Container(new BorderLayout());
-            c.add(BorderLayout.SOUTH, BoxLayout.encloseY(increase, decrease));
-            c.add(BorderLayout.NORTH, BoxLayout.encloseY(start, normal, end));
-            return c;
-        }
-        else {
-            Container c = new Container(new BorderLayout());
-            c.add(BorderLayout.EAST, BoxLayout.encloseX(decrease, increase));
-            c.add(BorderLayout.WEST, BoxLayout.encloseX(start, normal, end));
-            c.add(BorderLayout.CENTER, BoxLayout.encloseY(gradePicker));
-            return c;
-        }
+        Container c = new Container(new BorderLayout());
+        c.add(BorderLayout.EAST, BoxLayout.encloseX(decrease, increase));
+        c.add(BorderLayout.WEST, BoxLayout.encloseX(start, normal, end));
+        c.add(BorderLayout.CENTER, BoxLayout.encloseY(gradePicker));
+        return c;
     }
 
     private Point select(float x, float y) {
