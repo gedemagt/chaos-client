@@ -149,7 +149,7 @@ public class DB {
                         }
                     }
                     else {
-                        local.delete(u);
+//                        local.delete(u);
                     }
                 }
                 else {
