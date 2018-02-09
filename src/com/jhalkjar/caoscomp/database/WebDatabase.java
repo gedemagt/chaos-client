@@ -19,9 +19,8 @@ import java.util.*;
 public class WebDatabase extends ChaosDatabase {
 
 
-//    private static final String host = "https://jeshj.pythonanywhere.com";
-
-    private static String host = "http://localhost:5000";
+    private static final String host = "https://jeshj.pythonanywhere.com";
+//    private static String host = "http://localhost:5000";
 
 
     private Map<String, Gym> gyms = new HashMap<>();
@@ -136,7 +135,6 @@ public class WebDatabase extends ChaosDatabase {
         sendJson(host + "/add_gym", object.toString());
     }
 
-
     @Override
     public void save(Rute r) {
         JSONObject object = new JSONObject();
@@ -146,6 +144,7 @@ public class WebDatabase extends ChaosDatabase {
             object.put("edit", Util.dateFormat.format(r.lastEdit()));
             object.put("name", r.getName());
             object.put("gym", r.getGym().getUUID());
+            object.put("grade", r.getGrade());
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -175,7 +174,8 @@ public class WebDatabase extends ChaosDatabase {
                     User author = getUser((String) vals.get("author"));
                     String uuid = (String) vals.get("uuid");
                     String image = (String) vals.get("image");
-                    Grade grade = Grade.valueOf((String) vals.get("grade"));
+                    String grader = (String) (vals.get("grade"));
+                    Grade grade = grader != null ? Grade.valueOf(grader) : Grade.NO_GRADE;
                     list.put(uuid, new RuteImpl(-1, uuid, image, date, last_edit, name, author, gym, Util.stringToVals(coordinates), grade));
                 }
                 rutes = list;

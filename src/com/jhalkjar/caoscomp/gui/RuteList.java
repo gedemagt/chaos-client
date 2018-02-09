@@ -5,17 +5,19 @@ package com.jhalkjar.caoscomp.gui;
  */
 
 import com.codename1.components.FloatingActionButton;
-import com.codename1.io.Log;
 import com.codename1.io.Preferences;
 import com.codename1.l10n.DateFormat;
 import com.codename1.l10n.SimpleDateFormat;
 import com.codename1.ui.*;
+import com.codename1.ui.Container;
+import com.codename1.ui.Label;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
 import com.codename1.ui.plaf.Style;
 import com.codename1.ui.plaf.UIManager;
 
 import com.codename1.ui.table.TableLayout;
+import com.jhalkjar.caoscomp.backend.Grade;
 import com.jhalkjar.caoscomp.backend.Gym;
 import com.jhalkjar.caoscomp.backend.Rute;
 import com.jhalkjar.caoscomp.backend.User;
@@ -179,9 +181,10 @@ public class RuteList extends Form {
         Container cnt = new Container(tbl);
         cnt.setUIID("ListElement");
 
-        cnt.add(tbl.createConstraint().widthPercentage(60).horizontalSpan(3), name);
-        cnt.add(tbl.createConstraint().widthPercentage(40).horizontalAlign(LEFT), date);
-
+        cnt.add(tbl.createConstraint().widthPercentage(60).horizontalSpan(2), name);
+        cnt.add(tbl.createConstraint().widthPercentage(30).horizontalAlign(LEFT), date);
+        cnt.add(tbl.createConstraint().widthPercentage(10).horizontalAlign(RIGHT).verticalAlign(CENTER),
+                BorderLayout.center(new ColoredSquare(Grade.getColorInt(rute.getGrade()), name.getStyle().getFont().getHeight())));
 
         cnt.add(tbl.createConstraint().widthPercentage(10), new Label(FontImage.createMaterial(FontImage.MATERIAL_HOME, s)));
         cnt.add(tbl.createConstraint().widthPercentage(40), gym);

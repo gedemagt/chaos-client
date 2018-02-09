@@ -33,7 +33,6 @@ CREATE TABLE rute (
 	image VARCHAR,
 	author VARCHAR,
 	gym VARCHAR,
-	grade VARCHAR,
 	datetime TIMESTAMP DEFAULT (datetime('now')),
 	edit TIMESTAMP DEFAULT (datetime('now'))
 );
@@ -55,4 +54,7 @@ CREATE TABLE comment (
 	rute VARCHAR,
 	datetime TIMESTAMP DEFAULT (datetime('now'))
 );
+--
+--Version:2
+ALTER TABLE rute ADD COLUMN grade VARCHAR;
 --

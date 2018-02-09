@@ -35,7 +35,7 @@ public class RuteCreator extends Form {
         super(new BorderLayout());
         Style s = UIManager.getInstance().getComponentStyle("Title");
 
-        TextComponent name = new TextComponent().label("Name").text("Mysterious Rute");
+        TextComponent name = new TextComponent().label("Name").text("Mysterious Problem");
 
         GymPicker gym = new GymPicker(this);
         Button b = new Button(FontImage.createMaterial(FontImage.MATERIAL_PHOTO_CAMERA, s));
@@ -62,7 +62,7 @@ public class RuteCreator extends Form {
         getToolbar().addCommandToRightBar("", FontImage.createMaterial(FontImage.MATERIAL_DONE, s), (e) -> {
             if(!imageLoaded) Dialog.show("No image", "Please choose an image!", Dialog.TYPE_ERROR, null, "OK", null);
             else {
-                Rute r = DB.getInstance().createRute(name.getField().getText(), path, DB.getInstance().getLoggedInUser(), gym.getGym(), new Date(), null, Grade.green);
+                Rute r = DB.getInstance().createRute(name.getField().getText(), path, DB.getInstance().getLoggedInUser(), gym.getGym(), new Date(), null, Grade.NO_GRADE);
                 new Editor(r).show();
             }
         });
