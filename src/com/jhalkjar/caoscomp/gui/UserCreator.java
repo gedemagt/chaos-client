@@ -51,6 +51,7 @@ public class UserCreator extends Form {
                         email,
                         password,
                         gym));
+
         getToolbar().addCommandToRightBar("", FontImage.createMaterial(FontImage.MATERIAL_DONE, s), (e) -> {
             if(!freeUsername(name.toString())) Dialog.show("Invalid username", "Username already taken. Please pick a new one!", "OK", null);
             else {
@@ -59,9 +60,10 @@ public class UserCreator extends Form {
             }
 
         });
-        setBackCommand("", FontImage.createMaterial(FontImage.MATERIAL_ARROW_BACK, s), (e) -> {
+
+        setBackCommand(setBackCommand("", FontImage.createMaterial(FontImage.MATERIAL_ARROW_BACK, s), (e) -> {
             f.showBack();
-        });
+        }));
     }
 
 
