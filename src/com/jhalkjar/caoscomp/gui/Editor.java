@@ -1,11 +1,13 @@
 package com.jhalkjar.caoscomp.gui;
 
+import com.codename1.io.Log;
 import com.codename1.ui.*;
 import com.codename1.ui.events.ActionEvent;
 import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
 import com.codename1.ui.layouts.LayeredLayout;
+import com.codename1.ui.plaf.Border;
 import com.codename1.ui.plaf.Style;
 import com.codename1.ui.plaf.UIManager;
 import com.jhalkjar.caoscomp.backend.Grade;
@@ -15,12 +17,15 @@ import com.jhalkjar.caoscomp.database.NoImageException;
 
 import java.util.Date;
 
+import static com.codename1.ui.FontImage.MATERIAL_VISIBILITY;
+
 
 /**
  * Created by jesper on 11/5/17.
  */
 public class Editor extends Form {
 
+    private Component nonEditBar, editBar;
     private Style s = UIManager.getInstance().getComponentStyle("Title");
     private Style s2 = UIManager.getInstance().getComponentStyle("Label");
     private Canvas canvas;
@@ -33,8 +38,9 @@ public class Editor extends Form {
     private State state = new IdleState();
 
     private Component cnt;
-    private Component editorBar;
+    private Component CombinedEditorBar;
     private Button delete = new Button(FontImage.createMaterial(FontImage.MATERIAL_DELETE, s));
+    private Button dummyButt;
     private TextField title = new TextField();
 
     private ActionListener pressListener = evt -> state = state.onPress(evt);
@@ -63,18 +69,19 @@ public class Editor extends Form {
             r.save();
         });
 
-        populateToolbar(edit);
-        if(edit) {
-            editorBar = createEditorComponent();
-            cnt = LayeredLayout.encloseIn(delete, editorBar);
+        populateToolbar();
 
-            add(BorderLayout.SOUTH, cnt);
+        nonEditBar = createLowerBar();
+        editBar = createEditorComponent();
+        CombinedEditorBar = BoxLayout.encloseY(editBar, nonEditBar);
 
-            delete.setVisible(false);
-            editorBar.setVisible(true);
+        cnt = LayeredLayout.encloseIn(delete, CombinedEditorBar);
 
-        }
-        l.setHidden(false);
+        add(BorderLayout.SOUTH, cnt);
+
+        delete.setVisible(false);
+        CombinedEditorBar.setVisible(true);
+        revalidate();
         try {
             r.getImage(image->{
 
@@ -107,13 +114,19 @@ public class Editor extends Form {
 
     void toggleEditMode(boolean editMode) {
         this.editMode = editMode;
-        if(cnt != null) cnt.setHidden(!editMode);
+
         if(editMode) {
+            editBar.setHidden(false);
+            nonEditBar.setHidden(true);
+
             addPointerPressedListener(pressListener);
             addPointerDraggedListener(dragListener);
             addPointerReleasedListener(releaseListener);
         }
         else {
+            editBar.setHidden(true);
+            nonEditBar.setHidden(false);
+
             removePointerPressedListener(pressListener);
             removePointerDraggedListener(dragListener);
             removePointerReleasedListener(releaseListener);
@@ -125,6 +138,30 @@ public class Editor extends Form {
 
     boolean isInDeleteRegion(ActionEvent evt) {
         return delete.getSelectedRect().contains(evt.getX(),evt.getY());
+    }
+
+    Component createLowerBar(){
+        char image = FontImage.MATERIAL_EDIT;
+        Button editBtn = new Button(FontImage.createMaterial(image, s));
+
+        editBtn.addActionListener(evt -> {
+            toggleEditMode(!editMode);
+            if(!editMode) for(Point p : r.getPoints()) p.setSelected(false);
+        });
+
+
+        dummyButt = new Button("                    ");
+        dummyButt.getAllStyles().setBorder(Border.createEmpty());
+        dummyButt.getAllStyles().setBgColor(Grade.getColorInt(r.getGrade()));
+        dummyButt.getAllStyles().setBgTransparency(255);
+        dummyButt.addActionListener(evt -> {
+            Log.p("Hesten joe");
+        });
+        Container c = new Container(new BorderLayout());
+        c.add(BorderLayout.EAST, BoxLayout.encloseX(dummyButt, editBtn));
+
+
+        return c;
     }
 
     Component createEditorComponent() {
@@ -165,10 +202,23 @@ public class Editor extends Form {
             canvas.repaint();
             r.save();
         });
-        Button gradePicker = new Button(FontImage.createMaterial(FontImage.MATERIAL_GRADE, s));
+        Button gradePicker = new Button("                    ");
+
+        gradePicker.getAllStyles().setBorder(Border.createEmpty());
+        gradePicker.getAllStyles().setBgTransparency(255);
+        gradePicker.getAllStyles().setBgColor(Grade.getColorInt(r.getGrade()));
         gradePicker.addActionListener(evt -> {
+            Log.p("John");
             r.setGrade(gp.getGrade());
+            gradePicker.getAllStyles().setBgColor(Grade.getColorInt(r.getGrade()));
+            dummyButt.getAllStyles().setBgColor(Grade.getColorInt(r.getGrade()));
             r.save();
+            revalidate();
+        });
+        Button exitBtn = new Button(FontImage.createMaterial(MATERIAL_VISIBILITY, s));
+        exitBtn.addActionListener(evt -> {
+            toggleEditMode(!editMode);
+            revalidate();
         });
 
 
@@ -186,9 +236,9 @@ public class Editor extends Form {
 
         new ButtonGroup(start, normal, end);
         Container c = new Container(new BorderLayout());
-        c.add(BorderLayout.EAST, BoxLayout.encloseX(decrease, increase));
+        c.add(BorderLayout.EAST, BoxLayout.encloseX(gradePicker, exitBtn));
         c.add(BorderLayout.WEST, BoxLayout.encloseX(start, normal, end));
-        c.add(BorderLayout.CENTER, BoxLayout.encloseY(gradePicker));
+        c.add(BorderLayout.CENTER, BoxLayout.encloseX(decrease, increase));
         return c;
     }
 
@@ -206,21 +256,12 @@ public class Editor extends Form {
     }
 
 
-    void populateToolbar(boolean canEdit) {
+    void populateToolbar() {
         Toolbar tb = new Toolbar(false);
         setToolbar(tb);
         tb.addCommandToLeftBar("", FontImage.createMaterial(FontImage.MATERIAL_ARROW_BACK, s), (e) -> {
             new RuteList().showBack();
         });
-
-        if(canEdit) {
-            char image = editMode ? FontImage.MATERIAL_VISIBILITY : FontImage.MATERIAL_EDIT;
-            tb.addCommandToRightBar("", FontImage.createMaterial(image, s), evt -> {
-                toggleEditMode(!editMode);
-                populateToolbar(canEdit);
-                if(!editMode) for(Point p : r.getPoints()) p.setSelected(false);
-            });
-        }
 
         char image = isLocal ? FontImage.MATERIAL_CLOUD : FontImage.MATERIAL_FILE_DOWNLOAD;
         String text = isLocal ? "Remove locally!" : "Download!";
@@ -319,7 +360,7 @@ public class Editor extends Form {
         @Override
         public State onRelease(ActionEvent evt) {
             canvas.setImmediatelyDrag(false);
-            editorBar.setVisible(selected != null);
+            CombinedEditorBar.setVisible(selected != null);
             revalidate();
             return this;
         }
@@ -334,7 +375,7 @@ public class Editor extends Form {
         @Override
         public State onPress(ActionEvent evt) {
             delete.setVisible(true);
-            editorBar.setVisible(false);
+            CombinedEditorBar.setVisible(false);
             revalidate();
             canvas.disablePointerDrag();
             return this;
@@ -361,7 +402,7 @@ public class Editor extends Form {
             }
             r.save();
             delete.setVisible(false);
-            editorBar.setVisible(true);
+            CombinedEditorBar.setVisible(true);
             revalidate();
             return new IdleState(selected).onRelease(evt);
         }
