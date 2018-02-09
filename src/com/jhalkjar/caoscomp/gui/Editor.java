@@ -209,9 +209,9 @@ public class Editor extends Form {
     void populateToolbar(boolean canEdit) {
         Toolbar tb = new Toolbar(false);
         setToolbar(tb);
-        tb.addCommandToLeftBar("", FontImage.createMaterial(FontImage.MATERIAL_ARROW_BACK, s), (e) -> {
+        setBackCommand(tb.addCommandToLeftBar("", FontImage.createMaterial(FontImage.MATERIAL_ARROW_BACK, s), (e) -> {
             new RuteList().showBack();
-        });
+        }));
 
         if(canEdit) {
             char image = editMode ? FontImage.MATERIAL_VISIBILITY : FontImage.MATERIAL_EDIT;

@@ -66,9 +66,9 @@ public class RuteCreator extends Form {
                 new Editor(r).show();
             }
         });
-        getToolbar().addCommandToLeftBar("", FontImage.createMaterial(FontImage.MATERIAL_ARROW_BACK, s), (e) -> {
+        setBackCommand(getToolbar().addCommandToLeftBar("", FontImage.createMaterial(FontImage.MATERIAL_ARROW_BACK, s), (e) -> {
             new RuteList().showBack();
-        });
+        }));
     }
 
     private void loadPicture(String path) {
