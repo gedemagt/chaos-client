@@ -33,7 +33,7 @@ public class Editor extends Form {
     private State state = new IdleState();
 
     private Component cnt;
-    private Component editorBar, colormaker;
+    private Component editorBar;
     private Button delete = new Button(FontImage.createMaterial(FontImage.MATERIAL_DELETE, s));
     private TextField title = new TextField();
 
@@ -53,9 +53,6 @@ public class Editor extends Form {
 
         canvas = new Canvas();
         axis = new Axis(canvas);
-
-        colormaker = new Container();
-        colormaker.setUIID("SpacerThick");
 
         title.setUIID("Title");
         title.setText(r.getName());
@@ -117,7 +114,7 @@ public class Editor extends Form {
         axis.updateSize();
         repaint();
         toggleEditMode(false);
-        add(BorderLayout.NORTH, BoxLayout.encloseY(colormaker, l));
+        add(BorderLayout.NORTH, BoxLayout.encloseY(l));
     }
 
     void toggleEditMode(boolean editMode) {
@@ -134,6 +131,7 @@ public class Editor extends Form {
             removePointerReleasedListener(releaseListener);
         }
         revalidate();
+        axis.updateSize();
     }
 
 
@@ -188,7 +186,6 @@ public class Editor extends Form {
         gradePicker.addActionListener(evt -> {
             r.setGrade(gp.getGrade());
             r.save();
-            updateColor();
         });
 
 
@@ -220,12 +217,6 @@ public class Editor extends Form {
         }
     }
 
-    private void updateColor() {
-        colormaker.getAllStyles().setBgColor(Grade.getColorInt(r.getGrade()));
-        colormaker.repaint();
-    }
-
-
     private Point select(float x, float y) {
         for(int i=0; i<r.getPoints().size(); i++) {
             float size = r.getPoints().get(i).getSize()/2.f;
@@ -246,8 +237,6 @@ public class Editor extends Form {
         tb.addCommandToLeftBar("", FontImage.createMaterial(FontImage.MATERIAL_ARROW_BACK, s), (e) -> {
             new RuteList().showBack();
         });
-
-        updateColor();
 
         if(canEdit) {
             char image = editMode ? FontImage.MATERIAL_VISIBILITY : FontImage.MATERIAL_EDIT;
