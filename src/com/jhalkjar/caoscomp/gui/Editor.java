@@ -6,6 +6,7 @@ import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
 import com.codename1.ui.layouts.LayeredLayout;
+import com.codename1.ui.plaf.Border;
 import com.codename1.ui.plaf.Style;
 import com.codename1.ui.plaf.UIManager;
 import com.jhalkjar.caoscomp.backend.Grade;
@@ -42,6 +43,7 @@ public class Editor extends Form {
     private ActionListener releaseListener = evt -> state = state.onRelease(evt);
 
     private GradePicker gp = new GradePicker();
+    private Toolbar tb;
 
     public Editor(Rute rute) {
         super(new BorderLayout());
@@ -165,9 +167,14 @@ public class Editor extends Form {
             canvas.repaint();
             r.save();
         });
-        Button gradePicker = new Button(FontImage.createMaterial(FontImage.MATERIAL_GRADE, s));
+        Button gradePicker = new Button("         ");
+        gradePicker.getAllStyles().setBorder(Border.createEmpty());
+        gradePicker.getAllStyles().setBgTransparency(255);
+        gradePicker.getAllStyles().setBgColor(Grade.getColorInt(r.getGrade()));
         gradePicker.addActionListener(evt -> {
             r.setGrade(gp.getGrade());
+            gradePicker.getAllStyles().setBgColor(Grade.getColorInt(r.getGrade()));
+            tb.getAllStyles().setBgColor(Grade.getColorInt(r.getGrade()));
             r.save();
         });
 
@@ -186,9 +193,9 @@ public class Editor extends Form {
 
         new ButtonGroup(start, normal, end);
         Container c = new Container(new BorderLayout());
-        c.add(BorderLayout.EAST, BoxLayout.encloseX(decrease, increase));
+        c.add(BorderLayout.EAST, BoxLayout.encloseX(decrease, increase,gradePicker));
         c.add(BorderLayout.WEST, BoxLayout.encloseX(start, normal, end));
-        c.add(BorderLayout.CENTER, BoxLayout.encloseY(gradePicker));
+
         return c;
     }
 
@@ -207,7 +214,9 @@ public class Editor extends Form {
 
 
     void populateToolbar(boolean canEdit) {
-        Toolbar tb = new Toolbar(false);
+        tb = new Toolbar(false);
+        tb.getAllStyles().setBorder(Border.createEmpty());
+        tb.getAllStyles().setBgColor(Grade.getColorInt(r.getGrade()));
         setToolbar(tb);
         setBackCommand(tb.addCommandToLeftBar("", FontImage.createMaterial(FontImage.MATERIAL_ARROW_BACK, s), (e) -> {
             new RuteList().showBack();
