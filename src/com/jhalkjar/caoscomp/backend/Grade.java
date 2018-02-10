@@ -10,7 +10,7 @@ public enum Grade {
         if (grade == GREEN){
             return ColorUtil.GREEN;
         }else if(grade == YELLOW){
-            return ColorUtil.YELLOW;
+            return ColorUtil.rgb(255,255,0);
         }else if(grade == BLUE){
             return ColorUtil.BLUE;
         }else if(grade == PURPLE){

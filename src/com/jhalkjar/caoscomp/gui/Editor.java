@@ -16,6 +16,8 @@ import com.jhalkjar.caoscomp.database.NoImageException;
 
 import java.util.Date;
 
+import static com.jhalkjar.caoscomp.backend.Grade.NO_GRADE;
+
 
 /**
  * Created by jesper on 11/5/17.
@@ -216,7 +218,10 @@ public class Editor extends Form {
     void populateToolbar(boolean canEdit) {
         tb = new Toolbar(false);
         tb.getAllStyles().setBorder(Border.createEmpty());
-        tb.getAllStyles().setBgColor(Grade.getColorInt(r.getGrade()));
+        if (r.getGrade() != NO_GRADE){
+            tb.getAllStyles().setBgColor(Grade.getColorInt(r.getGrade()));
+        }
+
         setToolbar(tb);
         setBackCommand(tb.addCommandToLeftBar("", FontImage.createMaterial(FontImage.MATERIAL_ARROW_BACK, s), (e) -> {
             new RuteList().showBack();
