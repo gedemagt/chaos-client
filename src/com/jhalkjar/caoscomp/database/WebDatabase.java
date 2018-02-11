@@ -3,11 +3,11 @@ package com.jhalkjar.caoscomp.database;
 import ca.weblite.codename1.json.JSONException;
 import ca.weblite.codename1.json.JSONObject;
 import com.codename1.io.*;
-import com.codename1.io.rest.Rest;
 import com.codename1.l10n.ParseException;
 import com.codename1.ui.EncodedImage;
 import com.codename1.ui.Image;
 import com.codename1.ui.events.ActionListener;
+import com.codename1.util.StringUtil;
 import com.jhalkjar.caoscomp.Util;
 import com.jhalkjar.caoscomp.backend.*;
 
@@ -23,58 +23,39 @@ public class WebDatabase extends ChaosDatabase {
 //    private static final String host = "https://jeshj.pythonanywhere.com";
     private static String host = "http://localhost:5000";
 
-
-    private Map<String, Gym> gyms = new HashMap<>();
-    private Map<String, User> users = new HashMap<>();
-    private Map<String, Rute> rutes = new HashMap<>();
-
+    private static String LAST_WEB_CONNECTION = "last_sync";
     public WebDatabase() {
 
     }
 
-    public List<User> getUsers() {
-        return new ArrayList<>(users.values());
-    }
-
-    public List<Gym> getGyms() {
-        return new ArrayList<>(gyms.values());
-    }
-
     public User getUser(String id) {
-        if(users.containsKey(id)) return users.get(id);
-        else {
-            ConnectionRequest r = getAndWait(host + "/get_user/" + id);
-            try {
-                Map<String, Object> result = getJsonData(r);
-                for(String key : result.keySet()) {
-                    Map<String,Object> vals = (Map<String, Object>) result.get(key);
-                    String name = (String) vals.get("name");
-                    String email = (String) vals.get("email");
-                    String password = (String) vals.get("password");
-                    Gym gym = getGym((String) vals.get("gym"));
-                    Date date = Util.dateFormat.parse((String) vals.get("date"));
-                    String uuid = (String) vals.get("uuid");
+        ConnectionRequest r = getAndWait(host + "/get_user/" + id);
+        try {
+            Map<String, Object> result = getJsonData(r);
+            for(String key : result.keySet()) {
+                Map<String,Object> vals = (Map<String, Object>) result.get(key);
+                String name = (String) vals.get("name");
+                String email = (String) vals.get("email");
+                String password = (String) vals.get("password");
+                Gym gym = getGym((String) vals.get("gym"));
+                Date date = Util.dateFormat.parse((String) vals.get("date"));
+                String uuid = (String) vals.get("uuid");
 
-                    users.put(uuid, new UserImpl(-1, uuid, date, name, email, gym, password));
-                }
-                Log.p(users.toString());
-                Log.p("[WebDatabase] Loaded users: " + users.get(id).toString());
-            } catch (ParseException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
+                User s = new UserImpl(-1, uuid, date, name, email, gym, password);
+                Log.p("[WebDatabase] Loaded users: " + s.toString());
+                return s;
             }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        return users.get(id);
-    }
 
-    public Rute getRute(String id) {
-        return rutes.get(id);
+        return null;
     }
 
     public Gym getGym(String id) {
-        if(gyms.containsKey(id)) return gyms.get(id);
-        else {
+
             ConnectionRequest r = getAndWait(host + "/get_gym/" + id);
             try {
                 Map<String, Object> result = getJsonData(r);
@@ -85,23 +66,18 @@ public class WebDatabase extends ChaosDatabase {
                     double lat = Double.parseDouble((String) vals.get("lat"));
                     Date date = Util.dateFormat.parse((String) vals.get("date"));
                     String uuid = (String) vals.get("uuid");
-                    gyms.put(uuid, new GymImpl(-1, uuid, date, name, lat, lon));
+                    Gym g = new GymImpl(-1, uuid, date, name, lat, lon);
+                    Log.p("[WebDatabase] Loaded gym: " + g);
+                    return g;
                 }
-                Log.p("[WebDatabase] Loaded gym: " + gyms.get(id).toString());
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (ParseException e) {
                 e.printStackTrace();
             }
-        }
-        return gyms.get(id);
+
+        return null;
     }
-
-
-    public List<Rute> getRutes() {
-        return new ArrayList<>(rutes.values());
-    }
-
 
     public void uploadRute(Rute r, String imageUrl) {
         JSONObject object = new JSONObject();
@@ -121,14 +97,12 @@ public class WebDatabase extends ChaosDatabase {
         sendJson(host + "/add_rute", object.toString(), evt -> {
             Log.p("[WebDatabase] Uploaded rute: " + r);
             if(imageUrl != null) {uploadImage(r.getImageUUID(), imageUrl);}
-            rutes.put(r.getUUID(), r);
         });
 
     }
 
     @Override
     public void delete(Rute r) {
-        rutes.remove(r.getUUID());
         post(host + "/delete/" + r.getUUID(), evt -> {
             Log.p("[WebDatabase] Deleted rute: " + r);
         });
@@ -198,15 +172,29 @@ public class WebDatabase extends ChaosDatabase {
         sendJson(host + "/update_coordinates", object.toString());
     }
 
-    public void refresh(Runnable done) {
-        Log.p("[WebDatabase] Refreshing..");
-        updateRutes(() -> {done.run();});
-        Log.p("[WebDatabase] Refreshing done!");
+    public String login(String username, String password) {
+        JSONObject object = new JSONObject();
+        try {
+            object.put("username", username);
+            object.put("password", password);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        ConnectionRequest r = sendJsonWait(host + "/login", object.toString(), evt -> {
+
+        });
+        try {
+            return new String(r.getResponseData(), "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return "";
     }
 
     private String getLastSync() {
-        String lastSync = Preferences.get("last_sync", "");
-
+        String lastSync = Preferences.get(LAST_WEB_CONNECTION, "");
+        Log.p("[WebDatabase] " + "Last synced: " + lastSync);
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("last_sync", lastSync);
@@ -217,7 +205,7 @@ public class WebDatabase extends ChaosDatabase {
     }
 
 
-    private void updateRutes(Runnable runnable) {
+    public void getRutes(Result<Map<String, Rute>> runnable) {
         sendJson(host + "/get_rutes", getLastSync(), evt -> {
             try {
                 Map<String,Object> result = getJsonData(evt.getConnectionRequest());
@@ -236,10 +224,10 @@ public class WebDatabase extends ChaosDatabase {
                     Grade grade = grader != null ? Grade.valueOf(grader) : Grade.NO_GRADE;
                     list.put(uuid, new RuteImpl(-1, uuid, image, date, last_edit, name, author, gym, Util.stringToVals(coordinates), grade));
                 }
-                rutes = list;
-                Log.p("[WebDatabase] Loaded rutes: " + rutes.toString());
-                Preferences.set("last_sync", Util.dateFormat.format(new Date()));
-                runnable.run();
+                Log.p("[WebDatabase] Loaded rutes: " + list.values());
+                Preferences.set(LAST_WEB_CONNECTION, Util.dateFormat.format(new Date()));
+                Log.p("[WebDatabase] " + "Last synced: " + Preferences.get(LAST_WEB_CONNECTION, ""));
+                runnable.OnResult(list);
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -249,60 +237,6 @@ public class WebDatabase extends ChaosDatabase {
         });
 
     }
-
-//    private void updateGyms(Runnable runnable) {
-//        get(host + "/get_gyms", evt -> {
-//            try {
-//                Map<String,Object> result = getJsonData(evt.getConnectionRequest());
-//                Map<String, Gym> gyms = new HashMap<>();
-//                for(String key : result.keySet()) {
-//                    Map<String,Object> vals = (Map<String, Object>) result.get(key);
-//                    String name = (String) vals.get("name");
-//                    double lon = Double.parseDouble((String) vals.get("lon"));
-//                    double lat = Double.parseDouble((String) vals.get("lat"));
-//                    Date date = Util.dateFormat.parse((String) vals.get("date"));
-//                    String uuid = (String) vals.get("uuid");
-//                    gyms.put(uuid, new GymImpl(-1, uuid, date, name, lat, lon));
-//                }
-//                this.gyms = gyms;
-//                Log.p("[WebDatabase] Loaded gyms: " + this.gyms.toString());
-//                runnable.run();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            } catch (ParseException e) {
-//                e.printStackTrace();
-//            }
-//        });
-//
-//    }
-
-
-//    private void updateUsers(Runnable runnable) {
-//        get(host + "/get_users", evt -> {
-//            try {
-//                Map<String, User> users = new HashMap<>();
-//                Map<String,Object> result = getJsonData(evt.getConnectionRequest());
-//                for(String key : result.keySet()) {
-//                    Map<String,Object> vals = (Map<String, Object>) result.get(key);
-//                    String name = (String) vals.get("name");
-//                    String email = (String) vals.get("email");
-//                    String password = (String) vals.get("password");
-//                    Gym gym = getGym((String) vals.get("gym"));
-//                    Date date = Util.dateFormat.parse((String) vals.get("date"));
-//                    String uuid = (String) vals.get("uuid");
-//
-//                    users.put(uuid, new UserImpl(-1, uuid, date, name, email, gym, password));
-//                }
-//                this.users = users;
-//                Log.p("[WebDatabase] Loaded users: " + this.users.toString());
-//                runnable.run();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            } catch (ParseException e) {
-//                e.printStackTrace();
-//            }
-//        });
-//    }
 
     public void get(String url, ActionListener<NetworkEvent> evt) {
         ConnectionRequest r = new ConnectionRequest();
@@ -378,9 +312,28 @@ public class WebDatabase extends ChaosDatabase {
         return r;
     }
 
+    private ConnectionRequest sendJsonWait(String url, String json, ActionListener<NetworkEvent> listener) {
+        ConnectionRequest r = new ConnectionRequest(){
+            @Override
+            protected void buildRequestBody(OutputStream os) throws IOException {
+                os.write(json.getBytes("UTF-8"));
+            }
+        };
+        r.setPost(true);
+        r.setUrl(url);
+        r.setContentType("application/json");
+        r.addResponseListener(listener);
+        NetworkManager.getInstance().addToQueueAndWait(r);
+        return r;
+    }
+
     private ConnectionRequest sendJson(String url, String json) {
         return sendJson(url, json, evt -> {});
     }
 
+
+    public interface Result<T> {
+        void OnResult(T t);
+    }
 
 }

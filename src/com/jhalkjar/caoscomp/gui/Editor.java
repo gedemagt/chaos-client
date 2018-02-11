@@ -8,7 +8,6 @@ import com.codename1.ui.layouts.BoxLayout;
 import com.codename1.ui.layouts.LayeredLayout;
 import com.codename1.ui.plaf.Style;
 import com.codename1.ui.plaf.UIManager;
-import com.jhalkjar.caoscomp.backend.Grade;
 import com.jhalkjar.caoscomp.backend.Rute;
 import com.jhalkjar.caoscomp.database.DB;
 import com.jhalkjar.caoscomp.database.NoImageException;
@@ -27,7 +26,7 @@ public class Editor extends Form {
     private Label l = new Label("Retrieving image..");
     private Rute r;
 
-    private boolean edit, isLocal, editMode;
+    private boolean edit, editMode;
 
     private Axis axis;
     private State state = new IdleState();
@@ -49,7 +48,6 @@ public class Editor extends Form {
         r = rute;
         for(Point p : r.getPoints()) p.setSelected(false);
         edit = r.getAuthor().equals(DB.getInstance().getLoggedInUser());
-        isLocal = r.isLocal();
 
         canvas = new Canvas();
         axis = new Axis(canvas);
@@ -222,14 +220,13 @@ public class Editor extends Form {
             });
         }
 
-        char image = isLocal ? FontImage.MATERIAL_CLOUD : FontImage.MATERIAL_FILE_DOWNLOAD;
-        String text = isLocal ? "Remove locally!" : "Download!";
-        tb.addCommandToOverflowMenu(text, FontImage.createMaterial(image, s2), evt -> {
-
-            r.setLocal(!isLocal);
-            isLocal = !isLocal;
-
-        });
+//        char image = isLocal ? FontImage.MATERIAL_CLOUD : FontImage.MATERIAL_FILE_DOWNLOAD;
+//        String text = isLocal ? "Remove locally!" : "Download!";
+//        tb.addCommandToOverflowMenu(text, FontImage.createMaterial(image, s2), evt -> {
+//
+//            isLocal = !isLocal;
+//
+//        });
 
         tb.addCommandToOverflowMenu("Copy", FontImage.createMaterial(FontImage.MATERIAL_CONTENT_COPY, s2), (e) -> {
             Dialog d = new Dialog();

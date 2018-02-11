@@ -7,10 +7,7 @@ import com.codename1.io.Preferences;
 import com.codename1.util.SuccessCallback;
 import com.jhalkjar.caoscomp.backend.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by jesper on 11/9/17.
@@ -45,18 +42,13 @@ public class DB {
         });
     }
 
-
-    public boolean isLocal(Rute r) {
-        return local.hasRute(r);
-    }
-
     public void delete(Rute r) {
-        if(r.isLocal()) local.delete(r);
+        local.delete(r);
         web.delete(r);
     }
 
     public void save(Rute r) {
-        if(r.isLocal()) local.save(r);
+        local.save(r);
         web.save(r);
     }
 
@@ -67,18 +59,12 @@ public class DB {
     public List<Gym> getGyms() {
         List<Gym> l = new ArrayList<>();
         l.addAll(local.getGyms());
-        for(Gym r : web.getGyms()) {
-            if(!l.contains(r)) l.add(r);
-        }
         return l;
     }
 
     public List<User> getUsers() {
         List<User> l = new ArrayList<>();
         l.addAll(local.getUsers());
-        for(User r : web.getUsers()) {
-            if(!l.contains(r)) l.add(r);
-        }
         return l;
     }
 
@@ -89,9 +75,6 @@ public class DB {
     public List<Rute> getRutes() {
         List<Rute> l = new ArrayList<>();
         l.addAll(local.getRutes());
-        for(Rute r : web.getRutes()) {
-            if(!l.contains(r)) l.add(r);
-        }
 
         Collections.sort(l, (o1, o2) -> o1.getName().compareTo(o2.getName()));
 
@@ -102,13 +85,12 @@ public class DB {
         return isRefreshing;
     }
 
-    public void download(Rute r, SuccessCallback<Rute> onSucces) {
+    public void downloadImage(Rute r, SuccessCallback<Rute> onSucces) {
         if(!local.hasRute(r)) {
             Log.p("[DB] Downloads rute " + r.toString());
 
             String path = FileSystemStorage.getInstance().getAppHomePath() + r.getImageUUID() + ".jpg";
             web.downloadImage(r.getImageUUID(), path, () -> {
-                local.addRute(r);
                 local.setImage(r.getImageUUID(), path);
                 local.refresh();
                 onSucces.onSucess(local.getRute(r.getUUID()));
@@ -124,49 +106,23 @@ public class DB {
         isRefreshing = true;
         for(RefreshListener l : refreshListeners) l.OnBeginRefresh();
         local.refresh();
-        web.refresh(()-> {
-            for(Gym g : web.getGyms()) {
-                if(!local.getGyms().contains(g)) local.addGym(g.getUUID(), g.getName(), g.getLat(), g.getLon(), g.getDate());
-            }
-            for(Gym g : local.getGyms()) {
-                if(!web.getGyms().contains(g)) web.uploadGym(g);
-            }
+        web.getRutes(ruteMap -> {
+            for(Map.Entry<String, Rute> entry : ruteMap.entrySet()) {
+                Rute r = entry.getValue();
 
-            for(User u : web.getUsers()) {
-                if(!local.getUsers().contains(u)) local.addUser(u.getUUID(), u.getName(), u.getEmail(), u.getPasswordHash(), u.getGym(), u.getDate());
-            }
-            for(User u : local.getUsers()) {
-                if(!web.getUsers().contains(u)) web.uploadUser(u);
-            }
-
-            for(Rute u : local.getRutes()) {
-                if(!web.getRutes().contains(u)) {
-                    if(u.getAuthor().equals(DB.getInstance().getLoggedInUser())) {
-                        try {
-                            web.uploadRute(u, local.getImageUrl(u.getImageUUID()));
-                        } catch (NoImageException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    else {
-//                        local.delete(u);
-                    }
-                }
+                if(local.hasRute(r)) local.save(r);
                 else {
-                    Rute webRute = web.getRute(u.getUUID());
-                    Log.p("local: " + u.lastEdit());
-                    Log.p("web: " + webRute.lastEdit());
-                    if(webRute.lastEdit().getTime() < u.lastEdit().getTime()) {
-                        web.save(u);
+                    if(local.getGym(r.getGym().getUUID()) == null){
+                        Gym g = r.getGym();
+                        local.addGym(g.getUUID(), g.getName(), g.getLat(), g.getLon(), g.getDate());
                     }
-                    else local.save(webRute);
+                    if(local.getUser(r.getAuthor().getUUID()) == null){
+                        User u = r.getAuthor();
+                        local.addUser(r.getUUID(), u.getName(), u.getEmail(), u.getPasswordHash(), r.getGym(), u.getDate());
+                    }
+                    local.addRute(entry.getValue());
                 }
             }
-            local.refresh();
-            web.refresh(()-> {
-                isRefreshing = false;
-                for(RefreshListener l : refreshListeners) l.OnEndRefresh();
-            });
         });
     }
 
@@ -196,25 +152,19 @@ public class DB {
         return u;
     }
 
-    public User checkLogin(String username, String password) throws IllegalArgumentException {
-        return local.checkLogin(username, password);
+    public User checkLogin(String username, String password) {
+        String uuid = web.login(username, password);
+        return local.getUser(uuid);
     }
 
     public void addRefreshListener(RefreshListener l) {
         refreshListeners.add(l);
     }
 
-    public void setLocal(Rute rute, boolean b,  SuccessCallback<Rute> onSucces) {
-        if(b && !local.hasRute(rute)) {
-            Log.p("[DB] Sets rute " + rute.toString() + " local");
-            download(rute, onSucces);
-        }
-        else if(!b) {
-            Log.p("[DB] Sets rute " + rute.toString() + " unlocal");
-            local.delete(rute);
-            onSucces.onSucess(web.getRute(rute.getUUID()));
-        }
-    }
+//    public void setLocal(Rute rute, boolean b,  SuccessCallback<Rute> onSucces) {
+//        Log.p("[DB] Sets rute " + rute.toString() + " local");
+//        if(b) downloadImage(rute, onSucces);
+//    }
 
     public interface RefreshListener {
         void OnBeginRefresh();

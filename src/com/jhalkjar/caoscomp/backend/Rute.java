@@ -30,8 +30,5 @@ public interface Rute extends DatabaseEntry {
     void save();
     void delete();
 
-    boolean isLocal();
-    void setLocal(boolean b);
-
 
 }

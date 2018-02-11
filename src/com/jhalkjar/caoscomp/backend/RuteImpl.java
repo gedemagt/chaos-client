@@ -1,6 +1,5 @@
 package com.jhalkjar.caoscomp.backend;
 
-import com.codename1.io.Log;
 import com.jhalkjar.caoscomp.database.DB;
 import com.jhalkjar.caoscomp.database.NoImageException;
 import com.jhalkjar.caoscomp.gui.Point;
@@ -46,18 +45,6 @@ public class RuteImpl extends AbstractRute{
     @Override
     public void delete() {
         DB.getInstance().delete(this);
-    }
-
-    @Override
-    public void setLocal(boolean b) {
-        DB.getInstance().setLocal(this, b, value -> {
-            this.id = value.getID();
-        });
-    }
-
-    @Override
-    public boolean isLocal() {
-        return DB.getInstance().isLocal(this);
     }
 
     private Date lastEdit;
