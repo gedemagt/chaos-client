@@ -33,6 +33,11 @@ public class DB {
         return loggedin;
     }
 
+    public boolean checkUsername(String username) {
+        if(username.equals("")) return false;
+        return web.checkUserName(username);
+    }
+
     private DB() {
 
         imgProvider = new ImageProvider(local, web);
@@ -109,8 +114,8 @@ public class DB {
         web.getRutes(ruteMap -> {
             for(Map.Entry<String, Rute> entry : ruteMap.entrySet()) {
                 Rute r = entry.getValue();
-
-                if(local.hasRute(r)) local.save(r);
+                if(r.getStatus() == 1) local.delete(r);
+                else if(local.hasRute(r)) local.save(r);
                 else {
                     if(local.getGym(r.getGym().getUUID()) == null){
                         Gym g = r.getGym();
@@ -154,6 +159,10 @@ public class DB {
 
     public User checkLogin(String username, String password) {
         String uuid = web.login(username, password);
+        if(local.getUser(uuid) == null) {
+            User u = web.getUser(uuid);
+            local.addUser(u.getUUID(), u.getName(), u.getEmail(), u.getPasswordHash(), u.getGym(), u.getDate());
+        }
         return local.getUser(uuid);
     }
 

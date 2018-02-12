@@ -9,7 +9,6 @@ import com.codename1.ui.validation.Constraint;
 import com.codename1.ui.validation.RegexConstraint;
 import com.codename1.ui.validation.Validator;
 import com.jhalkjar.caoscomp.Util;
-import com.jhalkjar.caoscomp.backend.User;
 import com.jhalkjar.caoscomp.database.DB;
 
 import java.util.Date;
@@ -66,12 +65,7 @@ public class UserCreator extends Form {
 
 
     private boolean freeUsername(String s) {
-        for(User u : DB.getInstance().getUsers()) {
-            if(u.getName().equals(s)) {
-                return false;
-            }
-        }
-        return true;
+        return !DB.getInstance().checkUsername(s);
     }
 
 }

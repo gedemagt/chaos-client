@@ -221,8 +221,9 @@ public class WebDatabase extends ChaosDatabase {
                     String uuid = (String) vals.get("uuid");
                     String image = (String) vals.get("image");
                     String grader = (String) (vals.get("grade"));
+                    int status = (int) ((double) vals.get("status"));
                     Grade grade = grader != null ? Grade.valueOf(grader) : Grade.NO_GRADE;
-                    list.put(uuid, new RuteImpl(-1, uuid, image, date, last_edit, name, author, gym, Util.stringToVals(coordinates), grade));
+                    list.put(uuid, new RuteImpl(-1, uuid, image, date, last_edit, name, author, gym, Util.stringToVals(coordinates), grade, status));
                 }
                 Log.p("[WebDatabase] Loaded rutes: " + list.values());
                 Preferences.set(LAST_WEB_CONNECTION, Util.dateFormat.format(new Date()));
@@ -250,6 +251,25 @@ public class WebDatabase extends ChaosDatabase {
         ConnectionRequest r = new ConnectionRequest();
         r.setPost(false);
         r.setUrl(url);
+        NetworkManager.getInstance().addToQueueAndWait(r);
+        return r;
+    }
+
+    public ConnectionRequest postAndWait(String url, ActionListener<NetworkEvent> evt) {
+        ConnectionRequest r = new ConnectionRequest();
+        r.setPost(true);
+        r.setUrl(url);
+        r.addResponseListener(evt);
+        NetworkManager.getInstance().addToQueueAndWait(r);
+        return r;
+    }
+
+    public ConnectionRequest postAndWaitAndFail(String url, ActionListener<NetworkEvent> evt) {
+        ConnectionRequest r = new ConnectionRequest();
+        r.setPost(true);
+        r.setUrl(url);
+        r.setFailSilently(true);
+        r.addResponseListener(evt);
         NetworkManager.getInstance().addToQueueAndWait(r);
         return r;
     }
@@ -329,6 +349,11 @@ public class WebDatabase extends ChaosDatabase {
 
     private ConnectionRequest sendJson(String url, String json) {
         return sendJson(url, json, evt -> {});
+    }
+
+    public boolean checkUserName(String username) {
+        ConnectionRequest c = postAndWaitAndFail(host + "/check_username/" + username, evt -> {});
+        return c.getResponseCode() == 200;
     }
 
 

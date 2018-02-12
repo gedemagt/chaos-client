@@ -305,7 +305,7 @@ public class LocalDatabase extends ChaosDatabase{
                 }
 
 
-                RuteImpl r = new RuteImpl(id, uuid, image, date, lastedit, name, getUser(author), getGym(gym), Util.stringToVals(points), grade);
+                RuteImpl r = new RuteImpl(id, uuid, image, date, lastedit, name, getUser(author), getGym(gym), Util.stringToVals(points), grade, 0);
                 rutes.put(uuid, r);
             }
             Log.p("[LocalDatabase] Loaded rutes: " + getRutes().toString());

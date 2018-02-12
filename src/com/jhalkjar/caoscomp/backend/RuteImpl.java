@@ -49,11 +49,17 @@ public class RuteImpl extends AbstractRute{
 
     private Date lastEdit;
     private String imageuuid;
+    private int status;
 
-    public RuteImpl(long id, String uuid, String imageuuid, Date date, Date lastEdit, String name, User author, Gym gym, List<Point> points, Grade grade) {
+    public RuteImpl(long id, String uuid, String imageuuid, Date date, Date lastEdit, String name, User author, Gym gym, List<Point> points, Grade grade, int status) {
         super(id, uuid, date, name, author, gym, points, grade);
         this.lastEdit = lastEdit;
         this.imageuuid = imageuuid;
+        this.status = status;
+    }
+
+    public int getStatus() {
+        return status;
     }
 
     @Override

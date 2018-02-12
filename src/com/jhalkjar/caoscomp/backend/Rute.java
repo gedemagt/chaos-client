@@ -30,5 +30,6 @@ public interface Rute extends DatabaseEntry {
     void save();
     void delete();
 
+    int getStatus();
 
 }
