@@ -8,6 +8,7 @@ import com.codename1.ui.layouts.BoxLayout;
 import com.codename1.ui.layouts.LayeredLayout;
 import com.codename1.ui.plaf.Style;
 import com.codename1.ui.plaf.UIManager;
+import com.jhalkjar.caoscomp.Util;
 import com.jhalkjar.caoscomp.backend.Rute;
 import com.jhalkjar.caoscomp.database.DB;
 import com.jhalkjar.caoscomp.database.NoImageException;
@@ -236,7 +237,7 @@ public class Editor extends Form {
             CheckBox cb = new CheckBox("Copy points");
             cb.setSelected(false);
             ok.addActionListener(evt -> {
-                Rute newR = DB.getInstance().createRute(name.getText(), null, DB.getInstance().getLoggedInUser(), r.getGym(), new Date(), r.getImageUUID(), r.getGrade());
+                Rute newR = DB.getInstance().createRute(name.getText(), null, DB.getInstance().getLoggedInUser(), r.getGym(), Util.getNow(), r.getImageUUID(), r.getGrade());
                 if(cb.isSelected()) {
                     for(Point p : r.getPoints()) newR.getPoints().add(new Point(p));
                     newR.save();

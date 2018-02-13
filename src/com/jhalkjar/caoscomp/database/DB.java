@@ -22,7 +22,7 @@ public class DB {
     }
 
     private LocalDatabase local = new LocalDatabase();
-    private WebDatabase web = new WebDatabase();
+    private WebDatabase web;
 
     private List<RefreshListener> refreshListeners = new ArrayList<>();
     private ImageProvider imgProvider;
@@ -39,7 +39,7 @@ public class DB {
     }
 
     private DB() {
-
+        web = new WebDatabase(local);
         imgProvider = new ImageProvider(local, web);
         NetworkManager.getInstance().addErrorListener(evt -> {
             for(RefreshListener l : refreshListeners) l.OnEndRefresh();

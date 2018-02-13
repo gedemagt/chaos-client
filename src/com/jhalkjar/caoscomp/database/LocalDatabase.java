@@ -79,9 +79,9 @@ public class LocalDatabase extends ChaosDatabase{
             rute.put("coordinates", "[]");
             rute.put("author", author.getUUID());
             rute.put("gym", gym.getUUID());
-            if(date == null) date = new Date();
-            rute.put("datetime", Util.dateFormat.format(date));
-            rute.put("edit", Util.dateFormat.format(date));
+            if(date == null) date = Util.getNow();
+            rute.put("datetime", Util.format(date));
+            rute.put("edit", Util.format(date));
             rute.put("image", imageUUID);
             rute.put("grade", grade.name());
             rutes.save(rute);
@@ -188,7 +188,7 @@ public class LocalDatabase extends ChaosDatabase{
             rute.put("coordinates", Util.valsToString(r.getPoints()));
             rute.put("author", r.getAuthor().getUUID());
             rute.put("gym", r.getGym().getUUID());
-            rute.put("datetime", Util.dateFormat.format(r.getDate()));
+            rute.put("datetime", Util.format(r.getDate()));
             rute.put("image", r.getImageUUID());
             rute.put("grade", r.getGrade().name());
             rutes.save(rute);
@@ -233,8 +233,8 @@ public class LocalDatabase extends ChaosDatabase{
             user.put("email", email);
             user.put("password", passwordHash);
             user.put("gym", gym.getUUID());
-            if(date == null) date = new Date();
-            user.put("datetime", Util.dateFormat.format(date));
+            if(date == null) date = Util.getNow();
+            user.put("datetime", Util.format(date));
             users.save(user);
 
             db.close();
@@ -263,8 +263,8 @@ public class LocalDatabase extends ChaosDatabase{
             gym.put("name", name);
             gym.put("lat", lat);
             gym.put("lon", lon);
-            if(date == null) date = new Date();
-            gym.put("datetime", Util.dateFormat.format(date));
+            if(date == null) date = Util.getNow();
+            gym.put("datetime", Util.format(date));
             gyms.save(gym);
             db.close();
 
@@ -370,13 +370,14 @@ public class LocalDatabase extends ChaosDatabase{
 
 
     private Date getDate(Object o) {
-        if(o == null || o.toString().equals("null")) return new Date(0);
+        if(o == null || o.toString().equals("null")) return Util.getNow();
         try {
-            return Util.dateFormat.parse((String) o);
+            return Util.parse((String) o);
         } catch (ParseException e) {
             e.printStackTrace();
-            return new Date(0);
+            return Util.getNow();
         }
+
     }
 
     @Override
@@ -411,7 +412,7 @@ public class LocalDatabase extends ChaosDatabase{
             Map result = (Map) games.fetchOne(new String[]{"uuid", r.getUUID()});
             if(result != null) {
                 result.put("coordinates", Util.valsToString(r.getPoints()));
-                result.put("edit", Util.dateFormat.format(r.lastEdit()));
+                result.put("edit", Util.format(r.lastEdit()));
                 result.put("name", r.getName());
                 result.put("gym", r.getGym().getUUID());
                 result.put("grade", r.getGrade());

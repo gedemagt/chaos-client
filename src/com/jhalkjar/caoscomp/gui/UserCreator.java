@@ -53,7 +53,7 @@ public class UserCreator extends Form {
         getToolbar().addCommandToRightBar("", FontImage.createMaterial(FontImage.MATERIAL_DONE, s), (e) -> {
             if(!freeUsername(name.toString())) Dialog.show("Invalid username", "Username already taken. Please pick a new one!", "OK", null);
             else {
-                DB.getInstance().createUser(name.getField().getText(), email.getField().getText(), Util.createHash(password.getField().getText()), gym.getGym(), new Date());
+                DB.getInstance().createUser(name.getField().getText(), email.getField().getText(), Util.createHash(password.getField().getText()), gym.getGym(), Util.getNow());
                 f.showBack();
             }
 

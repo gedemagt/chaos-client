@@ -1,5 +1,6 @@
 package com.jhalkjar.caoscomp.backend;
 
+import com.jhalkjar.caoscomp.Util;
 import com.jhalkjar.caoscomp.database.DB;
 import com.jhalkjar.caoscomp.database.NoImageException;
 import com.jhalkjar.caoscomp.gui.Point;
@@ -38,7 +39,7 @@ public class RuteImpl extends AbstractRute{
 
     @Override
     public void save() {
-        lastEdit = new Date();
+        lastEdit = Util.getNow();
         DB.getInstance().save(this);
     }
 
