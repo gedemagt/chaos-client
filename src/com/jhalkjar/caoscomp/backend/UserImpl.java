@@ -11,12 +11,14 @@ public class UserImpl extends DatabaseEntryImpl implements User  {
 
     private String name, email, passwordHash;
     private Gym gym;
+    private Role role;
 
-    public UserImpl(long id, String uuid, Date date, String name, String email, Gym gym, String passwordHash) {
+    public UserImpl(long id, String uuid, Date date, String name, String email, Gym gym, String passwordHash, Role role) {
         super(uuid, id, date);
         this.name = name;
         this.email = email;
         this.gym = gym;
+        this.role = role;
         this.passwordHash = passwordHash;
     }
 
@@ -39,6 +41,9 @@ public class UserImpl extends DatabaseEntryImpl implements User  {
     public Gym getGym() {
         return gym;
     }
+
+    @Override
+    public Role getRole(){return role;}
 
     @Override
     public String toString() {

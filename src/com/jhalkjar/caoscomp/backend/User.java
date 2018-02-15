@@ -12,5 +12,6 @@ public interface User extends DatabaseEntry {
     String getEmail();
     String getPasswordHash();
     Gym getGym();
+    Role getRole();
 
 }

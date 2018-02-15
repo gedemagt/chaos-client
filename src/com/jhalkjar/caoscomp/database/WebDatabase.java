@@ -19,8 +19,8 @@ import java.util.*;
 public class WebDatabase extends ChaosDatabase {
 
 
-//    private static final String host = "https://jeshj.pythonanywhere.com";
-    private static String host = "http://localhost:5000";
+    private static final String host = "https://jeshj.pythonanywhere.com";
+//    private static String host = "http://localhost:5000";
 
     private static String LAST_WEB_CONNECTION = "last_sync";
     public WebDatabase() {
@@ -40,8 +40,9 @@ public class WebDatabase extends ChaosDatabase {
                 Gym gym = getGym((String) vals.get("gym"));
                 Date date = Util.parse((String) vals.get("date"));
                 String uuid = (String) vals.get("uuid");
+                Role role = Role.valueOf((String) vals.get("role"));
 
-                User s = new UserImpl(-1, uuid, date, name, email, gym, password);
+                User s = new UserImpl(-1, uuid, date, name, email, gym, password, role);
                 Log.p("[WebDatabase] Loaded users: " + s.toString());
                 return s;
             }
@@ -130,6 +131,7 @@ public class WebDatabase extends ChaosDatabase {
             object.put("gym", u.getGym().getUUID());
             object.put("date", Util.format(u.getDate()));
             object.put("uuid", u.getUUID());
+            object.put("role", u.getRole().name());
 
         } catch (JSONException e) {
             e.printStackTrace();
