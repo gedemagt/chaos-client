@@ -15,7 +15,8 @@ CREATE TABLE user (
 	password VARCHAR,
 	email VARCHAR,
 	gym VARCHAR,
-	datetime TIMESTAMP DEFAULT (datetime('now'))
+	datetime TIMESTAMP DEFAULT (datetime('now')),
+	role VARCHAR DEFAULT ('BASIC')
 );
 --
 CREATE TABLE image (

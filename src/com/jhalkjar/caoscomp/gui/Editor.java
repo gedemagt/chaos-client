@@ -9,11 +9,14 @@ import com.codename1.ui.layouts.LayeredLayout;
 import com.codename1.ui.plaf.Style;
 import com.codename1.ui.plaf.UIManager;
 import com.jhalkjar.caoscomp.Util;
+import com.jhalkjar.caoscomp.backend.Role;
 import com.jhalkjar.caoscomp.backend.Rute;
 import com.jhalkjar.caoscomp.database.DB;
 import com.jhalkjar.caoscomp.database.NoImageException;
 
 import java.util.Date;
+
+import static com.jhalkjar.caoscomp.backend.Role.GLOBALADMIN;
 
 
 /**
@@ -48,7 +51,11 @@ public class Editor extends Form {
 
         r = rute;
         for(Point p : r.getPoints()) p.setSelected(false);
-        edit = r.getAuthor().equals(DB.getInstance().getLoggedInUser());
+        if (r.getAuthor().getRole() == GLOBALADMIN){
+            edit = true;
+        }else{
+            edit = r.getAuthor().equals(DB.getInstance().getLoggedInUser());
+        }
 
         canvas = new Canvas();
         axis = new Axis(canvas);
