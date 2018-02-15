@@ -57,6 +57,10 @@ public class RuteList extends Form {
             revalidate();
         });
 
+        getToolbar().addCommandToOverflowMenu("Force refresh", null, evt -> {
+            DB.getInstance().forceWebRefresh();
+        });
+
         Label l =  new Label("Network error!");
         selectionContainer = createSelectionContainer();
         selectionContainer.setHidden(true);

@@ -38,8 +38,13 @@ public class DB {
         return web.checkUserName(username);
     }
 
+    public void forceWebRefresh() {
+        web.resetLastVisit();
+        sync();
+    }
+
     private DB() {
-        web = new WebDatabase(local);
+        web = new WebDatabase();
         imgProvider = new ImageProvider(local, web);
         NetworkManager.getInstance().addErrorListener(evt -> {
             for(RefreshListener l : refreshListeners) l.OnEndRefresh();
@@ -58,7 +63,26 @@ public class DB {
     }
 
     public Gym getGym(String uuid) {
-        return local.getGym(uuid);
+        Gym g = local.getGym(uuid);
+        if(g == null) {
+            g = web.getGym(uuid);
+            if(g == null) g = local.unknownGym;
+            else g = local.addGym(g.getUUID(), g.getName(), g.getLat(), g.getLon(), g.getDate());
+        }
+
+        return g;
+    }
+
+    public User getUser(String uuid) {
+        User g = local.getUser(uuid);
+        if(g == null) {
+            g = web.getUser(uuid);
+            if(g == null) g = local.unknownUser;
+            else {
+                g = local.addUser(g.getUUID(), g.getName(), g.getEmail(), g.getPasswordHash(), g.getGym(), g.getDate());
+            }
+        }
+        return g;
     }
 
     public List<Gym> getGyms() {
@@ -128,6 +152,7 @@ public class DB {
                     local.addRute(entry.getValue());
                 }
             }
+            for(RefreshListener l : refreshListeners) l.OnEndRefresh();
         });
     }
 

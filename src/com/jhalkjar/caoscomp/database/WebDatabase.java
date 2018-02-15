@@ -23,13 +23,12 @@ public class WebDatabase extends ChaosDatabase {
     private static String host = "http://localhost:5000";
 
     private static String LAST_WEB_CONNECTION = "last_sync";
-    private LocalDatabase localDatabase;
-    public WebDatabase(LocalDatabase localDatabase) {
-        this.localDatabase = localDatabase;
+    public WebDatabase() {
+
     }
 
     public User getUser(String id) {
-        if(localDatabase.getUser(id) != null) return localDatabase.getUser(id);
+        if(id.length() == 0) return null;
         ConnectionRequest r = getAndWait(host + "/get_user/" + id);
         try {
             Map<String, Object> result = getJsonData(r);
@@ -56,7 +55,7 @@ public class WebDatabase extends ChaosDatabase {
     }
 
     public Gym getGym(String id) {
-        if(localDatabase.getGym(id) != null) return localDatabase.getGym(id);
+        if(id.length() == 0) return null;
         ConnectionRequest r = getAndWait(host + "/get_gym/" + id);
         try {
             Map<String, Object> result = getJsonData(r);
@@ -215,10 +214,10 @@ public class WebDatabase extends ChaosDatabase {
                     Map<String,Object> vals = (Map<String, Object>) result.get(key);
                     String name = (String) vals.get("name");
                     String coordinates = (String) vals.get("coordinates");
-                    Gym gym = getGym((String) vals.get("gym"));
+                    Gym gym = DB.getInstance().getGym((String) vals.get("gym"));
                     Date date = Util.parse((String) vals.get("date"));
                     Date last_edit = Util.parse((String) vals.get("edit"));
-                    User author = getUser((String) vals.get("author"));
+                    User author = DB.getInstance().getUser((String) vals.get("author"));
                     String uuid = (String) vals.get("uuid");
                     String image = (String) vals.get("image");
                     String grader = (String) (vals.get("grade"));
@@ -355,6 +354,10 @@ public class WebDatabase extends ChaosDatabase {
     public boolean checkUserName(String username) {
         ConnectionRequest c = postAndWaitAndFail(host + "/check_username/" + username, evt -> {});
         return c.getResponseCode() == 200;
+    }
+
+    public void resetLastVisit() {
+        Preferences.set(LAST_WEB_CONNECTION, "1900-01-01 00:00:00");
     }
 
 

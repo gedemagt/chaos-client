@@ -20,13 +20,15 @@ import java.util.*;
 public class LocalDatabase extends ChaosDatabase{
     private static String configPath = "/setup.sql";
 
-    private String dbname = "t21s";
+    private String dbname = "1sad";
     private static int VERSION = 2;
-
 
     private Map<String, Gym> gyms = new HashMap<>();
     private Map<String, User> users = new HashMap<>();
     private Map<String, Rute> rutes = new HashMap<>();
+
+    public final Gym unknownGym = new GymImpl(-1, "", Util.getNow(), "UnknowGym", 0,0);
+    public final User unknownUser = new UserImpl(-1, "", Util.getNow(), "UnknownUser", "", unknownGym, "");
 
     public void refresh() {
         Log.p("[LocalDatabase] Refreshing..");
@@ -224,6 +226,7 @@ public class LocalDatabase extends ChaosDatabase{
     public User addUser(String uuid, String name, String email, String passwordHash, Gym gym, Date date) {
         Database db;
         try {
+            Log.p(uuid + " " + name);
             db = Database.openOrCreate(dbname);
             DAOProvider provider = new DAOProvider(db, configPath, VERSION);
             DAO users = provider.get("user");
@@ -305,7 +308,7 @@ public class LocalDatabase extends ChaosDatabase{
                 }
 
 
-                RuteImpl r = new RuteImpl(id, uuid, image, date, lastedit, name, getUser(author), getGym(gym), Util.stringToVals(points), grade, 0);
+                RuteImpl r = new RuteImpl(id, uuid, image, date, lastedit, name, DB.getInstance().getUser(author), DB.getInstance().getGym(gym), Util.stringToVals(points), grade, 0);
                 rutes.put(uuid, r);
             }
             Log.p("[LocalDatabase] Loaded rutes: " + getRutes().toString());
