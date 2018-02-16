@@ -328,6 +328,7 @@ public class WebDatabase extends ChaosDatabase {
         r.setUrl(url);
         r.setContentType("application/json");
         r.addResponseListener(listener);
+        r.addExceptionListener(evt -> Log.p("Hansi"));
         NetworkManager.getInstance().addToQueue(r);
         return r;
     }

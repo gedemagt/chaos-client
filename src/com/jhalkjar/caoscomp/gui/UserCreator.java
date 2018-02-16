@@ -1,5 +1,6 @@
 package com.jhalkjar.caoscomp.gui;
 
+import com.codename1.io.Log;
 import com.codename1.ui.*;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
@@ -51,7 +52,8 @@ public class UserCreator extends Form {
                         password,
                         gym));
         getToolbar().addCommandToRightBar("", FontImage.createMaterial(FontImage.MATERIAL_DONE, s), (e) -> {
-            if(!freeUsername(name.toString())) Dialog.show("Invalid username", "Username already taken. Please pick a new one!", "OK", null);
+            if(!freeUsername(name.getField().getText())) Dialog.show("Invalid username", "Username already taken. Please pick a new one!", "OK", null);
+            else if(password.getField().getText().length()==0) Dialog.show("No password", "Please choose a password!", "OK", null);
             else {
                 DB.getInstance().createUser(name.getField().getText(), email.getField().getText(), Util.createHash(password.getField().getText()), gym.getGym(), Util.getNow());
                 f.showBack();
@@ -65,7 +67,7 @@ public class UserCreator extends Form {
 
 
     private boolean freeUsername(String s) {
-        return !DB.getInstance().checkUsername(s);
+        return DB.getInstance().checkUsername(s);
     }
 
 }

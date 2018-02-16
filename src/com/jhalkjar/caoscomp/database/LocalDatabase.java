@@ -226,7 +226,6 @@ public class LocalDatabase extends ChaosDatabase{
     public User addUser(String uuid, String name, String email, String passwordHash, Gym gym, Date date) {
         Database db;
         try {
-            Log.p(uuid + " " + name);
             db = Database.openOrCreate(dbname);
             DAOProvider provider = new DAOProvider(db, configPath, VERSION);
             DAO users = provider.get("user");
@@ -244,7 +243,7 @@ public class LocalDatabase extends ChaosDatabase{
 
             loadUsers();
 
-            return getUsers().get(getUsers().size()-1);
+            return getUser(uuid);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -273,7 +272,7 @@ public class LocalDatabase extends ChaosDatabase{
 
             loadGyms();
 
-            return getGyms().get(getGyms().size()-1);
+            return getGym(uuid);
 
         } catch (IOException e) {
             e.printStackTrace();
