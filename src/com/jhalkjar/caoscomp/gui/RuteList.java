@@ -26,6 +26,7 @@ import com.jhalkjar.caoscomp.backend.User;
 import com.jhalkjar.caoscomp.database.DB;
 import com.jhalkjar.caoscomp.gui.GymPicker.*;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -40,7 +41,8 @@ public class RuteList extends Form {
     Container selectionContainer;
     Gym gymFilter = DB.getInstance().getLoggedInUser().getGym();
     User userFilter = null;
-    Grade gradeFilter = null;
+    ArrayList<Grade> gradeFilter = new ArrayList<>();
+
 
 
     public RuteList() {
@@ -113,7 +115,7 @@ public class RuteList extends Form {
 
         Button gradePicker = new Button(FontImage.createMaterial(FontImage.MATERIAL_GRADE, s));
         gradePicker.addActionListener(evt -> {
-            gradeFilter = new GradePicker().getGrade();
+            gradeFilter = new GradePicker().getMultiple();
             updateUI();
 
         });
@@ -194,7 +196,7 @@ public class RuteList extends Form {
             for(Rute r : rutes) {
                 if(userFilter != null && !r.getAuthor().equals(userFilter)) continue;
                 if(gymFilter != null && !r.getGym().equals(gymFilter)) continue;
-                if(gradeFilter != null && !r.getGrade().equals(gradeFilter)) continue;
+                if(gradeFilter.size() != 0 && !gradeFilter.contains(r.getGrade())) continue;
                 Container c = createListElement(r);
                 list.add(c);
             }
