@@ -5,6 +5,7 @@ package com.jhalkjar.caoscomp.gui;
  */
 
 import com.codename1.components.FloatingActionButton;
+import com.codename1.io.Log;
 import com.codename1.io.Preferences;
 import com.codename1.l10n.DateFormat;
 import com.codename1.l10n.SimpleDateFormat;
@@ -39,12 +40,13 @@ public class RuteList extends Form {
     Container selectionContainer;
     Gym gymFilter = DB.getInstance().getLoggedInUser().getGym();
     User userFilter = null;
+    Grade gradeFilter = null;
 
 
     public RuteList() {
         super(new BorderLayout());
         Style s = UIManager.getInstance().getComponentStyle("Title");
-        getToolbar().setTitle("Rutes");
+        getToolbar().setTitle("Problems");
         FloatingActionButton fab = FloatingActionButton.createFAB(FontImage.MATERIAL_ADD);
         fab.setUIID("FaB");
         fab.addActionListener(evt -> {
@@ -54,7 +56,7 @@ public class RuteList extends Form {
 
         populateToolbar();
 
-        Label l = new Label("Network error!");
+        Label l = new Label("Network error");
         selectionContainer = createSelectionContainer();
         selectionContainer.setHidden(true);
         add(BorderLayout.NORTH, l);
@@ -104,22 +106,24 @@ public class RuteList extends Form {
         for (int i = 0; i < gymList.size(); i++) gymStrings[i + 1] = gymList.get(i).getName();
 
         PickerComponent gyms = PickerComponent.createStrings(gymStrings);
-        gyms.getAllStyles().setBorder(Border.createEmpty());
         int selected = gymList.indexOf(gymFilter);
         if (selected == -1) selected = 0;
         else selected += 1;
         gyms.getPicker().setSelectedStringIndex(selected);
 
-        getToolbar().add(BorderLayout.CENTER, BoxLayout.encloseX(gyms));
+        Button gradePicker = new Button(FontImage.createMaterial(FontImage.MATERIAL_GRADE, s));
+        gradePicker.addActionListener(evt -> {
+            gradeFilter = new GradePicker().getGrade();
+            updateUI();
+
+        });
+
+        getToolbar().add(BorderLayout.WEST, BoxLayout.encloseX(gyms, gradePicker));
         gyms.getPicker().addActionListener(evt -> {
         int selectedGym = gyms.getPicker().getSelectedStringIndex() - 1;
         gymFilter = selectedGym >= 0 ? gymList.get(selectedGym) : null;
-
         updateUI();
         });
-
-
-
 
 
         getToolbar().addCommandToOverflowMenu("Force refresh", null, evt -> {
@@ -181,7 +185,7 @@ public class RuteList extends Form {
 
         centerContainer.removeAll();
         if(rutes.size() == 0) {
-            Label l = new Label("Please add a rute");
+            Label l = new Label("Got a problem?");
             centerContainer.add(BorderLayout.CENTER, l);
         }
         else {
@@ -190,6 +194,7 @@ public class RuteList extends Form {
             for(Rute r : rutes) {
                 if(userFilter != null && !r.getAuthor().equals(userFilter)) continue;
                 if(gymFilter != null && !r.getGym().equals(gymFilter)) continue;
+                if(gradeFilter != null && !r.getGrade().equals(gradeFilter)) continue;
                 Container c = createListElement(r);
                 list.add(c);
             }
