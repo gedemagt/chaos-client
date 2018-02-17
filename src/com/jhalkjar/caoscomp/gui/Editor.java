@@ -184,7 +184,6 @@ public class Editor extends Form {
             r.setGrade(gp.getGrade());
             r.save();
             populateToolbar(edit);
-            prevForm.revalidate();
         });
 
 
