@@ -183,6 +183,8 @@ public class Editor extends Form {
         gradePicker.addActionListener(evt -> {
             r.setGrade(gp.getGrade());
             r.save();
+            populateToolbar(edit);
+            prevForm.revalidate();
         });
 
 
