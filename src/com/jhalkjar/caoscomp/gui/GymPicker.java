@@ -60,5 +60,8 @@ public class GymPicker extends Container {
         r[gyms.size()] = "New gym..";
         return r;
     }
+    public String hest(){
+        return "kohesten";
+    }
 
 }

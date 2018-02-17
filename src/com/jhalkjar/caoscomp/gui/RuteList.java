@@ -13,6 +13,7 @@ import com.codename1.ui.Container;
 import com.codename1.ui.Label;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
+import com.codename1.ui.plaf.Border;
 import com.codename1.ui.plaf.Style;
 import com.codename1.ui.plaf.UIManager;
 
@@ -22,6 +23,7 @@ import com.jhalkjar.caoscomp.backend.Gym;
 import com.jhalkjar.caoscomp.backend.Rute;
 import com.jhalkjar.caoscomp.backend.User;
 import com.jhalkjar.caoscomp.database.DB;
+import com.jhalkjar.caoscomp.gui.GymPicker.*;
 
 import java.util.Collections;
 import java.util.List;
@@ -35,10 +37,12 @@ public class RuteList extends Form {
     Container centerContainer = new Container(new BorderLayout());
     List<Rute> rutes;
     Container selectionContainer;
+    Gym gymFilter = DB.getInstance().getLoggedInUser().getGym();
+    User userFilter = null;
+
 
     public RuteList() {
         super(new BorderLayout());
-
         Style s = UIManager.getInstance().getComponentStyle("Title");
         getToolbar().setTitle("Rutes");
         FloatingActionButton fab = FloatingActionButton.createFAB(FontImage.MATERIAL_ADD);
@@ -47,21 +51,10 @@ public class RuteList extends Form {
             new RuteCreator().show();
         });
         fab.bindFabToContainer(getContentPane());
-        getToolbar().addCommandToOverflowMenu("Log out", null, (e)->{
-            Preferences.set("logged_in_user", "");
-            new Login().show();
-        });
-        getToolbar().addCommandToRightBar("", FontImage.createMaterial(FontImage.MATERIAL_FILTER_LIST, s), evt -> {
-            selectionContainer.setHidden(!selectionContainer.isHidden());
-            selectionContainer.animateLayout(2);
-            revalidate();
-        });
 
-        getToolbar().addCommandToOverflowMenu("Force refresh", null, evt -> {
-            DB.getInstance().forceWebRefresh();
-        });
+        populateToolbar();
 
-        Label l =  new Label("Network error!");
+        Label l = new Label("Network error!");
         selectionContainer = createSelectionContainer();
         selectionContainer.setHidden(true);
         add(BorderLayout.NORTH, l);
@@ -78,6 +71,7 @@ public class RuteList extends Form {
                 l.setHidden(true);
                 rutes = DB.getInstance().getRutes();
                 Collections.sort(rutes, (o1, o2) -> (int) (o2.getDate().getTime() - o1.getDate().getTime()));
+                populateToolbar();
                 updateUI();
             }
 
@@ -92,60 +86,102 @@ public class RuteList extends Form {
         updateUI();
     }
 
-    Gym gymFilter = null;
-    User userFilter = null;
 
-    Container createSelectionContainer() {
-        TableLayout tbl = new TableLayout(1,4);
-        Container cnt = new Container(tbl);
-        cnt.setUIID("SelectionContainer ");
+    void populateToolbar() {
+        getToolbar().addCommandToOverflowMenu("Log out", null, (e) -> {
+            Preferences.set("logged_in_user", "");
+            new Login().show();
+        });
 
+//        tb.addCommandToRightBar("", FontImage.createMaterial(FontImage.MATERIAL_FILTER_LIST, s), evt -> {
+//                    selectionContainer.setHidden(!selectionContainer.isHidden());
+//                    selectionContainer.animateLayout(2);
+//        });
 
         List<Gym> gymList = DB.getInstance().getGyms();
-        String[] gymStrings = new String[gymList.size()+1];
-        gymStrings[0]="All";
-        for(int i=0; i<gymList.size(); i++) gymStrings[i+1] = gymList.get(i).getName();
+        String[] gymStrings = new String[gymList.size() + 1];
+        gymStrings[0] = "All";
+        for (int i = 0; i < gymList.size(); i++) gymStrings[i + 1] = gymList.get(i).getName();
+
         PickerComponent gyms = PickerComponent.createStrings(gymStrings);
+        gyms.getAllStyles().setBorder(Border.createEmpty());
         int selected = gymList.indexOf(gymFilter);
-        if(selected == -1) selected = 0;
-        else selected +=1;
+        if (selected == -1) selected = 0;
+        else selected += 1;
         gyms.getPicker().setSelectedStringIndex(selected);
 
-        List<User> userList = DB.getInstance().getUsers();
-        String[] userStrings = new String[userList.size()+1];
-        userStrings[0]="All";
-        for(int i=0; i<userList.size(); i++) userStrings[i+1] = userList.get(i).getName();
-        PickerComponent users = PickerComponent.createStrings(userStrings);
-        selected = userList.indexOf(userFilter);
-        if(selected == -1) selected = 0;
-        else selected +=1;
-        users.getPicker().setSelectedStringIndex(selected);
-
+        getToolbar().add(BorderLayout.CENTER, BoxLayout.encloseX(gyms));
         gyms.getPicker().addActionListener(evt -> {
-            int selectedGym = gyms.getPicker().getSelectedStringIndex()-1;
-            gymFilter = selectedGym>=0 ? gymList.get(selectedGym) : null;
-            updateUI();
-        });
-        users.getPicker().addActionListener(evt -> {
-            int selectedUser = users.getPicker().getSelectedStringIndex()-1;
-            userFilter = selectedUser>=0 ? userList.get(selectedUser) : null;
-            updateUI();
+        int selectedGym = gyms.getPicker().getSelectedStringIndex() - 1;
+        gymFilter = selectedGym >= 0 ? gymList.get(selectedGym) : null;
+
+        updateUI();
         });
 
-        cnt.add(tbl.createConstraint().widthPercentage(10), new Label(FontImage.createMaterial(FontImage.MATERIAL_HOME, s)));
-        cnt.add(tbl.createConstraint().widthPercentage(40), gyms);
-        cnt.add(tbl.createConstraint().widthPercentage(10), new Label(FontImage.createMaterial(FontImage.MATERIAL_PERSON, s)));
-        cnt.add(tbl.createConstraint().widthPercentage(40), users);
 
-        return cnt;
-    }
+
+
+
+        getToolbar().addCommandToOverflowMenu("Force refresh", null, evt -> {
+            DB.getInstance().forceWebRefresh();
+            populateToolbar();
+            revalidate();
+        });
+    };
+
+        Container createSelectionContainer(){
+            TableLayout tbl = new TableLayout(1, 4);
+            Container cnt = new Container(tbl);
+            cnt.setUIID("SelectionContainer ");
+
+
+            List<Gym> gymList = DB.getInstance().getGyms();
+            String[] gymStrings = new String[gymList.size() + 1];
+            gymStrings[0] = "All";
+            for (int i = 0; i < gymList.size(); i++) gymStrings[i + 1] = gymList.get(i).getName();
+            PickerComponent gyms = PickerComponent.createStrings(gymStrings);
+            int selected = gymList.indexOf(gymFilter);
+            if (selected == -1) selected = 0;
+            else selected += 1;
+            gyms.getPicker().setSelectedStringIndex(selected);
+
+            List<User> userList = DB.getInstance().getUsers();
+            String[] userStrings = new String[userList.size() + 1];
+            userStrings[0] = "All";
+            for (int i = 0; i < userList.size(); i++) userStrings[i + 1] = userList.get(i).getName();
+            PickerComponent users = PickerComponent.createStrings(userStrings);
+            selected = userList.indexOf(userFilter);
+            if (selected == -1) selected = 0;
+            else selected += 1;
+            users.getPicker().setSelectedStringIndex(selected);
+
+            gyms.getPicker().addActionListener(evt -> {
+                int selectedGym = gyms.getPicker().getSelectedStringIndex() - 1;
+                gymFilter = selectedGym >= 0 ? gymList.get(selectedGym) : null;
+                updateUI();
+            });
+            users.getPicker().addActionListener(evt -> {
+                int selectedUser = users.getPicker().getSelectedStringIndex() - 1;
+                userFilter = selectedUser >= 0 ? userList.get(selectedUser) : null;
+                updateUI();
+            });
+
+            cnt.add(tbl.createConstraint().widthPercentage(10), new Label(FontImage.createMaterial(FontImage.MATERIAL_HOME, s)));
+            cnt.add(tbl.createConstraint().widthPercentage(40), gyms);
+            cnt.add(tbl.createConstraint().widthPercentage(10), new Label(FontImage.createMaterial(FontImage.MATERIAL_PERSON, s)));
+            cnt.add(tbl.createConstraint().widthPercentage(40), users);
+
+            return cnt;
+        };
+
+
 
 
     private void updateUI() {
 
         centerContainer.removeAll();
         if(rutes.size() == 0) {
-            Label l = new Label("Please add a rute!");
+            Label l = new Label("Please add a rute");
             centerContainer.add(BorderLayout.CENTER, l);
         }
         else {
@@ -157,7 +193,11 @@ public class RuteList extends Form {
                 Container c = createListElement(r);
                 list.add(c);
             }
-            list.addPullToRefresh(() -> DB.getInstance().sync());
+            list.addPullToRefresh(()  -> {
+                DB.getInstance().sync();
+                populateToolbar();
+                revalidate();
+            });
             centerContainer.add(BorderLayout.NORTH, selectionContainer);
             centerContainer.add(BorderLayout.CENTER, list);
         }
@@ -196,9 +236,9 @@ public class RuteList extends Form {
         cnt.add(tbl.createConstraint().widthPercentage(40), author);
 
         for(int i=0; i<cnt.getComponentCount(); i++) {
-            cnt.getComponentAt(i).addPointerReleasedListener(evt -> new Editor(rute).show());
+            cnt.getComponentAt(i).addPointerReleasedListener(evt -> new Editor(rute, this).show());
         }
-        cnt.addPointerReleasedListener(evt -> new Editor(rute).show());
+        cnt.addPointerReleasedListener(evt -> new Editor(rute, this).show());
 
         return BoxLayout.encloseY(cnt, new Spacer());
     }

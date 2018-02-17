@@ -21,6 +21,7 @@ import java.util.Date;
  */
 public class Editor extends Form {
 
+    private Form prevForm;
     private Style s = UIManager.getInstance().getComponentStyle("Title");
     private Style s2 = UIManager.getInstance().getComponentStyle("Label");
     private Canvas canvas;
@@ -43,8 +44,10 @@ public class Editor extends Form {
 
     private GradePicker gp = new GradePicker();
 
-    public Editor(Rute rute) {
+    public Editor(Rute rute, Form RL) {
         super(new BorderLayout());
+
+        this.prevForm = RL;
 
         r = rute;
         for(Point p : r.getPoints()) p.setSelected(false);
@@ -135,15 +138,19 @@ public class Editor extends Form {
         unzoom.setVisible(false);
         Button increase = new Button(FontImage.createMaterial(FontImage.MATERIAL_KEYBOARD_ARROW_UP, s));
         increase.addActionListener(evt -> {
-            state.selected.setSize(state.selected.getSize() + 0.05f);
+            state.selected.setSize(state.selected.getSize() + 0.025f);
             r.save();
             revalidate();
         });
         Button decrease = new Button(FontImage.createMaterial(FontImage.MATERIAL_KEYBOARD_ARROW_DOWN, s));
         decrease.addActionListener(evt -> {
-            state.selected.setSize(state.selected.getSize() - 0.05f);
-            r.save();
-            revalidate();
+            if (state.selected.getSize() < 0.025f){
+                state.selected.setSize(state.selected.getSize() - 0.025f);
+                r.save();
+                revalidate();
+            }
+
+
         });
 
         RadioButton start = new RadioButton(FontImage.createMaterial(FontImage.MATERIAL_ADJUST, s));
@@ -209,7 +216,10 @@ public class Editor extends Form {
         Toolbar tb = new Toolbar(false);
         setToolbar(tb);
         setBackCommand(tb.addCommandToLeftBar("", FontImage.createMaterial(FontImage.MATERIAL_ARROW_BACK, s), (e) -> {
-            new RuteList().showBack();
+//            new RuteList().showBack();
+            prevForm.showBack();
+
+
         }));
 
         if(canEdit) {
@@ -242,7 +252,7 @@ public class Editor extends Form {
                     for(Point p : r.getPoints()) newR.getPoints().add(new Point(p));
                     newR.save();
                 }
-                new Editor(newR).show();
+                new Editor(newR, this).show();
             });
             d.add(BoxLayout.encloseY(new Label("Name"), name, cb, ok));
             d.show();
@@ -393,6 +403,7 @@ public class Editor extends Form {
             r.save();
             return new IdleState(selected).onRelease(evt);
         }
+
     }
 
 

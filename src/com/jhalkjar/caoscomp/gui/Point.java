@@ -69,13 +69,14 @@ public class Point {
         g.fillArc(x - size/2, y - size/2, size, size, 0, 360);
 
         g.setAlpha(255);
-        if(type == Type.NORMAL) g.setColor(0xFFFFFF);
-        if(type == Type.START) g.setColor(0x2BCD31);
+        if(type == Type.NORMAL) g.setColor(0x0000ff);
+        if(type == Type.START) g.setColor(0x006400);
         if(type == Type.END) g.setColor(0xFF0000);
 
 
         g.drawArc(x - size/2, y - size/2, size, size, 0, 360);
         g.drawArc(x - size/2+1, y - size/2+1, size-2, size-2, 0, 360);
+
 
     }
 
