@@ -40,7 +40,9 @@ public class WebDatabase extends ChaosDatabase {
                 Gym gym = getGym((String) vals.get("gym"));
                 Date date = Util.parse((String) vals.get("date"));
                 String uuid = (String) vals.get("uuid");
-                Role role = Role.valueOf((String) vals.get("role"));
+                String roler = (String) vals.get("role");
+//                Log.p("roler: " + roler);
+                Role role = roler != null ? Role.valueOf(roler) : Role.BASIC;
 
                 User s = new UserImpl(-1, uuid, date, name, email, gym, password, role);
                 Log.p("[WebDatabase] Loaded users: " + s.toString());
@@ -330,6 +332,7 @@ public class WebDatabase extends ChaosDatabase {
         r.setUrl(url);
         r.setContentType("application/json");
         r.addResponseListener(listener);
+        r.addExceptionListener(evt -> Log.p("Hansi"));
         NetworkManager.getInstance().addToQueue(r);
         return r;
     }

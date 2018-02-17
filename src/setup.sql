@@ -15,8 +15,7 @@ CREATE TABLE user (
 	password VARCHAR,
 	email VARCHAR,
 	gym VARCHAR,
-	datetime TIMESTAMP DEFAULT (datetime('now')),
-	role VARCHAR DEFAULT ('BASIC')
+	datetime TIMESTAMP DEFAULT (datetime('now'))
 );
 --
 CREATE TABLE image (
@@ -58,4 +57,5 @@ CREATE TABLE comment (
 --
 --Version:2
 ALTER TABLE rute ADD COLUMN grade VARCHAR;
---
+--Version:3
+ALTER TABLE user ADD COLUMN role VARCHAR;

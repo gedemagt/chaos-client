@@ -20,7 +20,7 @@ import java.util.*;
 public class LocalDatabase extends ChaosDatabase{
     private static String configPath = "/setup.sql";
 
-    private String dbname = "1sad234";
+    private String dbname = "1sad2a3wa4";
     private static int VERSION = 2;
 
     private Map<String, Gym> gyms = new HashMap<>();
@@ -28,7 +28,7 @@ public class LocalDatabase extends ChaosDatabase{
     private Map<String, Rute> rutes = new HashMap<>();
 
     public final Gym unknownGym = new GymImpl(-1, "", Util.getNow(), "UnknowGym", 0,0);
-    public final User unknownUser = new UserImpl(-1, "", Util.getNow(), "UnknownUser", "", unknownGym, "", Role.BASIC);
+    public final User unknownUser = new UserImpl(-1, "", Util.getNow(), "UnknownUser", "", unknownGym, "",Role.BASIC);
 
     public void refresh() {
         Log.p("[LocalDatabase] Refreshing..");
@@ -337,7 +337,11 @@ public class LocalDatabase extends ChaosDatabase{
                 Date date = getDate(m.get("datetime"));
                 String uuid = (String) m.get("uuid");
                 long id = (Long) m.get("id");
-                Role role = Role.valueOf((String) m.get("role"));
+                String roler = (String) m.get("role");
+//                Log.p("LocalRoler: " + roler);
+                Role role = roler != null ? Role.valueOf(roler) : Role.BASIC;
+
+
                 users.put(uuid, new UserImpl(id, uuid, date, name, email, getGym(gym), pass, role));
             }
             Log.p("[LocalDatabase] Loaded users: " + users.values());
