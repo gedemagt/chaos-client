@@ -42,13 +42,14 @@ public class RuteList extends Form {
     Gym gymFilter = DB.getInstance().getLoggedInUser().getGym();
     User userFilter = null;
     ArrayList<Grade> gradeFilter = new ArrayList<>();
+    Toolbar tb;
 
 
 
     public RuteList() {
         super(new BorderLayout());
         Style s = UIManager.getInstance().getComponentStyle("Title");
-        getToolbar().setTitle("Problems");
+
         FloatingActionButton fab = FloatingActionButton.createFAB(FontImage.MATERIAL_ADD);
         fab.setUIID("FaB");
         fab.addActionListener(evt -> {
@@ -92,7 +93,10 @@ public class RuteList extends Form {
 
 
     void populateToolbar() {
-        getToolbar().addCommandToOverflowMenu("Log out", null, (e) -> {
+        tb = new Toolbar();
+        setToolbar(tb);
+        tb.setTitle("Problems");
+        tb.addCommandToOverflowMenu("Log out", null, (e) -> {
             Preferences.set("logged_in_user", "");
             new Login().show();
         });
@@ -120,7 +124,7 @@ public class RuteList extends Form {
 
         });
 
-        getToolbar().add(BorderLayout.WEST, BoxLayout.encloseX(gyms, gradePicker));
+        tb.add(BorderLayout.WEST, BoxLayout.encloseX(gyms, gradePicker));
         gyms.getPicker().addActionListener(evt -> {
         int selectedGym = gyms.getPicker().getSelectedStringIndex() - 1;
         gymFilter = selectedGym >= 0 ? gymList.get(selectedGym) : null;
@@ -128,7 +132,7 @@ public class RuteList extends Form {
         });
 
 
-        getToolbar().addCommandToOverflowMenu("Force refresh", null, evt -> {
+        tb.addCommandToOverflowMenu("Force refresh", null, evt -> {
             DB.getInstance().forceWebRefresh();
             populateToolbar();
             revalidate();
