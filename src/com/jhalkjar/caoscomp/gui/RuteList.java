@@ -119,7 +119,7 @@ public class RuteList extends Form {
 
         Button gradePicker = new Button(FontImage.createMaterial(FontImage.MATERIAL_GRADE, s));
         gradePicker.addActionListener(evt -> {
-            gradeFilter = new GradePicker().getMultiple();
+            gradeFilter = new GradePicker().getMultipleGrades();
             updateUI();
 
         });
@@ -137,7 +137,7 @@ public class RuteList extends Form {
             populateToolbar();
             revalidate();
         });
-    };
+    }
 
         Container createSelectionContainer(){
             TableLayout tbl = new TableLayout(1, 4);
@@ -182,7 +182,7 @@ public class RuteList extends Form {
             cnt.add(tbl.createConstraint().widthPercentage(40), users);
 
             return cnt;
-        };
+        }
 
 
 

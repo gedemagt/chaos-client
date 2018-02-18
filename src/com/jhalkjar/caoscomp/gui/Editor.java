@@ -257,7 +257,7 @@ public class Editor extends Form {
                     for(Point p : r.getPoints()) newR.getPoints().add(new Point(p));
                     newR.save();
                 }
-                new Editor(newR, this).show();
+                new Editor(newR, prevForm).show();
             });
             d.add(BoxLayout.encloseY(new Label("Name"), name, cb, ok));
             d.show();

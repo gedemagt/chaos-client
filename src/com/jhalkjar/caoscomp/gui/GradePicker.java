@@ -72,7 +72,7 @@ public class GradePicker {
         return picked;
     }
 
-    public ArrayList<Grade> getMultiple() {
+    public ArrayList<Grade> getMultipleGrades() {
 
         Dialog dlg = new Dialog("Pick grades");
         dlg.setLayout(new BorderLayout());
