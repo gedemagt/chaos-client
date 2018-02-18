@@ -70,7 +70,7 @@ public class Point {
 
         g.setAlpha(255);
         if(type == Type.NORMAL) g.setColor(0x0000ff);
-        if(type == Type.START) g.setColor(0x006400);
+        if(type == Type.START) g.setColor(0x00FF00);
         if(type == Type.END) g.setColor(0xFF0000);
 
 
