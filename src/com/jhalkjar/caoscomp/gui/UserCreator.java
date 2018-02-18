@@ -1,6 +1,5 @@
 package com.jhalkjar.caoscomp.gui;
 
-import com.codename1.io.Log;
 import com.codename1.ui.*;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
@@ -12,8 +11,6 @@ import com.codename1.ui.validation.Validator;
 import com.jhalkjar.caoscomp.Util;
 import com.jhalkjar.caoscomp.backend.Role;
 import com.jhalkjar.caoscomp.database.DB;
-
-import java.util.Date;
 
 
 /**

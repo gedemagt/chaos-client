@@ -12,17 +12,21 @@ import com.codename1.ui.plaf.Style;
 import com.codename1.ui.plaf.UIManager;
 import com.jhalkjar.caoscomp.Util;
 import com.jhalkjar.caoscomp.backend.Grade;
+import com.jhalkjar.caoscomp.backend.Gym;
 import com.jhalkjar.caoscomp.backend.Role;
 import com.jhalkjar.caoscomp.backend.Rute;
 import com.jhalkjar.caoscomp.database.DB;
 import com.jhalkjar.caoscomp.database.NoImageException;
 
+import java.util.Date;
+import java.util.List;
 
 /**
  * Created by jesper on 11/5/17.
  */
 public class Editor extends Form {
 
+    private Form prevForm;
     private Style s = UIManager.getInstance().getComponentStyle("Title");
     private Style s2 = UIManager.getInstance().getComponentStyle("Label");
     private Canvas canvas;
@@ -47,12 +51,13 @@ public class Editor extends Form {
 
     private GradePicker gp = new GradePicker();
 
-    public Editor(Rute rute) {
+    public Editor(Rute rute, Form RL) {
         super(new BorderLayout());
+
+        this.prevForm = RL;
 
         r = rute;
         for(Point p : r.getPoints()) p.setSelected(false);
-
         if (DB.getInstance().getLoggedInUser().getRole() == Role.ADMIN){
             edit = true;
         }else{
@@ -144,15 +149,19 @@ public class Editor extends Form {
         unzoom.setVisible(false);
         Button increase = new Button(FontImage.createMaterial(FontImage.MATERIAL_KEYBOARD_ARROW_UP, s));
         increase.addActionListener(evt -> {
-            state.selected.setSize(state.selected.getSize() + 0.05f);
+            state.selected.setSize(state.selected.getSize() + 0.025f);
             r.save();
             revalidate();
         });
         Button decrease = new Button(FontImage.createMaterial(FontImage.MATERIAL_KEYBOARD_ARROW_DOWN, s));
         decrease.addActionListener(evt -> {
-            state.selected.setSize(state.selected.getSize() - 0.05f);
-            r.save();
-            revalidate();
+            if (state.selected.getSize() > 0.025f){
+                state.selected.setSize(state.selected.getSize() - 0.025f);
+                r.save();
+                revalidate();
+            }
+
+
         });
 
         RadioButton start = new RadioButton(FontImage.createMaterial(FontImage.MATERIAL_ADJUST, s));
@@ -181,6 +190,7 @@ public class Editor extends Form {
             gradePicker.getAllStyles().setBgColor(Grade.getColorInt(r.getGrade()));
             this.tb.getAllStyles().setBgColor(Grade.getColorInt(r.getGrade()));
             r.save();
+            populateToolbar(edit);
         });
 
 
@@ -226,8 +236,13 @@ public class Editor extends Form {
             tb.getAllStyles().setBgColor(Grade.getColorInt(r.getGrade()));
         }
         setToolbar(tb);
+        tb.getAllStyles().setBorder(Border.createEmpty());
+        tb.getAllStyles().setBgTransparency(255);
+        if (r.getGrade() != Grade.NO_GRADE) {
+            tb.getAllStyles().setBgColor(Grade.getColorInt(r.getGrade()));
+        }
         setBackCommand(tb.addCommandToLeftBar("", FontImage.createMaterial(FontImage.MATERIAL_ARROW_BACK, s), (e) -> {
-            new RuteList().showBack();
+            prevForm.showBack();
         }));
 
         if(canEdit) {
@@ -237,15 +252,7 @@ public class Editor extends Form {
                 populateToolbar(canEdit);
                 if(!editMode) for(Point p : r.getPoints()) p.setSelected(false);
             });
-        }
 
-//        char image = isLocal ? FontImage.MATERIAL_CLOUD : FontImage.MATERIAL_FILE_DOWNLOAD;
-//        String text = isLocal ? "Remove locally!" : "Download!";
-//        tb.addCommandToOverflowMenu(text, FontImage.createMaterial(image, s2), evt -> {
-//
-//            isLocal = !isLocal;
-//
-//        });
 
         tb.addCommandToOverflowMenu("Copy", FontImage.createMaterial(FontImage.MATERIAL_CONTENT_COPY, s2), (e) -> {
             Dialog d = new Dialog();
@@ -260,7 +267,7 @@ public class Editor extends Form {
                     for(Point p : r.getPoints()) newR.getPoints().add(new Point(p));
                     newR.save();
                 }
-                new Editor(newR).show();
+                new Editor(newR, prevForm).show();
             });
             d.add(BoxLayout.encloseY(new Label("Name"), name, cb, ok));
             d.show();
@@ -280,7 +287,7 @@ public class Editor extends Form {
         }
 
         revalidate();
-    }
+    }}
 
     private abstract class State {
 
@@ -411,6 +418,7 @@ public class Editor extends Form {
             r.save();
             return new IdleState(selected).onRelease(evt);
         }
+
     }
 
 

@@ -23,6 +23,10 @@ public class ColoredSquare extends Component {
         g.fillRect(0, 0, size, size);
     }
 
+    public void setColor(int color) {
+        this.color = color;
+    }
+
     @Override
     protected Dimension calcPreferredSize() {
         return new Dimension(size, size);
