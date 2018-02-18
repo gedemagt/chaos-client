@@ -9,6 +9,7 @@ import com.codename1.ui.validation.Constraint;
 import com.codename1.ui.validation.RegexConstraint;
 import com.codename1.ui.validation.Validator;
 import com.jhalkjar.caoscomp.Util;
+import com.jhalkjar.caoscomp.backend.Role;
 import com.jhalkjar.caoscomp.database.DB;
 
 
@@ -52,7 +53,7 @@ public class UserCreator extends Form {
             if(!freeUsername(name.getField().getText())) Dialog.show("Invalid username", "Username already taken. Please pick a new one!", "OK", null);
             else if(password.getField().getText().length()==0) Dialog.show("No password", "Please choose a password!", "OK", null);
             else {
-                DB.getInstance().createUser(name.getField().getText(), email.getField().getText(), Util.createHash(password.getField().getText()), gym.getGym(), Util.getNow());
+                DB.getInstance().createUser(name.getField().getText(), email.getField().getText(), Util.createHash(password.getField().getText()), gym.getGym(), Util.getNow(), Role.USER);
                 f.showBack();
             }
 

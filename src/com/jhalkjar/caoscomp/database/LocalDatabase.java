@@ -28,7 +28,7 @@ public class LocalDatabase extends ChaosDatabase{
     private Map<String, Rute> rutes = new HashMap<>();
 
     public final Gym unknownGym = new GymImpl(-1, "", Util.getNow(), "UnknowGym", 0,0);
-    public final User unknownUser = new UserImpl(-1, "", Util.getNow(), "UnknownUser", "", unknownGym, "");
+    public final User unknownUser = new UserImpl(-1, "", Util.getNow(), "UnknownUser", "", unknownGym, "",Role.USER);
 
     public void refresh() {
         Log.p("[LocalDatabase] Refreshing..");
@@ -219,11 +219,11 @@ public class LocalDatabase extends ChaosDatabase{
         return false;
     }
 
-    public User createUser(String name, String email, String passwordHash, Gym gym, Date date) {
-        return addUser(UUID.randomUUID().toString(), name, email, passwordHash, gym, date);
+    public User createUser(String name, String email, String passwordHash, Gym gym, Date date, Role role) {
+        return addUser(UUID.randomUUID().toString(), name, email, passwordHash, gym, date, role);
     }
 
-    public User addUser(String uuid, String name, String email, String passwordHash, Gym gym, Date date) {
+    public User addUser(String uuid, String name, String email, String passwordHash, Gym gym, Date date, Role role) {
         Database db;
         try {
             db = Database.openOrCreate(dbname);
@@ -237,6 +237,8 @@ public class LocalDatabase extends ChaosDatabase{
             user.put("gym", gym.getUUID());
             if(date == null) date = Util.getNow();
             user.put("datetime", Util.format(date));
+            user.put("role", role.name());
+
             users.save(user);
 
             db.close();
@@ -334,7 +336,12 @@ public class LocalDatabase extends ChaosDatabase{
                 Date date = getDate(m.get("datetime"));
                 String uuid = (String) m.get("uuid");
                 long id = (Long) m.get("id");
-                users.put(uuid, new UserImpl(id, uuid, date, name, email, getGym(gym), pass));
+                String roler = (String) m.get("role");
+//                Log.p("LocalRoler: " + roler);
+                Role role = roler != null ? Role.valueOf(roler) : Role.USER;
+
+
+                users.put(uuid, new UserImpl(id, uuid, date, name, email, getGym(gym), pass, role));
             }
             Log.p("[LocalDatabase] Loaded users: " + users.values());
             db.close();
