@@ -79,7 +79,7 @@ public class DB {
             g = web.getUser(uuid);
             if(g == null) g = local.unknownUser;
             else {
-                g = local.addUser(g.getUUID(), g.getName(), g.getEmail(), g.getPasswordHash(), g.getGym(), g.getDate());
+                g = local.addUser(g.getUUID(), g.getName(), g.getEmail(), g.getPasswordHash(), g.getGym(), g.getDate(), g.getRole());
             }
         }
         return g;
@@ -147,7 +147,7 @@ public class DB {
                     }
                     if(local.getUser(r.getAuthor().getUUID()) == null){
                         User u = r.getAuthor();
-                        local.addUser(r.getUUID(), u.getName(), u.getEmail(), u.getPasswordHash(), r.getGym(), u.getDate());
+                        local.addUser(r.getUUID(), u.getName(), u.getEmail(), u.getPasswordHash(), r.getGym(), u.getDate(), u.getRole());
                     }
                     local.addRute(entry.getValue());
                 }
@@ -170,8 +170,8 @@ public class DB {
         return r;
     }
 
-    public User createUser(String name, String email, String passwordHash, Gym gym, Date date) {
-        User u = local.createUser(name, email, passwordHash, gym, date);
+    public User createUser(String name, String email, String passwordHash, Gym gym, Date date, Role role) {
+        User u = local.createUser(name, email, passwordHash, gym, date, role);
         web.uploadUser(u);
         return u;
     }
@@ -186,7 +186,7 @@ public class DB {
         String uuid = web.login(username, password);
         if(local.getUser(uuid) == null) {
             User u = web.getUser(uuid);
-            local.addUser(u.getUUID(), u.getName(), u.getEmail(), u.getPasswordHash(), u.getGym(), u.getDate());
+            local.addUser(u.getUUID(), u.getName(), u.getEmail(), u.getPasswordHash(), u.getGym(), u.getDate(), u.getRole());
         }
         return local.getUser(uuid);
     }

@@ -1,19 +1,21 @@
 package com.jhalkjar.caoscomp.gui;
 
+import com.codename1.io.Log;
 import com.codename1.ui.*;
 import com.codename1.ui.events.ActionEvent;
 import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
 import com.codename1.ui.layouts.LayeredLayout;
+import com.codename1.ui.plaf.Border;
 import com.codename1.ui.plaf.Style;
 import com.codename1.ui.plaf.UIManager;
 import com.jhalkjar.caoscomp.Util;
+import com.jhalkjar.caoscomp.backend.Grade;
+import com.jhalkjar.caoscomp.backend.Role;
 import com.jhalkjar.caoscomp.backend.Rute;
 import com.jhalkjar.caoscomp.database.DB;
 import com.jhalkjar.caoscomp.database.NoImageException;
-
-import java.util.Date;
 
 
 /**
@@ -28,6 +30,8 @@ public class Editor extends Form {
     private Rute r;
 
     private boolean edit, editMode;
+
+    private Toolbar tb;
 
     private Axis axis;
     private State state = new IdleState();
@@ -48,7 +52,12 @@ public class Editor extends Form {
 
         r = rute;
         for(Point p : r.getPoints()) p.setSelected(false);
-        edit = r.getAuthor().equals(DB.getInstance().getLoggedInUser());
+
+        if (DB.getInstance().getLoggedInUser().getRole() == Role.ADMIN){
+            edit = true;
+        }else{
+            edit = r.getAuthor().equals(DB.getInstance().getLoggedInUser());
+        }
 
         canvas = new Canvas();
         axis = new Axis(canvas);
@@ -167,6 +176,10 @@ public class Editor extends Form {
         Button gradePicker = new Button(FontImage.createMaterial(FontImage.MATERIAL_GRADE, s));
         gradePicker.addActionListener(evt -> {
             r.setGrade(gp.getGrade());
+            gradePicker.getAllStyles().setBorder(Border.createEmpty());
+            gradePicker.getAllStyles().setBgTransparency(255);
+            gradePicker.getAllStyles().setBgColor(Grade.getColorInt(r.getGrade()));
+            this.tb.getAllStyles().setBgColor(Grade.getColorInt(r.getGrade()));
             r.save();
         });
 
@@ -206,7 +219,12 @@ public class Editor extends Form {
 
 
     void populateToolbar(boolean canEdit) {
-        Toolbar tb = new Toolbar(false);
+        tb = new Toolbar(false);
+        tb.getAllStyles().setBorder(Border.createEmpty());
+        tb.getAllStyles().setBgTransparency(255);
+        if (r.getGrade() != Grade.NO_GRADE){
+            tb.getAllStyles().setBgColor(Grade.getColorInt(r.getGrade()));
+        }
         setToolbar(tb);
         setBackCommand(tb.addCommandToLeftBar("", FontImage.createMaterial(FontImage.MATERIAL_ARROW_BACK, s), (e) -> {
             new RuteList().showBack();
