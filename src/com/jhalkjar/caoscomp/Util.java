@@ -3,14 +3,13 @@ package com.jhalkjar.caoscomp;
 import com.codename1.io.JSONParser;
 import com.codename1.io.Log;
 import com.codename1.l10n.DateFormat;
+import com.codename1.l10n.ParseException;
 import com.codename1.l10n.SimpleDateFormat;
 import com.jhalkjar.caoscomp.gui.Point;
 import com.jhalkjar.caoscomp.gui.Type;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by jesper on 11/7/17.
@@ -58,7 +57,22 @@ public class Util {
         return sb.toString();
     }
 
-    public static final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    public static Date getNow() {
+        Calendar cal = Calendar.getInstance();
+        TimeZone tz = cal.getTimeZone();
+        cal.setTime(new Date(System.currentTimeMillis() - tz.getRawOffset()));
+        return cal.getTime();
+    }
+
+    public static String format(Date date) {
+        DateFormat dtfmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return dtfmt.format(date);
+    }
+
+    public static Date parse(String date) throws ParseException {
+        DateFormat dtfmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return dtfmt.parse(date);
+    }
 
 
     public static String createHash(String data) {

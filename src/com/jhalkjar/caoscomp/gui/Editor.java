@@ -1,33 +1,41 @@
 package com.jhalkjar.caoscomp.gui;
 
+import com.codename1.io.Log;
 import com.codename1.ui.*;
 import com.codename1.ui.events.ActionEvent;
 import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
 import com.codename1.ui.layouts.LayeredLayout;
+import com.codename1.ui.plaf.Border;
 import com.codename1.ui.plaf.Style;
 import com.codename1.ui.plaf.UIManager;
+import com.jhalkjar.caoscomp.Util;
 import com.jhalkjar.caoscomp.backend.Grade;
+import com.jhalkjar.caoscomp.backend.Gym;
+import com.jhalkjar.caoscomp.backend.Role;
 import com.jhalkjar.caoscomp.backend.Rute;
 import com.jhalkjar.caoscomp.database.DB;
 import com.jhalkjar.caoscomp.database.NoImageException;
 
 import java.util.Date;
-
+import java.util.List;
 
 /**
  * Created by jesper on 11/5/17.
  */
 public class Editor extends Form {
 
+    private Form prevForm;
     private Style s = UIManager.getInstance().getComponentStyle("Title");
     private Style s2 = UIManager.getInstance().getComponentStyle("Label");
     private Canvas canvas;
     private Label l = new Label("Retrieving image..");
     private Rute r;
 
-    private boolean edit, isLocal, editMode;
+    private boolean edit, editMode;
+
+    private Toolbar tb;
 
     private Axis axis;
     private State state = new IdleState();
@@ -43,13 +51,18 @@ public class Editor extends Form {
 
     private GradePicker gp = new GradePicker();
 
-    public Editor(Rute rute) {
+    public Editor(Rute rute, Form RL) {
         super(new BorderLayout());
+
+        this.prevForm = RL;
 
         r = rute;
         for(Point p : r.getPoints()) p.setSelected(false);
-        edit = r.getAuthor().equals(DB.getInstance().getLoggedInUser());
-        isLocal = r.isLocal();
+        if (DB.getInstance().getLoggedInUser().getRole() == Role.ADMIN){
+            edit = true;
+        }else{
+            edit = r.getAuthor().equals(DB.getInstance().getLoggedInUser());
+        }
 
         canvas = new Canvas();
         axis = new Axis(canvas);
@@ -136,15 +149,19 @@ public class Editor extends Form {
         unzoom.setVisible(false);
         Button increase = new Button(FontImage.createMaterial(FontImage.MATERIAL_KEYBOARD_ARROW_UP, s));
         increase.addActionListener(evt -> {
-            state.selected.setSize(state.selected.getSize() + 0.05f);
+            state.selected.setSize(state.selected.getSize() + 0.025f);
             r.save();
             revalidate();
         });
         Button decrease = new Button(FontImage.createMaterial(FontImage.MATERIAL_KEYBOARD_ARROW_DOWN, s));
         decrease.addActionListener(evt -> {
-            state.selected.setSize(state.selected.getSize() - 0.05f);
-            r.save();
-            revalidate();
+            if (state.selected.getSize() > 0.025f){
+                state.selected.setSize(state.selected.getSize() - 0.025f);
+                r.save();
+                revalidate();
+            }
+
+
         });
 
         RadioButton start = new RadioButton(FontImage.createMaterial(FontImage.MATERIAL_ADJUST, s));
@@ -168,7 +185,12 @@ public class Editor extends Form {
         Button gradePicker = new Button(FontImage.createMaterial(FontImage.MATERIAL_GRADE, s));
         gradePicker.addActionListener(evt -> {
             r.setGrade(gp.getGrade());
+            gradePicker.getAllStyles().setBorder(Border.createEmpty());
+            gradePicker.getAllStyles().setBgTransparency(255);
+            gradePicker.getAllStyles().setBgColor(Grade.getColorInt(r.getGrade()));
+            this.tb.getAllStyles().setBgColor(Grade.getColorInt(r.getGrade()));
             r.save();
+            populateToolbar(edit);
         });
 
 
@@ -207,10 +229,20 @@ public class Editor extends Form {
 
 
     void populateToolbar(boolean canEdit) {
-        Toolbar tb = new Toolbar(false);
+        tb = new Toolbar(false);
+        tb.getAllStyles().setBorder(Border.createEmpty());
+        tb.getAllStyles().setBgTransparency(255);
+        if (r.getGrade() != Grade.NO_GRADE){
+            tb.getAllStyles().setBgColor(Grade.getColorInt(r.getGrade()));
+        }
         setToolbar(tb);
+        tb.getAllStyles().setBorder(Border.createEmpty());
+        tb.getAllStyles().setBgTransparency(255);
+        if (r.getGrade() != Grade.NO_GRADE) {
+            tb.getAllStyles().setBgColor(Grade.getColorInt(r.getGrade()));
+        }
         setBackCommand(tb.addCommandToLeftBar("", FontImage.createMaterial(FontImage.MATERIAL_ARROW_BACK, s), (e) -> {
-            new RuteList().showBack();
+            prevForm.showBack();
         }));
 
         if(canEdit) {
@@ -220,16 +252,7 @@ public class Editor extends Form {
                 populateToolbar(canEdit);
                 if(!editMode) for(Point p : r.getPoints()) p.setSelected(false);
             });
-        }
 
-        char image = isLocal ? FontImage.MATERIAL_CLOUD : FontImage.MATERIAL_FILE_DOWNLOAD;
-        String text = isLocal ? "Remove locally!" : "Download!";
-        tb.addCommandToOverflowMenu(text, FontImage.createMaterial(image, s2), evt -> {
-
-            r.setLocal(!isLocal);
-            isLocal = !isLocal;
-
-        });
 
         tb.addCommandToOverflowMenu("Copy", FontImage.createMaterial(FontImage.MATERIAL_CONTENT_COPY, s2), (e) -> {
             Dialog d = new Dialog();
@@ -239,12 +262,12 @@ public class Editor extends Form {
             CheckBox cb = new CheckBox("Copy points");
             cb.setSelected(false);
             ok.addActionListener(evt -> {
-                Rute newR = DB.getInstance().createRute(name.getText(), null, DB.getInstance().getLoggedInUser(), r.getGym(), new Date(), r.getImageUUID(), r.getGrade());
+                Rute newR = DB.getInstance().createRute(name.getText(), null, DB.getInstance().getLoggedInUser(), r.getGym(), Util.getNow(), r.getImageUUID(), r.getGrade());
                 if(cb.isSelected()) {
                     for(Point p : r.getPoints()) newR.getPoints().add(new Point(p));
                     newR.save();
                 }
-                new Editor(newR).show();
+                new Editor(newR, prevForm).show();
             });
             d.add(BoxLayout.encloseY(new Label("Name"), name, cb, ok));
             d.show();
@@ -264,7 +287,7 @@ public class Editor extends Form {
         }
 
         revalidate();
-    }
+    }}
 
     private abstract class State {
 
@@ -395,6 +418,7 @@ public class Editor extends Form {
             r.save();
             return new IdleState(selected).onRelease(evt);
         }
+
     }
 
 

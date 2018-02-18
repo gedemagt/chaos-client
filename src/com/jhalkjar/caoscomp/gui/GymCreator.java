@@ -6,6 +6,7 @@ import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
 import com.codename1.ui.plaf.Style;
 import com.codename1.ui.plaf.UIManager;
+import com.jhalkjar.caoscomp.Util;
 import com.jhalkjar.caoscomp.backend.Gym;
 import com.jhalkjar.caoscomp.database.DB;
 
@@ -37,7 +38,7 @@ public class GymCreator extends Form {
         add(BorderLayout.CENTER, mapComponent);
         getToolbar().addCommandToRightBar("", FontImage.createMaterial(FontImage.MATERIAL_DONE, s), (e) -> {
 
-            Gym g = DB.getInstance().createGym(name.getField().getText(), lat, lon, new Date());
+            Gym g = DB.getInstance().createGym(name.getField().getText(), lat, lon, Util.getNow());
             l.onNewGym(g);
             back.showBack();
         });
