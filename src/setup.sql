@@ -57,4 +57,5 @@ CREATE TABLE comment (
 --
 --Version:2
 ALTER TABLE rute ADD COLUMN grade VARCHAR;
---
+--Version:3
+ALTER TABLE user ADD COLUMN role VARCHAR;

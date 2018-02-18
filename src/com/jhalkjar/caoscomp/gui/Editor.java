@@ -13,13 +13,13 @@ import com.codename1.ui.plaf.UIManager;
 import com.jhalkjar.caoscomp.Util;
 import com.jhalkjar.caoscomp.backend.Grade;
 import com.jhalkjar.caoscomp.backend.Gym;
+import com.jhalkjar.caoscomp.backend.Role;
 import com.jhalkjar.caoscomp.backend.Rute;
 import com.jhalkjar.caoscomp.database.DB;
 import com.jhalkjar.caoscomp.database.NoImageException;
 
 import java.util.Date;
 import java.util.List;
-
 
 /**
  * Created by jesper on 11/5/17.
@@ -34,6 +34,8 @@ public class Editor extends Form {
     private Rute r;
 
     private boolean edit, editMode;
+
+    private Toolbar tb;
 
     private Axis axis;
     private State state = new IdleState();
@@ -56,8 +58,7 @@ public class Editor extends Form {
 
         r = rute;
         for(Point p : r.getPoints()) p.setSelected(false);
-        Log.p(DB.getInstance().getLoggedInUser().getName());
-        if (DB.getInstance().getLoggedInUser().getName().equals("MathisR")){
+        if (DB.getInstance().getLoggedInUser().getRole() == Role.ADMIN){
             edit = true;
         }else{
             edit = r.getAuthor().equals(DB.getInstance().getLoggedInUser());
@@ -184,6 +185,10 @@ public class Editor extends Form {
         Button gradePicker = new Button(FontImage.createMaterial(FontImage.MATERIAL_GRADE, s));
         gradePicker.addActionListener(evt -> {
             r.setGrade(gp.getGrade());
+            gradePicker.getAllStyles().setBorder(Border.createEmpty());
+            gradePicker.getAllStyles().setBgTransparency(255);
+            gradePicker.getAllStyles().setBgColor(Grade.getColorInt(r.getGrade()));
+            this.tb.getAllStyles().setBgColor(Grade.getColorInt(r.getGrade()));
             r.save();
             populateToolbar(edit);
         });
@@ -224,7 +229,12 @@ public class Editor extends Form {
 
 
     void populateToolbar(boolean canEdit) {
-        Toolbar tb = new Toolbar(false);
+        tb = new Toolbar(false);
+        tb.getAllStyles().setBorder(Border.createEmpty());
+        tb.getAllStyles().setBgTransparency(255);
+        if (r.getGrade() != Grade.NO_GRADE){
+            tb.getAllStyles().setBgColor(Grade.getColorInt(r.getGrade()));
+        }
         setToolbar(tb);
         tb.getAllStyles().setBorder(Border.createEmpty());
         tb.getAllStyles().setBgTransparency(255);
