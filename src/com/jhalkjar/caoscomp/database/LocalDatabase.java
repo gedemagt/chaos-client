@@ -28,7 +28,7 @@ public class LocalDatabase extends ChaosDatabase{
     private Map<String, Rute> rutes = new HashMap<>();
 
     public final Gym unknownGym = new GymImpl(-1, "", Util.getNow(), "UnknowGym", 0,0);
-    public final User unknownUser = new UserImpl(-1, "", Util.getNow(), "UnknownUser", "", unknownGym, "",Role.BASIC);
+    public final User unknownUser = new UserImpl(-1, "", Util.getNow(), "UnknownUser", "", unknownGym, "",Role.USER);
 
     public void refresh() {
         Log.p("[LocalDatabase] Refreshing..");
@@ -339,7 +339,7 @@ public class LocalDatabase extends ChaosDatabase{
                 long id = (Long) m.get("id");
                 String roler = (String) m.get("role");
 //                Log.p("LocalRoler: " + roler);
-                Role role = roler != null ? Role.valueOf(roler) : Role.BASIC;
+                Role role = roler != null ? Role.valueOf(roler) : Role.USER;
 
 
                 users.put(uuid, new UserImpl(id, uuid, date, name, email, getGym(gym), pass, role));

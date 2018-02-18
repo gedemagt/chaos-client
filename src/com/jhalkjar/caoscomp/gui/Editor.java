@@ -17,11 +17,6 @@ import com.jhalkjar.caoscomp.backend.Rute;
 import com.jhalkjar.caoscomp.database.DB;
 import com.jhalkjar.caoscomp.database.NoImageException;
 
-import java.util.Date;
-
-import static com.jhalkjar.caoscomp.backend.Grade.NO_GRADE;
-import static com.jhalkjar.caoscomp.backend.Role.*;
-
 
 /**
  * Created by jesper on 11/5/17.
@@ -58,7 +53,7 @@ public class Editor extends Form {
         r = rute;
         for(Point p : r.getPoints()) p.setSelected(false);
 
-        if (DB.getInstance().getLoggedInUser().getRole() == GLOBALADMIN){
+        if (DB.getInstance().getLoggedInUser().getRole() == Role.ADMIN){
             edit = true;
         }else{
             edit = r.getAuthor().equals(DB.getInstance().getLoggedInUser());
@@ -227,7 +222,7 @@ public class Editor extends Form {
         tb = new Toolbar(false);
         tb.getAllStyles().setBorder(Border.createEmpty());
         tb.getAllStyles().setBgTransparency(255);
-        if (r.getGrade() != NO_GRADE){
+        if (r.getGrade() != Grade.NO_GRADE){
             tb.getAllStyles().setBgColor(Grade.getColorInt(r.getGrade()));
         }
         setToolbar(tb);

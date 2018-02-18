@@ -42,7 +42,7 @@ public class WebDatabase extends ChaosDatabase {
                 String uuid = (String) vals.get("uuid");
                 String roler = (String) vals.get("role");
 //                Log.p("roler: " + roler);
-                Role role = roler != null ? Role.valueOf(roler) : Role.BASIC;
+                Role role = roler != null ? Role.valueOf(roler) : Role.USER;
 
                 User s = new UserImpl(-1, uuid, date, name, email, gym, password, role);
                 Log.p("[WebDatabase] Loaded users: " + s.toString());
