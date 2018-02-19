@@ -86,9 +86,17 @@ public class RuteList extends Form {
                 revalidate();
             }
         });
+
+
         rutes = DB.getInstance().getRutes();
-        Collections.sort(rutes, (o1, o2) -> (int) (o2.getDate().getTime() - o1.getDate().getTime()));
-        updateUI();
+        if(rutes.size()==0) DB.getInstance().forceWebRefresh();
+        else {
+            Collections.sort(rutes, (o1, o2) -> (int) (o2.getDate().getTime() - o1.getDate().getTime()));
+            updateUI();
+        }
+
+
+
     }
 
 
@@ -188,21 +196,14 @@ public class RuteList extends Form {
 
 
     private void updateUI() {
-
         centerContainer.removeAll();
         if(rutes.size() == 0) {
-            DB.getInstance().forceWebRefresh();
             Label l = new Label("Got a problem?");
-            Container cnt = new Container(new BorderLayout());
-            cnt.add(BorderLayout.CENTER, l);
-            centerContainer.add(BorderLayout.CENTER, cnt);
-            centerContainer.addPullToRefresh(()  -> {
-                DB.getInstance().sync();
-                populateToolbar();
-                revalidate();
-            });
+            centerContainer.add(BorderLayout.CENTER, l);
+            Log.p("John");
         }
         else {
+            Log.p("Hansi");
             Container list = new Container(BoxLayout.y());
             list.setScrollableY(true);
             for(Rute r : rutes) {
