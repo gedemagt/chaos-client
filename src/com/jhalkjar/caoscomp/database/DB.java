@@ -4,6 +4,7 @@ import com.codename1.io.FileSystemStorage;
 import com.codename1.io.Log;
 import com.codename1.io.NetworkManager;
 import com.codename1.io.Preferences;
+import com.codename1.util.RunnableWithResult;
 import com.codename1.util.SuccessCallback;
 import com.jhalkjar.caoscomp.backend.*;
 
@@ -41,6 +42,15 @@ public class DB {
     public void forceWebRefresh() {
         web.resetLastVisit();
         sync();
+    }
+
+    public void forceWebRefresh(RefreshListener rf) {
+        web.resetLastVisit();
+        sync(rf);
+    }
+
+    public void refreshLocal() {
+        local.refresh();
     }
 
     public void syncGyms() {
@@ -138,9 +148,9 @@ public class DB {
 
     }
 
-    public void sync() {
+    public void sync(RefreshListener rf) {
         isRefreshing = true;
-        for(RefreshListener l : refreshListeners) l.OnBeginRefresh();
+        rf.OnBeginRefresh();
         local.refresh();
         web.getRutes(ruteMap -> {
             for(Map.Entry<String, Rute> entry : ruteMap.entrySet()) {
@@ -161,7 +171,35 @@ public class DB {
             }
             local.refresh();
             for(RefreshListener l : refreshListeners) l.OnEndRefresh();
+            rf.OnEndRefresh();
         });
+        for(RefreshListener l : refreshListeners) l.OnBeginRefresh();
+    }
+
+    public void sync() {
+        isRefreshing = true;
+        for(RefreshListener l : refreshListeners) l.OnBeginRefresh();
+        local.refresh();
+        Map<String, Rute> ruteMap = web.getRutes();
+        for(Map.Entry<String, Rute> entry : ruteMap.entrySet()) {
+            Rute r = entry.getValue();
+            if(r.getStatus() == 1) local.delete(r);
+            else if(local.hasRute(r)) local.save(r);
+            else {
+                if(local.getGym(r.getGym().getUUID()) == null){
+                    Gym g = r.getGym();
+                    local.addGym(g.getUUID(), g.getName(), g.getLat(), g.getLon(), g.getDate());
+                }
+                if(local.getUser(r.getAuthor().getUUID()) == null){
+                    User u = r.getAuthor();
+                    local.addUser(r.getUUID(), u.getName(), u.getEmail(), u.getPasswordHash(), r.getGym(), u.getDate(), u.getRole());
+                }
+                local.addRute(entry.getValue());
+            }
+        }
+        local.refresh();
+        for(RefreshListener l : refreshListeners) l.OnEndRefresh();
+
     }
 
     public Rute createRute(String name, String image_url, User author, Gym gym, Date date, String imageUUID, Grade grade) {
@@ -190,13 +228,16 @@ public class DB {
         return u;
     }
 
-    public User checkLogin(String username, String password) {
-        String uuid = web.login(username, password);
-        if(local.getUser(uuid) == null) {
-            User u = web.getUser(uuid);
-            local.addUser(u.getUUID(), u.getName(), u.getEmail(), u.getPasswordHash(), u.getGym(), u.getDate(), u.getRole());
-        }
-        return local.getUser(uuid);
+    public void checkLogin(String username, String password, WebDatabase.Result<User> onLogin) {
+        web.login(username, password, uuid -> {
+            if(uuid=="") onLogin.OnResult(null);
+            if(local.getUser(uuid) == null) {
+                User u = web.getUser(uuid);
+                local.addUser(u.getUUID(), u.getName(), u.getEmail(), u.getPasswordHash(), u.getGym(), u.getDate(), u.getRole());
+            }
+            onLogin.OnResult(local.getUser(uuid));
+        });
+
     }
 
     public void addRefreshListener(RefreshListener l) {

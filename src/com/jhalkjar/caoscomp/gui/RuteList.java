@@ -47,7 +47,6 @@ public class RuteList extends Form {
 
     public RuteList() {
         super(new BorderLayout());
-        Style s = UIManager.getInstance().getComponentStyle("Title");
 
         FloatingActionButton fab = FloatingActionButton.createFAB(FontImage.MATERIAL_ADD);
         fab.setUIID("FaB");
@@ -64,8 +63,8 @@ public class RuteList extends Form {
         add(BorderLayout.NORTH, l);
         add(BorderLayout.CENTER, centerContainer);
 
-//        l.setHidden(!DB.getInstance().isRefreshing());
         l.setHidden(true);
+
         DB.getInstance().addRefreshListener(new DB.RefreshListener() {
             @Override
             public void OnBeginRefresh() {
@@ -89,16 +88,35 @@ public class RuteList extends Form {
 
 
         rutes = DB.getInstance().getRutes();
-        if(rutes.size()==0) DB.getInstance().forceWebRefresh();
-        else {
-            Collections.sort(rutes, (o1, o2) -> (int) (o2.getDate().getTime() - o1.getDate().getTime()));
-            updateUI();
+        Collections.sort(rutes, (o1, o2) -> (int) (o2.getDate().getTime() - o1.getDate().getTime()));
+        updateUI();
+        if(rutes.size()==0) {
+            forceAndShow();
         }
-
-
 
     }
 
+    void forceAndShow() {
+        Dialog d = new Dialog();
+        d.add("Loading rutes...");
+        DB.getInstance().forceWebRefresh(new DB.RefreshListener() {
+            @Override
+            public void OnBeginRefresh() {
+
+            }
+
+            @Override
+            public void OnEndRefresh() {
+                d.dispose();
+            }
+
+            @Override
+            public void OnRefreshError() {
+                d.dispose();
+            }
+        });
+        d.showDialog();
+    }
 
     void populateToolbar() {
         tb = new Toolbar();
@@ -141,9 +159,7 @@ public class RuteList extends Form {
 
 
         tb.addCommandToOverflowMenu("Force refresh", null, evt -> {
-            DB.getInstance().forceWebRefresh();
-            populateToolbar();
-            revalidate();
+            forceAndShow();
         });
     }
 
@@ -200,10 +216,8 @@ public class RuteList extends Form {
         if(rutes.size() == 0) {
             Label l = new Label("Got a problem?");
             centerContainer.add(BorderLayout.CENTER, l);
-            Log.p("John");
         }
         else {
-            Log.p("Hansi");
             Container list = new Container(BoxLayout.y());
             list.setScrollableY(true);
             for(Rute r : rutes) {

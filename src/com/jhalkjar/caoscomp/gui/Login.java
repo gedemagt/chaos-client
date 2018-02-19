@@ -3,14 +3,9 @@ package com.jhalkjar.caoscomp.gui;
 import com.codename1.io.Log;
 import com.codename1.io.Preferences;
 import com.codename1.ui.*;
-import com.codename1.ui.events.ActionEvent;
-import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
-import com.codename1.ui.validation.Constraint;
-import com.codename1.ui.validation.Validator;
 import com.jhalkjar.caoscomp.Util;
-import com.jhalkjar.caoscomp.backend.User;
 import com.jhalkjar.caoscomp.database.DB;
 
 /**
@@ -31,10 +26,19 @@ public class Login extends Form {
             String hash = Util.createHash(password.getField().getText());
 
             try {
-                User loggedin = DB.getInstance().checkLogin(user, hash);
-                Log.p("Logging in user: " + loggedin.getName() + "(" + loggedin.getUUID() + ")");
-                Preferences.set("logged_in_user", loggedin.getUUID());
-                new RuteList().show();
+                Dialog d = new Dialog();
+                d.add("Logging in...");
+                DB.getInstance().checkLogin(user, hash, loggedin -> {
+                    d.dispose();
+                    if(loggedin != null) {
+                        Log.p("Logging in user: " + loggedin.getName() + "(" + loggedin.getUUID() + ")");
+                        Preferences.set("logged_in_user", loggedin.getUUID());
+                        DB.getInstance().refreshLocal();
+                        new RuteList().show();
+                    }
+                });
+                d.show();
+
             } catch (IllegalArgumentException e) {
                 revalidate();
             }

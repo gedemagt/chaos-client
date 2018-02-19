@@ -36,7 +36,7 @@ public class CaosCompanion {
 
         Display.getInstance().lockOrientation(true);
 
-        DB.getInstance().sync();
+//        DB.getInstance().sync();
         if(DB.getInstance().getLoggedInUser() != null) new RuteList().show();
         else new Login().show();
     }

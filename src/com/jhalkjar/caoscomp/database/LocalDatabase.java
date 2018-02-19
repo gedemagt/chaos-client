@@ -136,25 +136,6 @@ public class LocalDatabase extends ChaosDatabase{
         return null;
     }
 
-    public User checkLogin(String username, String password) throws IllegalArgumentException {
-        try {
-            Database db = Database.openOrCreate(dbname);
-            DAOProvider provider = new DAOProvider(db, configPath, VERSION);
-            DAO games = provider.get("user");
-            Map<String, Object> result = (Map<String, Object>) games.fetchOne(new String[]{"name", username});
-            db.close();
-            if(result == null)
-                throw new IllegalArgumentException(username + " is not a user!");
-            String dbPass = (String) result.get("password");
-            if(!password.equals(dbPass))
-                throw new IllegalArgumentException("Wrong password!");
-            return getUser((String) result.get("uuid"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     public void setImage(String uuid, String imageUrl) {
         Log.p("[LocalDatabase] Sets image for " + uuid + ": " + imageUrl);
         try {
