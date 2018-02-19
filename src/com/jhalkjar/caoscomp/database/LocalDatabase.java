@@ -196,7 +196,6 @@ public class LocalDatabase extends ChaosDatabase{
             rutes.save(rute);
             db.close();
 
-            loadRutes();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -409,7 +408,7 @@ public class LocalDatabase extends ChaosDatabase{
         } catch (NoImageException e) {
             Log.p("[LocalDatabase] Could not find image to delete. Carry on..!");
         }
-        loadRutes();
+
     }
 
     @Override

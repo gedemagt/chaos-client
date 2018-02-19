@@ -2,8 +2,11 @@ package com.jhalkjar.caoscomp.database;
 
 import ca.weblite.codename1.json.JSONException;
 import ca.weblite.codename1.json.JSONObject;
+import com.codename1.components.InfiniteProgress;
+import com.codename1.components.Progress;
 import com.codename1.io.*;
 import com.codename1.l10n.ParseException;
+import com.codename1.ui.Dialog;
 import com.codename1.ui.EncodedImage;
 import com.codename1.ui.Image;
 import com.codename1.ui.events.ActionListener;
@@ -19,8 +22,8 @@ import java.util.*;
 public class WebDatabase extends ChaosDatabase {
 
 
-    private static final String host = "https://jeshj.pythonanywhere.com";
-//    private static String host = "http://localhost:5000";
+//    private static final String host = "https://jeshj.pythonanywhere.com";
+    private static String host = "http://localhost:5000";
 
     private static String LAST_WEB_CONNECTION = "last_sync";
     public WebDatabase() {
@@ -80,6 +83,30 @@ public class WebDatabase extends ChaosDatabase {
         }
 
         return null;
+    }
+
+    public List<Gym> getGyms() {
+        ConnectionRequest r = getAndWait(host + "/get_gyms");
+        List<Gym> re = new ArrayList<>();
+        try {
+            Map<String, Object> result = getJsonData(r);
+            for(String key : result.keySet()) {
+                Map<String,Object> vals = (Map<String, Object>) result.get(key);
+                String name = (String) vals.get("name");
+                double lon = Double.parseDouble((String) vals.get("lon"));
+                double lat = Double.parseDouble((String) vals.get("lat"));
+                Date date = Util.parse((String) vals.get("date"));
+                String uuid = (String) vals.get("uuid");
+                Gym g = new GymImpl(-1, uuid, date, name, lat, lon);
+                re.add(g);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return re;
     }
 
     public void uploadRute(Rute r, String imageUrl) {
@@ -210,7 +237,7 @@ public class WebDatabase extends ChaosDatabase {
 
 
     public void getRutes(Result<Map<String, Rute>> runnable) {
-        sendJson(host + "/get_rutes", getLastSync(), evt -> {
+        sendJsonWait(host + "/get_rutes", getLastSync(), evt -> {
             try {
                 Map<String,Object> result = getJsonData(evt.getConnectionRequest());
                 Map<String, Rute> list = new HashMap<>();
@@ -332,7 +359,6 @@ public class WebDatabase extends ChaosDatabase {
         r.setUrl(url);
         r.setContentType("application/json");
         r.addResponseListener(listener);
-        r.addExceptionListener(evt -> Log.p("Hansi"));
         NetworkManager.getInstance().addToQueue(r);
         return r;
     }
@@ -358,6 +384,11 @@ public class WebDatabase extends ChaosDatabase {
 
     public boolean checkUserName(String username) {
         ConnectionRequest c = postAndWaitAndFail(host + "/check_username/" + username, evt -> {});
+        return c.getResponseCode() == 200;
+    }
+
+    public boolean checkGymName(String gymname) {
+        ConnectionRequest c = postAndWaitAndFail(host + "/check_gymname/" + gymname, evt -> {});
         return c.getResponseCode() == 200;
     }
 

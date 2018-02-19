@@ -43,13 +43,20 @@ public class DB {
         sync();
     }
 
+    public void syncGyms() {
+        for(Gym g : web.getGyms()) {
+            if(local.getGym(g.getUUID()) == null) local.addGym(g.getUUID(), g.getName(), g.getLat(), g.getLon(), g.getDate());
+        }
+    }
+
     private DB() {
         web = new WebDatabase();
         imgProvider = new ImageProvider(local, web);
-        NetworkManager.getInstance().addErrorListener(evt -> {
-            for(RefreshListener l : refreshListeners) l.OnEndRefresh();
-            evt.consume();
-        });
+//        NetworkManager.getInstance().addErrorListener(evt -> {
+//            for(RefreshListener l : refreshListeners) l.OnEndRefresh();
+//            evt.consume();
+//        });
+
     }
 
     public void delete(Rute r) {
@@ -152,6 +159,7 @@ public class DB {
                     local.addRute(entry.getValue());
                 }
             }
+            local.refresh();
             for(RefreshListener l : refreshListeners) l.OnEndRefresh();
         });
     }
@@ -193,6 +201,10 @@ public class DB {
 
     public void addRefreshListener(RefreshListener l) {
         refreshListeners.add(l);
+    }
+
+    public boolean checkGymname(String text) {
+        return web.checkGymName(text);
     }
 
 //    public void setLocal(Rute rute, boolean b,  SuccessCallback<Rute> onSucces) {

@@ -45,7 +45,6 @@ public class RuteList extends Form {
     Toolbar tb;
 
 
-
     public RuteList() {
         super(new BorderLayout());
         Style s = UIManager.getInstance().getComponentStyle("Title");
@@ -65,7 +64,8 @@ public class RuteList extends Form {
         add(BorderLayout.NORTH, l);
         add(BorderLayout.CENTER, centerContainer);
 
-        l.setHidden(!DB.getInstance().isRefreshing());
+//        l.setHidden(!DB.getInstance().isRefreshing());
+        l.setHidden(true);
         DB.getInstance().addRefreshListener(new DB.RefreshListener() {
             @Override
             public void OnBeginRefresh() {
@@ -191,8 +191,16 @@ public class RuteList extends Form {
 
         centerContainer.removeAll();
         if(rutes.size() == 0) {
+            DB.getInstance().forceWebRefresh();
             Label l = new Label("Got a problem?");
-            centerContainer.add(BorderLayout.CENTER, l);
+            Container cnt = new Container(new BorderLayout());
+            cnt.add(BorderLayout.CENTER, l);
+            centerContainer.add(BorderLayout.CENTER, cnt);
+            centerContainer.addPullToRefresh(()  -> {
+                DB.getInstance().sync();
+                populateToolbar();
+                revalidate();
+            });
         }
         else {
             Container list = new Container(BoxLayout.y());
