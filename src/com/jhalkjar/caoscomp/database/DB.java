@@ -16,7 +16,6 @@ import java.util.*;
 public class DB {
 
     private static final DB INSTANCE = new DB();
-    private boolean isRefreshing;
 
     public static DB getInstance() {
         return INSTANCE;
@@ -39,11 +38,6 @@ public class DB {
         return web.checkUserName(username);
     }
 
-    public void forceWebRefresh() {
-        web.resetLastVisit();
-        sync();
-    }
-
     public void forceWebRefresh(RefreshListener rf) {
         web.resetLastVisit();
         sync(rf);
@@ -62,10 +56,6 @@ public class DB {
     private DB() {
         web = new WebDatabase();
         imgProvider = new ImageProvider(local, web);
-//        NetworkManager.getInstance().addErrorListener(evt -> {
-//            for(RefreshListener l : refreshListeners) l.OnEndRefresh();
-//            evt.consume();
-//        });
 
     }
 
@@ -127,77 +117,41 @@ public class DB {
         return l;
     }
     
-    public boolean isRefreshing() {
-        return isRefreshing;
-    }
+//    public boolean isRefreshing() {
+//        return isRefreshing;
+//    }
 
-    public void downloadImage(Rute r, SuccessCallback<Rute> onSucces) {
-        if(!local.hasRute(r)) {
-            Log.p("[DB] Downloads rute " + r.toString());
+//    public void downloadImage(Rute r, SuccessCallback<Rute> onSucces) {
+//        if(!local.hasRute(r)) {
+//            Log.p("[DB] Downloads rute " + r.toString());
+//
+//            String path = FileSystemStorage.getInstance().getAppHomePath() + r.getImageUUID() + ".jpg";
+//            web.downloadImage(r.getImageUUID(), path, () -> {
+//                local.setImage(r.getImageUUID(), path);
+//                local.refresh();
+//                onSucces.onSucess(local.getRute(r.getUUID()));
+//            });
+//        }
+//        else {
+//            Log.p("[DB] Rute already exists rute!" + r.toString());
+//        }
+//
+//    }
 
-            String path = FileSystemStorage.getInstance().getAppHomePath() + r.getImageUUID() + ".jpg";
-            web.downloadImage(r.getImageUUID(), path, () -> {
-                local.setImage(r.getImageUUID(), path);
-                local.refresh();
-                onSucces.onSucess(local.getRute(r.getUUID()));
-            });
-        }
-        else {
-            Log.p("[DB] Rute already exists rute!" + r.toString());
-        }
-
-    }
 
     public void sync(RefreshListener rf) {
-        isRefreshing = true;
-        rf.OnBeginRefresh();
-        local.refresh();
-        web.getRutes(ruteMap -> {
-            for(Map.Entry<String, Rute> entry : ruteMap.entrySet()) {
-                Rute r = entry.getValue();
-                if(r.getStatus() == 1) local.delete(r);
-                else if(local.hasRute(r)) local.save(r);
-                else {
-                    if(local.getGym(r.getGym().getUUID()) == null){
-                        Gym g = r.getGym();
-                        local.addGym(g.getUUID(), g.getName(), g.getLat(), g.getLon(), g.getDate());
-                    }
-                    if(local.getUser(r.getAuthor().getUUID()) == null){
-                        User u = r.getAuthor();
-                        local.addUser(r.getUUID(), u.getName(), u.getEmail(), u.getPasswordHash(), r.getGym(), u.getDate(), u.getRole());
-                    }
-                    local.addRute(entry.getValue());
-                }
-            }
-            local.refresh();
+        web.getRutes( ruteMap->{
+            local.sync(ruteMap);
             for(RefreshListener l : refreshListeners) l.OnEndRefresh();
             rf.OnEndRefresh();
         });
         for(RefreshListener l : refreshListeners) l.OnBeginRefresh();
+        rf.OnBeginRefresh();
     }
 
     public void sync() {
-        isRefreshing = true;
         for(RefreshListener l : refreshListeners) l.OnBeginRefresh();
-        local.refresh();
-        Map<String, Rute> ruteMap = web.getRutes();
-        for(Map.Entry<String, Rute> entry : ruteMap.entrySet()) {
-            Rute r = entry.getValue();
-            if(r.getStatus() == 1) local.delete(r);
-            else if(local.hasRute(r)) local.save(r);
-            else {
-                if(local.getGym(r.getGym().getUUID()) == null){
-                    Gym g = r.getGym();
-                    local.addGym(g.getUUID(), g.getName(), g.getLat(), g.getLon(), g.getDate());
-                }
-                if(local.getUser(r.getAuthor().getUUID()) == null){
-                    User u = r.getAuthor();
-                    local.addUser(r.getUUID(), u.getName(), u.getEmail(), u.getPasswordHash(), r.getGym(), u.getDate(), u.getRole());
-                }
-                local.addRute(entry.getValue());
-            }
-        }
-        local.refresh();
+        local.sync(web.getRutes());
         for(RefreshListener l : refreshListeners) l.OnEndRefresh();
 
     }
@@ -247,11 +201,6 @@ public class DB {
     public boolean checkGymname(String text) {
         return web.checkGymName(text);
     }
-
-//    public void setLocal(Rute rute, boolean b,  SuccessCallback<Rute> onSucces) {
-//        Log.p("[DB] Sets rute " + rute.toString() + " local");
-//        if(b) downloadImage(rute, onSucces);
-//    }
 
     public interface RefreshListener {
         void OnBeginRefresh();

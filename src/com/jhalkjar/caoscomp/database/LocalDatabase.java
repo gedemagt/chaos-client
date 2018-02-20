@@ -100,6 +100,26 @@ public class LocalDatabase extends ChaosDatabase{
         return null;
     }
 
+    public void sync(Map<String, Rute> rutes) {
+        for(Map.Entry<String, Rute> entry : rutes.entrySet()) {
+            Rute r = entry.getValue();
+            if(r.getStatus() == 1) delete(r);
+            else if(hasRute(r)) save(r);
+            else {
+                if(getGym(r.getGym().getUUID()) == null){
+                    Gym g = r.getGym();
+                    addGym(g.getUUID(), g.getName(), g.getLat(), g.getLon(), g.getDate());
+                }
+                if(getUser(r.getAuthor().getUUID()) == null){
+                    User u = r.getAuthor();
+                    addUser(r.getUUID(), u.getName(), u.getEmail(), u.getPasswordHash(), r.getGym(), u.getDate(), u.getRole());
+                }
+                addRute(entry.getValue());
+            }
+        }
+        refresh();
+    }
+
     @Override
     public void getImage(String uuid, ImageListener listenr) throws NoImageException {
         try {
@@ -220,9 +240,7 @@ public class LocalDatabase extends ChaosDatabase{
             user.put("role", role.name());
 
             users.save(user);
-
             db.close();
-
             loadUsers();
 
             return getUser(uuid);
@@ -292,7 +310,7 @@ public class LocalDatabase extends ChaosDatabase{
                 RuteImpl r = new RuteImpl(id, uuid, image, date, lastedit, name, DB.getInstance().getUser(author), DB.getInstance().getGym(gym), Util.stringToVals(points), grade, 0);
                 rutes.put(uuid, r);
             }
-            Log.p("[LocalDatabase] Loaded rutes: " + getRutes().toString());
+            Log.p("[LocalDatabase] Loaded rutes " + getRutes().size() + " rutes.");
             db.close();
 
         } catch (IOException e) {
@@ -317,7 +335,6 @@ public class LocalDatabase extends ChaosDatabase{
                 String uuid = (String) m.get("uuid");
                 long id = (Long) m.get("id");
                 String roler = (String) m.get("role");
-//                Log.p("LocalRoler: " + roler);
                 Role role = roler != null ? Role.valueOf(roler) : Role.USER;
 
 
@@ -360,13 +377,7 @@ public class LocalDatabase extends ChaosDatabase{
 
     private Date getDate(Object o) {
         if(o == null || o.toString().equals("null")) return Util.getNow();
-        try {
-            return Util.parse((String) o);
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return Util.getNow();
-        }
-
+        return Util.parse((String) o);
     }
 
     @Override
