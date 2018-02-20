@@ -240,9 +240,7 @@ public class LocalDatabase extends ChaosDatabase{
             user.put("role", role.name());
 
             users.save(user);
-
             db.close();
-
             loadUsers();
 
             return getUser(uuid);
@@ -312,7 +310,7 @@ public class LocalDatabase extends ChaosDatabase{
                 RuteImpl r = new RuteImpl(id, uuid, image, date, lastedit, name, DB.getInstance().getUser(author), DB.getInstance().getGym(gym), Util.stringToVals(points), grade, 0);
                 rutes.put(uuid, r);
             }
-            Log.p("[LocalDatabase] Loaded rutes: " + getRutes().toString());
+            Log.p("[LocalDatabase] Loaded rutes " + getRutes().size() + " rutes.");
             db.close();
 
         } catch (IOException e) {

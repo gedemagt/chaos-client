@@ -19,7 +19,7 @@ import java.util.Map;
  */
 public class WebUtil {
 
-    public static ConnectionRequest sendJson(String url, String json) {
+    public static Map<String, Object> sendJson(String url, String json) {
         ConnectionRequest r = new ConnectionRequest(){
             @Override
             protected void buildRequestBody(OutputStream os) throws IOException {
@@ -30,7 +30,7 @@ public class WebUtil {
         r.setUrl(url);
         r.setContentType("application/json");
         NetworkManager.getInstance().addToQueueAndWait(r);
-        return r;
+        return getJsonData(r);
     }
 
     public static ConnectionRequest sendJson(String url, String json, ActionListener<NetworkEvent> listener) {

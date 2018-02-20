@@ -220,7 +220,7 @@ public class WebDatabase extends ChaosDatabase {
             Grade grade = grader != null ? Grade.valueOf(grader) : Grade.NO_GRADE;
             list.put(uuid, new RuteImpl(-1, uuid, image, date, last_edit, name, author, gym, Util.stringToVals(coordinates), grade, status));
         }
-        Log.p("[WebDatabase] Loaded rutes: " + list.values());
+        Log.p("[WebDatabase] Loaded " + list.size() + " rutes.");
         Preferences.set(LAST_WEB_CONNECTION, Util.format(Util.getNow()));
         Log.p("[WebDatabase] " + "Last synced: " + Preferences.get(LAST_WEB_CONNECTION, ""));
         return list;
@@ -229,17 +229,14 @@ public class WebDatabase extends ChaosDatabase {
 
     public void getRutes(Result<Map<String, Rute>> runnable) {
         WebUtil.sendJson(host + "/get_rutes", getLastSync(), evt -> {
-
             Map<String,Object> result = WebUtil.getJsonData(evt.getConnectionRequest());
             Map<String,Rute> list = parseRutes(result);
             runnable.OnResult(list);
-
         });
     }
 
     public Map<String,Rute> getRutes() {
-        ConnectionRequest r = WebUtil.sendJson(host + "/get_rutes", getLastSync());
-        Map<String,Object> result = WebUtil.getJsonData(r);
+        Map<String,Object> result = WebUtil.sendJson(host + "/get_rutes", getLastSync());
         Map<String,Rute> list = parseRutes(result);
         return list;
     }

@@ -23,7 +23,7 @@ public class Login extends Form {
 
         lgnBtn.addActionListener(evt -> {
             String user = username.getField().getText();
-            String hash = Util.createHash(password.getField().getText());
+            String hash = password.getField().getText();
 
             try {
                 Dialog d = new Dialog();
