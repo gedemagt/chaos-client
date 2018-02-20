@@ -6,6 +6,7 @@ import com.codename1.ui.util.Resources;
 import com.jhalkjar.caoscomp.database.DB;
 import com.jhalkjar.caoscomp.gui.Login;
 import com.jhalkjar.caoscomp.gui.RuteList;
+import com.jhalkjar.caoscomp.gui.WaitingDialog;
 
 
 /**

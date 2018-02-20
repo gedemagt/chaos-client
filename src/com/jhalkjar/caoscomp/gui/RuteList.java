@@ -97,8 +97,7 @@ public class RuteList extends Form {
     }
 
     void forceAndShow() {
-        Dialog d = new Dialog();
-        d.add("Loading rutes...");
+        Dialog d = new WaitingDialog("Loading rutes");
         DB.getInstance().forceWebRefresh(new DB.RefreshListener() {
             @Override
             public void OnBeginRefresh() {
@@ -115,7 +114,7 @@ public class RuteList extends Form {
                 d.dispose();
             }
         });
-        d.showDialog();
+        d.show();
     }
 
     void populateToolbar() {

@@ -80,8 +80,4 @@ public class Util {
         return Util.getNow();
     }
 
-
-    public static String createHash(String data) {
-        return data;
-    }
 }

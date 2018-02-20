@@ -26,8 +26,7 @@ public class Login extends Form {
             String hash = password.getField().getText();
 
             try {
-                Dialog d = new Dialog();
-                d.add("Logging in...");
+                Dialog d = new WaitingDialog("Logging in");
                 DB.getInstance().checkLogin(user, hash, loggedin -> {
                     d.dispose();
                     if(loggedin != null) {
