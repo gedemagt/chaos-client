@@ -5,6 +5,7 @@ import com.codename1.io.Log;
 import com.codename1.l10n.DateFormat;
 import com.codename1.l10n.ParseException;
 import com.codename1.l10n.SimpleDateFormat;
+import com.codename1.properties.InstantUI;
 import com.jhalkjar.caoscomp.gui.Point;
 import com.jhalkjar.caoscomp.gui.Type;
 
@@ -69,24 +70,18 @@ public class Util {
         return dtfmt.format(date);
     }
 
-    public static Date parse(String date) throws ParseException {
+    public static Date parse(String date) {
         DateFormat dtfmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        return dtfmt.parse(date);
+        try {
+            return dtfmt.parse(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return Util.getNow();
     }
 
 
     public static String createHash(String data) {
         return data;
-//        SHA1Digest sha1 = new SHA1Digest();
-//        try {
-//            byte[] b = data.getBytes("UTF-8");
-//            sha1.update(b, 0, b.length);
-//            byte[] hash = new byte[sha1.getDigestSize()];
-//            sha1.doFinal(hash, 0);
-//            return new String(hash, "UTF-8");
-//        } catch (Exception ex) {
-//            Log.e(ex);
-//        }
-//        return null;
     }
 }
