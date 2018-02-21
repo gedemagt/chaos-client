@@ -256,6 +256,7 @@ public class Editor extends Form {
                 populateToolbar(canEdit);
                 if(!editMode) for(Point p : r.getPoints()) p.setSelected(false);
             });
+        }
 
 
         tb.addCommandToOverflowMenu("Copy", FontImage.createMaterial(FontImage.MATERIAL_CONTENT_COPY, s2), (e) -> {
@@ -291,7 +292,7 @@ public class Editor extends Form {
         }
 
         revalidate();
-    }}
+    }
 
     private abstract class State {
 
