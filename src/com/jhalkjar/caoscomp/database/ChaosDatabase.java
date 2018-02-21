@@ -13,7 +13,7 @@ public abstract class ChaosDatabase {
 
     public abstract void save(Rute r);
     public abstract void delete(Rute r);
-    public abstract void getImage(String uuid, ImageListener listener) throws NoImageException;
+    public abstract void getImage(String uuid, ImageListener listener);
 
     protected List<DatabaseListener> listeners = new ArrayList<>();
 

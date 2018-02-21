@@ -21,25 +21,36 @@ public class ImageProvider {
         this.wdb = w;
     }
 
-    public void getImage(String uuid, ImageListener l) throws NoImageException {
+    public void getImage(String uuid, ImageListener l){
         if(images.containsKey(uuid)) l.onImage(images.get(uuid));
         else {
-            try {
-                ldb.getImage(uuid, image -> {
+
+            ldb.getImage(uuid, new ImageListener() {
+                @Override
+                public void onImage(Image image) {
                     images.put(uuid, image);
                     l.onImage(image);
-                });
-            } catch (NoImageException e) {
-                Log.p("Image with UUID=" + uuid + " was not in the local database. Trying webdatabase.");
-                try {
-                    wdb.getImage(uuid, image -> {
-                        images.put(uuid, image);
-                        l.onImage(image);
-                    });
-                } catch (NoImageException e1) {
-                    throw new NoImageException("Image could not be found in either local or web database!");
                 }
-            }
+
+                @Override
+                public void onError() {
+                    Log.p("Image with UUID=" + uuid + " was not in the local database. Trying webdatabase.");
+                    wdb.getImage(uuid, new ImageListener() {
+                        @Override
+                        public void onImage(Image image) {
+                            images.put(uuid, image);
+                            l.onImage(image);
+                        }
+
+                        @Override
+                        public void onError() {
+                            Log.p("Image could not be found in either local or web database!");
+                            l.onError();
+                        }
+                    });
+                }
+            });
+
         }
     }
 

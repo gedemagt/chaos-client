@@ -1,10 +1,10 @@
 package com.jhalkjar.caoscomp.gui;
 
-import com.codename1.io.Log;
 import com.codename1.ui.*;
 import com.codename1.ui.geom.Dimension;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.plaf.Style;
+import com.codename1.ui.plaf.UIManager;
 import com.codename1.ui.util.WeakHashMap;
 
 import java.io.IOException;
@@ -29,7 +29,8 @@ public class WaitingDialog extends Dialog {
         l.setText(text+"         ");
         this.text = text;
         try {
-            image  =Image.createImage("/climbing-shoes2.png").scaledHeight(100);
+            image = Image.createImage("/climbing-shoes2.png").scaledHeight(
+                    UIManager.getInstance().getComponentStyle("Label").getFont().getHeight()*4);
         } catch (IOException e) {
             e.printStackTrace();
         }

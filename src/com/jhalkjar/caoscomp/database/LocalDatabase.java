@@ -121,7 +121,7 @@ public class LocalDatabase extends ChaosDatabase{
     }
 
     @Override
-    public void getImage(String uuid, ImageListener listenr) throws NoImageException {
+    public void getImage(String uuid, ImageListener listenr) {
         try {
             Database db = Database.openOrCreate(dbname);
             DAOProvider provider = new DAOProvider(db, configPath, VERSION);
@@ -129,12 +129,14 @@ public class LocalDatabase extends ChaosDatabase{
             Map<String, Object> result = (Map<String, Object>) games.fetchOne(new String[]{"uuid", uuid});
             db.close();
             if(result == null) {
-                throw new NoImageException("No image for uuid " + uuid + " found!");
+                listenr.onError();
+                return;
             }
             String imageurl = (String) result.get("url");
             listenr.onImage(Image.createImage(FileSystemStorage.getInstance().openInputStream(imageurl)));
         } catch (IOException e) {
             e.printStackTrace();
+            listenr.onError();
         }
     }
 
