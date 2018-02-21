@@ -11,13 +11,11 @@ import com.codename1.ui.plaf.Border;
 import com.codename1.ui.plaf.Style;
 import com.codename1.ui.plaf.UIManager;
 import com.jhalkjar.caoscomp.Util;
-import com.jhalkjar.caoscomp.backend.Grade;
-import com.jhalkjar.caoscomp.backend.Gym;
-import com.jhalkjar.caoscomp.backend.Role;
-import com.jhalkjar.caoscomp.backend.Rute;
+import com.jhalkjar.caoscomp.backend.*;
 import com.jhalkjar.caoscomp.database.DB;
 import com.jhalkjar.caoscomp.database.NoImageException;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
@@ -88,34 +86,46 @@ public class Editor extends Form {
 
         }
         l.setHidden(false);
-        try {
-            r.getImage(image->{
+        r.getImage(new ImageListener() {
+            @Override
+            public void onImage(Image image) {
+                setImage(image);
+            }
 
-                canvas.setImage(image);
-                l.setHidden(true);
-                add(BorderLayout.CENTER, canvas);
-                revalidate();
-                axis.updateSize();
-                setGlassPane((g, rect) -> {
-                    g.setAntiAliased(true);
+            @Override
+            public void onError() {
+                try {
+                    setImage(Image.createImage("/noimage.png"));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
 
-                    for(int i=0; i<r.getPoints().size(); i++) {
-                        Point p = r.getPoints().get(i);
-                        int xPix = axis.xFloatToPixel(p.getX());
-                        int yPix = axis.yFloatToPixel(p.getY());
-                        if(getContentPane().contains(xPix, yPix)) p.render(g, xPix, yPix, axis.wFloatToPixel(p.getSize()));
-                    }
-                    g.clipRect(canvas.getX(), canvas.getY(), canvas.getWidth(), canvas.getHeight());
-                });
-            });
-        } catch (NoImageException e) {
-            e.printStackTrace();
-        }
 
         axis.updateSize();
         repaint();
         toggleEditMode(false);
         add(BorderLayout.NORTH, BoxLayout.encloseY(l));
+    }
+
+    private void setImage(Image image) {
+        canvas.setImage(image);
+        l.setHidden(true);
+        add(BorderLayout.CENTER, canvas);
+        revalidate();
+        axis.updateSize();
+        setGlassPane((g, rect) -> {
+            g.setAntiAliased(true);
+
+            for(int i=0; i<r.getPoints().size(); i++) {
+                Point p = r.getPoints().get(i);
+                int xPix = axis.xFloatToPixel(p.getX());
+                int yPix = axis.yFloatToPixel(p.getY());
+                if(getContentPane().contains(xPix, yPix)) p.render(g, xPix, yPix, axis.wFloatToPixel(p.getSize()));
+            }
+            g.clipRect(canvas.getX(), canvas.getY(), canvas.getWidth(), canvas.getHeight());
+        });
     }
 
     void toggleEditMode(boolean editMode) {

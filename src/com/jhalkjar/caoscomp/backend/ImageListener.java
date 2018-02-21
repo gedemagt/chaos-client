@@ -8,5 +8,6 @@ import com.codename1.ui.Image;
 public interface ImageListener {
 
     void onImage(Image image);
+    void onError();
 
 }

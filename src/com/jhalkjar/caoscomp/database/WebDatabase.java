@@ -274,21 +274,14 @@ public class WebDatabase extends ChaosDatabase {
 
     }
 
-    public void getImage(String uuid, ImageListener image) throws NoImageException {
+    public void getImage(String uuid, ImageListener image) {
         MultipartRequest request = new MultipartRequest();
         request.setPost(true);
         request.setUrl(host + "/download/" + uuid);
         request.setFailSilently(true);
         request.addResponseListener(evt -> {
-            if(evt.getResponseCode() == 400 || evt.getResponseCode() == 204) {
-                Image img;
-                try {
-                    img = Image.createImage("/noimage.png");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    img = null;
-                }
-                image.onImage(img);
+            if(evt.getResponseCode() != 200) {
+                image.onError();
             }
             else {
                 Image img = EncodedImage.create(request.getResponseData());

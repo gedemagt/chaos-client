@@ -22,7 +22,7 @@ public interface Rute extends DatabaseEntry {
     Grade getGrade();
     void setGrade(Grade grade);
   
-    void getImage(ImageListener callback) throws NoImageException;
+    void getImage(ImageListener callback);
     Date lastEdit();
 
     String getImageUUID();

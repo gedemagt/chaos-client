@@ -23,7 +23,7 @@ public class RuteImpl extends AbstractRute{
         this.gym = gym;
     }
 
-    public void getImage(ImageListener callback) throws NoImageException {
+    public void getImage(ImageListener callback){
         DB.getInstance().getImageProvider().getImage(imageuuid, callback);
     }
 
