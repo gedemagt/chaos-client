@@ -242,7 +242,11 @@ public class Editor extends Form {
             tb.getAllStyles().setBgColor(Grade.getColorInt(r.getGrade()));
         }
         setBackCommand(tb.addCommandToLeftBar("", FontImage.createMaterial(FontImage.MATERIAL_ARROW_BACK, s), (e) -> {
-            prevForm.showBack();
+            if (prevForm instanceof RuteList){
+                prevForm.showBack();
+            }else{
+                new RuteList().showBack();
+        }
         }));
 
         if(canEdit) {
