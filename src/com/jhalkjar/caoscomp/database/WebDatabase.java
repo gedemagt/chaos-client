@@ -3,9 +3,11 @@ package com.jhalkjar.caoscomp.database;
 import ca.weblite.codename1.json.JSONException;
 import ca.weblite.codename1.json.JSONObject;
 import com.codename1.io.*;
+import com.codename1.io.rest.Response;
 import com.codename1.io.rest.Rest;
 import com.codename1.ui.EncodedImage;
 import com.codename1.ui.Image;
+import com.codename1.util.Callback;
 import com.jhalkjar.caoscomp.Util;
 import com.jhalkjar.caoscomp.backend.*;
 
@@ -18,14 +20,14 @@ import java.util.*;
 public class WebDatabase extends ChaosDatabase {
 
 
-    private static final String host = "https://jeshj.pythonanywhere.com";
-//    private static String host = "http://localhost:5000";
+//    private static final String host = "https://jeshj.pythonanywhere.com";
+    private static String host = "http://localhost:5000";
 
     private static String LAST_WEB_CONNECTION = "last_sync";
 
     public User getUser(String id) {
         if(id.length() == 0) return null;
-        Map<String, Object> result = WebUtil.getJSON(host + "/get_user/" + id);
+        Map<String, Object> result = Rest.get(host + "/get_user/" + id).acceptJson().getAsJsonMap().getResponseData();
         Map<String, Object> vals = (Map<String,Object>) result.values().iterator().next();
         String name = (String) vals.get("name");
         String email = (String) vals.get("email");
@@ -43,7 +45,7 @@ public class WebDatabase extends ChaosDatabase {
 
     public Gym getGym(String id) {
         if(id.length() == 0) return null;
-        Map<String, Object> result = WebUtil.getJSON(host + "/get_gym/" + id);
+        Map<String, Object> result = Rest.get(host + "/get_gym/" + id).acceptJson().getAsJsonMap().getResponseData();
 
         Map<String, Object> vals = (Map<String,Object>) result.values().iterator().next();
         String name = (String) vals.get("name");
@@ -57,7 +59,7 @@ public class WebDatabase extends ChaosDatabase {
     }
 
     public List<Gym> getGyms() {
-        Map<String, Object> result = WebUtil.getJSON(host + "/get_gyms");
+        Map<String, Object> result = Rest.get(host + "/get_gyms").acceptJson().getAsJsonMap().getResponseData();
         List<Gym> re = new ArrayList<>();
         for(String key : result.keySet()) {
             Map<String,Object> vals = (Map<String, Object>) result.get(key);
@@ -88,17 +90,33 @@ public class WebDatabase extends ChaosDatabase {
             e.printStackTrace();
         }
 
-        WebUtil.sendJson(host + "/add_rute", object.toString(), evt -> {
-            Log.p("[WebDatabase] Uploaded rute: " + r);
-            if(imageUrl != null) {uploadImage(r.getImageUUID(), imageUrl);}
+        Rest.post(host + "/add_rute").acceptJson().jsonContent().body(object.toString()).getAsStringAsync(new Callback<Response<String>>() {
+            @Override
+            public void onError(Object sender, Throwable err, int errorCode, String errorMessage) {
+
+            }
+
+            @Override
+            public void onSucess(Response<String> value) {
+                Log.p("[WebDatabase] Uploaded rute: " + r);
+                if(imageUrl != null) {uploadImage(r.getImageUUID(), imageUrl);}
+            }
         });
 
     }
 
     @Override
     public void delete(Rute r) {
-        WebUtil.post(host + "/delete/" + r.getUUID(), evt -> {
-            Log.p("[WebDatabase] Deleted rute: " + r);
+        Rest.post(host + "/delete/" + r.getUUID()).getAsStringAsync(new Callback<Response<String>>() {
+            @Override
+            public void onError(Object sender, Throwable err, int errorCode, String errorMessage) {
+
+            }
+
+            @Override
+            public void onSucess(Response<String> value) {
+                Log.p("[WebDatabase] Deleted rute: " + r);
+            }
         });
     }
 
@@ -130,8 +148,7 @@ public class WebDatabase extends ChaosDatabase {
             e.printStackTrace();
         }
         Log.p("[WebDatabase] Uploading user: " + u.toString());
-        WebUtil.sendJson(host + "/add_user", object.toString());
-
+        Rest.post(host + "/add_user").jsonContent().acceptJson().body(object.toString());
     }
 
     public void uploadGym(Gym g) {
@@ -147,7 +164,7 @@ public class WebDatabase extends ChaosDatabase {
             e.printStackTrace();
         }
         Log.p("[WebDatabase] Uploading gym: " + g.toString());
-        WebUtil.sendJson(host + "/add_gym", object.toString());
+        Rest.post(host + "/add_gym").jsonContent().acceptJson().body(object.toString());
     }
 
     @Override
@@ -164,7 +181,7 @@ public class WebDatabase extends ChaosDatabase {
             e.printStackTrace();
         }
         Log.p("[WebDatabase] Saving rute: " + r.toString());
-        WebUtil.sendJson(host + "/update_coordinates", object.toString());
+        Rest.post(host + "/update_coordinates").jsonContent().acceptJson().body(object.toString());
     }
 
     public void login(String username, String password, WebDatabase.Result<String> onLogin) {
@@ -176,14 +193,17 @@ public class WebDatabase extends ChaosDatabase {
             e.printStackTrace();
         }
 
-        WebUtil.sendJson(host + "/login", object.toString(), evt -> {
-            try {
-                onLogin.OnResult(new String(evt.getConnectionRequest().getResponseData(), "UTF-8"));
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
+        Rest.post(host + "/login").acceptJson().jsonContent().body(object.toString()).getAsStringAsync(new Callback<Response<String>>() {
+            @Override
+            public void onError(Object sender, Throwable err, int errorCode, String errorMessage) {
+                err.printStackTrace();
+            }
+
+            @Override
+            public void onSucess(Response<String> value) {
+                onLogin.OnResult(value.getResponseData());
             }
         });
-
     }
 
     private String getLastSync() {
@@ -224,15 +244,15 @@ public class WebDatabase extends ChaosDatabase {
 
 
     public void getRutes(Result<Map<String, Rute>> runnable) {
-        WebUtil.sendJson(host + "/get_rutes", getLastSync(), evt -> {
-            Map<String,Object> result = WebUtil.getJsonData(evt.getConnectionRequest());
+        Rest.post(host + "/get_rutes").jsonContent().acceptJson().body(getLastSync()).getAsJsonMap(value -> {
+            Map<String,Object> result = value.getResponseData();
             Map<String,Rute> list = parseRutes(result);
             runnable.OnResult(list);
         });
     }
 
     public Map<String,Rute> getRutes() {
-        Map<String,Object> result = WebUtil.sendJson(host + "/get_rutes", getLastSync());
+        Map<String,Object> result = Rest.post(host + "/get_rutes").jsonContent().acceptJson().body(getLastSync()).getAsJsonMap().getResponseData();
         Map<String,Rute> list = parseRutes(result);
         return list;
     }
@@ -258,23 +278,38 @@ public class WebDatabase extends ChaosDatabase {
         MultipartRequest request = new MultipartRequest();
         request.setPost(true);
         request.setUrl(host + "/download/" + uuid);
+        request.setFailSilently(true);
         request.addResponseListener(evt -> {
-            Image img = EncodedImage.create(request.getResponseData());
-            image.onImage(img);
-            Log.p("[WebDatabase] Download of image " + uuid);
+            if(evt.getResponseCode() == 400 || evt.getResponseCode() == 204) {
+                Image img;
+                try {
+                    img = Image.createImage("/noimage.png");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    img = null;
+                }
+                image.onImage(img);
+            }
+            else {
+                Image img = EncodedImage.create(request.getResponseData());
+                Log.p("[WebDatabase] Download of image " + uuid);
+                image.onImage(img);
+            }
         });
+
+
         NetworkManager.getInstance().addToQueue(request);
 
     }
 
 
     public boolean checkUserName(String username) {
-        ConnectionRequest c = WebUtil.post(host + "/check_username/" + username, true);
+        Response<String> c = Rest.post(host + "/check_username/" + username).getAsString();
         return c.getResponseCode() == 200;
     }
 
     public boolean checkGymName(String gymname) {
-        ConnectionRequest c = WebUtil.post(host + "/check_gymname/" + gymname, true);
+        Response<String> c = Rest.post(host + "/check_gymname/" + gymname).getAsString();
         return c.getResponseCode() == 200;
     }
 

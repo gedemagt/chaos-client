@@ -5,7 +5,6 @@ import com.codename1.io.Preferences;
 import com.codename1.ui.*;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
-import com.jhalkjar.caoscomp.Util;
 import com.jhalkjar.caoscomp.database.DB;
 
 /**

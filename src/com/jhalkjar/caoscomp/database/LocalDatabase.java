@@ -135,6 +135,7 @@ public class LocalDatabase extends ChaosDatabase{
             listenr.onImage(Image.createImage(FileSystemStorage.getInstance().openInputStream(imageurl)));
         } catch (IOException e) {
             e.printStackTrace();
+            throw new NoImageException(e.getMessage());
         }
     }
 
