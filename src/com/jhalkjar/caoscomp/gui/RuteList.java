@@ -122,8 +122,7 @@ public class RuteList extends Form {
         setToolbar(tb);
         tb.setTitle("Problems");
         tb.addCommandToOverflowMenu("Log out", null, (e) -> {
-            Preferences.set("logged_in_user", "");
-            new Login().show();
+            DB.getInstance().logout();
         });
 
 //        tb.addCommandToRightBar("", FontImage.createMaterial(FontImage.MATERIAL_FILTER_LIST, s), evt -> {

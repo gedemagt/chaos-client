@@ -2,14 +2,10 @@ package com.jhalkjar.caoscomp.database;
 
 import ca.weblite.codename1.json.JSONException;
 import ca.weblite.codename1.json.JSONObject;
-import com.codename1.components.InfiniteProgress;
-import com.codename1.components.Progress;
 import com.codename1.io.*;
-import com.codename1.l10n.ParseException;
-import com.codename1.ui.Dialog;
+import com.codename1.io.rest.Rest;
 import com.codename1.ui.EncodedImage;
 import com.codename1.ui.Image;
-import com.codename1.ui.events.ActionListener;
 import com.jhalkjar.caoscomp.Util;
 import com.jhalkjar.caoscomp.backend.*;
 
@@ -22,8 +18,8 @@ import java.util.*;
 public class WebDatabase extends ChaosDatabase {
 
 
-//    private static final String host = "https://jeshj.pythonanywhere.com";
-    private static String host = "http://localhost:5000";
+    private static final String host = "https://jeshj.pythonanywhere.com";
+//    private static String host = "http://localhost:5000";
 
     private static String LAST_WEB_CONNECTION = "last_sync";
 
@@ -284,6 +280,10 @@ public class WebDatabase extends ChaosDatabase {
 
     public void resetLastVisit() {
         Preferences.set(LAST_WEB_CONNECTION, "1900-01-01 00:00:00");
+    }
+
+    public void logout() {
+        Rest.get(host + "/logout");
     }
 
 

@@ -29,7 +29,7 @@ public class WaitingDialog extends Dialog {
         l.setText(text+"         ");
         this.text = text;
         try {
-            image  =Image.createImage("/climbing-shoes.png").scaled(80,80);
+            image  =Image.createImage("/climbing-shoes2.png").scaledHeight(100);
         } catch (IOException e) {
             e.printStackTrace();
         }

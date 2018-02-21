@@ -7,6 +7,7 @@ import com.codename1.io.Preferences;
 import com.codename1.util.RunnableWithResult;
 import com.codename1.util.SuccessCallback;
 import com.jhalkjar.caoscomp.backend.*;
+import com.jhalkjar.caoscomp.gui.Login;
 
 import java.util.*;
 
@@ -30,6 +31,7 @@ public class DB {
     public User getLoggedInUser() {
         String username = Preferences.get("logged_in_user", "");
         User loggedin = local.getUser(username);
+        if(loggedin == local.unknownUser) return null;
         return loggedin;
     }
 
@@ -200,6 +202,12 @@ public class DB {
 
     public boolean checkGymname(String text) {
         return web.checkGymName(text);
+    }
+
+    public void logout() {
+        web.logout();
+        Preferences.set("logged_in_user", "");
+        new Login().show();
     }
 
     public interface RefreshListener {
