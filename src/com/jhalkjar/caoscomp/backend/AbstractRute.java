@@ -11,14 +11,14 @@ public abstract class AbstractRute extends DatabaseEntryImpl implements Rute {
 
     protected String name;
     protected User author;
-    protected Gym gym;
+    protected Sector sector;
     protected List<Point> p;
     protected Grade grade;
 
-    public AbstractRute(long id, String uuid, Date date, String name, User author, Gym gym, List<Point> points, Grade grade) {
+    public AbstractRute(long id, String uuid, Date date, String name, User author, Sector sector, List<Point> points, Grade grade) {
         super(uuid, id, date);
         this.author = author;
-        this.gym = gym;
+        this.sector = sector;
         this.name = name;
         this.p = points;
         this.grade = grade;
@@ -40,8 +40,8 @@ public abstract class AbstractRute extends DatabaseEntryImpl implements Rute {
     }
 
     @Override
-    public Gym getGym() {
-        return gym;
+    public Sector getSector() {
+        return sector;
     }
 
     @Override

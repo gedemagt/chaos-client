@@ -276,7 +276,7 @@ public class Editor extends Form {
             CheckBox cb = new CheckBox("Copy points");
             cb.setSelected(false);
             ok.addActionListener(evt -> {
-                Rute newR = DB.getInstance().createRute(name.getText(), null, DB.getInstance().getLoggedInUser(), r.getGym(), Util.getNow(), r.getImageUUID(), r.getGrade());
+                Rute newR = DB.getInstance().createRute(name.getText(), null, DB.getInstance().getLoggedInUser(), r.getSector(), Util.getNow(), r.getImageUUID(), r.getGrade());
                 if(cb.isSelected()) {
                     for(Point p : r.getPoints()) newR.getPoints().add(new Point(p));
                     newR.save();

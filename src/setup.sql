@@ -59,3 +59,14 @@ CREATE TABLE comment (
 ALTER TABLE rute ADD COLUMN grade VARCHAR;
 --Version:3
 ALTER TABLE user ADD COLUMN role VARCHAR;
+--Version:4
+CREATE TABLE sector (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	uuid VARCHAR,
+	name VARCHAR,
+	gym VARCHAR,
+	datetime TIMESTAMP DEFAULT (datetime('now'))
+);
+ALTER TABLE gym ADD COLUMN admin VARCHAR;
+ALTER TABLE rute ADD COLUMN sector VARCHAR;
+--

@@ -38,6 +38,7 @@ public class GymCreator extends Form {
             if(!DB.getInstance().checkGymname(name.getField().getText())) Dialog.show("Invalid name", "Name already taken. Please pick a new one!", "OK", null);
             else {
                 Gym g = DB.getInstance().createGym(name.getField().getText(), lat, lon, Util.getNow());
+                g.addSector(DB.getInstance().createSector("1", g, Util.getNow()));
                 back.showBack();
                 l.onNewGym(g);
             }

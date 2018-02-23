@@ -19,10 +19,7 @@ import com.codename1.ui.plaf.Style;
 import com.codename1.ui.plaf.UIManager;
 
 import com.codename1.ui.table.TableLayout;
-import com.jhalkjar.caoscomp.backend.Grade;
-import com.jhalkjar.caoscomp.backend.Gym;
-import com.jhalkjar.caoscomp.backend.Rute;
-import com.jhalkjar.caoscomp.backend.User;
+import com.jhalkjar.caoscomp.backend.*;
 import com.jhalkjar.caoscomp.database.DB;
 import com.jhalkjar.caoscomp.gui.GymPicker.*;
 
@@ -40,6 +37,7 @@ public class RuteList extends Form {
     List<Rute> rutes;
     Container selectionContainer;
     Gym gymFilter = DB.getInstance().getLoggedInUser().getGym();
+    Sector sectorFilter = null;
     User userFilter = null;
     ArrayList<Grade> gradeFilter = new ArrayList<>();
     Toolbar tb;
@@ -220,7 +218,8 @@ public class RuteList extends Form {
             list.setScrollableY(true);
             for(Rute r : rutes) {
                 if(userFilter != null && !r.getAuthor().equals(userFilter)) continue;
-                if(gymFilter != null && !r.getGym().equals(gymFilter)) continue;
+                if(sectorFilter != null && !r.getAuthor().equals(sectorFilter)) continue;
+                if(gymFilter != null && !r.getSector().getGym().equals(gymFilter)) continue;
                 if(gradeFilter.size() != 0 && !gradeFilter.contains(r.getGrade())) continue;
                 Container c = createListElement(r);
                 list.add(c);
@@ -246,7 +245,7 @@ public class RuteList extends Form {
         name.setUIID("RuteName");
 
         Label author = new Label(rute.getAuthor().getName());
-        Label gym = new Label(rute.getGym().getName());
+        Label gym = new Label(rute.getSector().getName());
         author.setUIID("DetailListElement");
         gym.setUIID("DetailListElement");
 

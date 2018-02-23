@@ -19,8 +19,8 @@ public class RuteImpl extends AbstractRute{
     }
 
     @Override
-    public void setGym(Gym gym) {
-        this.gym = gym;
+    public void setSector(Sector sector) {
+        this.sector = sector;
     }
 
     public void getImage(ImageListener callback){
@@ -52,8 +52,8 @@ public class RuteImpl extends AbstractRute{
     private String imageuuid;
     private int status;
 
-    public RuteImpl(long id, String uuid, String imageuuid, Date date, Date lastEdit, String name, User author, Gym gym, List<Point> points, Grade grade, int status) {
-        super(id, uuid, date, name, author, gym, points, grade);
+    public RuteImpl(long id, String uuid, String imageuuid, Date date, Date lastEdit, String name, User author, Sector sector, List<Point> points, Grade grade, int status) {
+        super(id, uuid, date, name, author, sector, points, grade);
         this.lastEdit = lastEdit;
         this.imageuuid = imageuuid;
         this.status = status;

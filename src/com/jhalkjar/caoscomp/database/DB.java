@@ -158,8 +158,8 @@ public class DB {
 
     }
 
-    public Rute createRute(String name, String image_url, User author, Gym gym, Date date, String imageUUID, Grade grade) {
-        Rute r = local.createRute(name, author, gym, date, imageUUID, grade);
+    public Rute createRute(String name, String image_url, User author, Sector sector, Date date, String imageUUID, Grade grade) {
+        Rute r = local.createRute(name, author, sector, date, imageUUID, grade);
         String uploadURL = null;
         if(image_url != null) {
             String new_url = r.getImageUUID() + ".jpg";
@@ -181,6 +181,12 @@ public class DB {
     public Gym createGym(String name, double lat, double lon, Date date) {
         Gym u = local.createGym(name, lat, lon, date);
         web.uploadGym(u);
+        return u;
+    }
+
+    public Sector createSector(String name, Gym g, Date date) {
+        Sector u = local.createSector(name, g, date);
+        web.uploadSector(u);
         return u;
     }
 
@@ -208,6 +214,17 @@ public class DB {
         web.logout();
         Preferences.set("logged_in_user", "");
         new Login().show();
+    }
+
+    public Sector getSector(String uuid) {
+        Sector g = local.getSector(uuid);
+        if(g == null) {
+            g = web.getSector(uuid);
+
+            if(g != null) g = local.addSector(g.getUUID(), g.getName(), g.getGym(), g.getDate());
+
+        }
+        return g;
     }
 
     public interface RefreshListener {

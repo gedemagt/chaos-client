@@ -16,8 +16,8 @@ public interface Rute extends DatabaseEntry {
     void setName(String name);
     User getAuthor();
     List<Point> getPoints();
-    Gym getGym();
-    void setGym(Gym gym);
+    Sector getSector();
+    void setSector(Sector sector);
   
     Grade getGrade();
     void setGrade(Grade grade);

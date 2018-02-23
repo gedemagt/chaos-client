@@ -1,11 +1,11 @@
 package com.jhalkjar.caoscomp.gui;
 
-import com.codename1.ui.Component;
 import com.codename1.ui.Container;
 import com.codename1.ui.Form;
 import com.codename1.ui.PickerComponent;
 import com.codename1.ui.layouts.BorderLayout;
 import com.jhalkjar.caoscomp.backend.Gym;
+import com.jhalkjar.caoscomp.backend.Sector;
 import com.jhalkjar.caoscomp.backend.User;
 import com.jhalkjar.caoscomp.database.DB;
 
@@ -18,11 +18,13 @@ public class GymPicker extends Container {
 
     List<Gym> gyms;
     PickerComponent pc;
+    PickerComponent sector;
 
     public GymPicker(Form f) {
         super(new BorderLayout());
         gyms = DB.getInstance().getGyms();
         pc = PickerComponent.createStrings(gymToString(gyms));
+        sector = PickerComponent.createStrings();
 
         int index = 0;
         User loggedIn = DB.getInstance().getLoggedInUser();
@@ -44,12 +46,18 @@ public class GymPicker extends Container {
                 });
                 creator.show();
             }
+            else sector.getPicker().setStrings(sectorsToString(getGym()));
         });
         add(BorderLayout.CENTER, pc);
+        add(BorderLayout.EAST, sector);
     }
 
     public Gym getGym() {
         return gyms.get(pc.getPicker().getSelectedStringIndex());
+    }
+
+    public Sector getSector() {
+        return getGym().getSectors().get(sector.getPicker().getSelectedStringIndex());
     }
 
     private String[] gymToString(List<Gym> gyms) {
@@ -58,6 +66,14 @@ public class GymPicker extends Container {
             r[i] = gyms.get(i).getName();
         }
         r[gyms.size()] = "New gym..";
+        return r;
+    }
+
+    private String[] sectorsToString(Gym g) {
+        String[] r = new String[g.getSectors().size()];
+        for(int i=0; i<g.getSectors().size(); i++) {
+            r[i] = g.getSectors().get(i).getName();
+        }
         return r;
     }
 }
