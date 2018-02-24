@@ -312,25 +312,27 @@ public class Editor extends Form {
     }}
 
     @Override
-    public void pointerPressed(int[] x, int[] y) {
-        super.pointerPressed(x, y);
-        swipe.setWasMultiDragged(x.length > 1);
+    public void pointerPressed(int x, int y) {
         if (!swipe.isWasMultiDragged()) {
-            swipe.setPressedX(x[0]);
+            swipe.setPressedX(x);
         }
+        super.pointerPressed(x, y);
     }
 
     @Override
     public void pointerReleased(int[] x, int[] y) {
-        super.pointerReleased(x, y);
+
         Log.p(Integer.toString(x.length));
 
-        if (!swipe.isWasMultiDragged()) {
+        if (!swipe.isWasMultiDragged() && canvas.getZoom() == 1.0f) {
             swipe.setReleasedX(x[0]);
             swipe.evalSwipe();
         }
         swipe.setWasMultiDragged(false);
+
+        super.pointerReleased(x, y);
     }
+
     @Override
     public void pointerDragged(int[] x, int[] y){
         super.pointerDragged(x, y);
