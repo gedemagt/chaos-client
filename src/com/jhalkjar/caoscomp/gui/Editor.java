@@ -16,6 +16,7 @@ import com.jhalkjar.caoscomp.database.DB;
 import com.jhalkjar.caoscomp.database.NoImageException;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -49,16 +50,20 @@ public class Editor extends Form {
 
     private GradePicker gp = new GradePicker();
 
+    private SwipeNavigator swipe;
+
+
     public Editor(Rute rute, Form RL) {
         super(new BorderLayout());
 
         this.prevForm = RL;
 
+
         r = rute;
-        for(Point p : r.getPoints()) p.setSelected(false);
-        if (DB.getInstance().getLoggedInUser().getRole() == Role.ADMIN){
+        for (Point p : r.getPoints()) p.setSelected(false);
+        if (DB.getInstance().getLoggedInUser().getRole() == Role.ADMIN) {
             edit = true;
-        }else{
+        } else {
             edit = r.getAuthor().equals(DB.getInstance().getLoggedInUser());
         }
 
@@ -75,7 +80,7 @@ public class Editor extends Form {
         });
 
         populateToolbar(edit);
-        if(edit) {
+        if (edit) {
             editorBar = createEditorComponent();
             cnt = LayeredLayout.encloseIn(delete, editorBar);
 
@@ -107,6 +112,8 @@ public class Editor extends Form {
         repaint();
         toggleEditMode(false);
         add(BorderLayout.NORTH, BoxLayout.encloseY(l));
+
+        swipe = new SwipeNavigator();
     }
 
     private void setImage(Image image) {
@@ -303,138 +310,185 @@ public class Editor extends Form {
         revalidate();
     }}
 
-    private abstract class State {
-
-        protected Point selected;
-
-        protected State(Point sel) {
-            selected = sel;
+    @Override
+    public void pointerPressed(int x, int y){
+        super.pointerPressed(x, y);
+            swipe.setPressedX(x);
         }
 
-        abstract State onPress(ActionEvent evt);
-        abstract State onDrag(ActionEvent evt);
-        abstract State onRelease(ActionEvent evt);
-
+    @Override
+    public void pointerReleased(int x, int y) {
+        super.pointerReleased(x, y);
+        swipe.setReleasedX(x);
+        swipe.evalSwipe();
     }
 
-    private class IdleState extends State {
+    private class SwipeNavigator {
+        private int pressedX, releasedX;
 
-        protected IdleState(Point p) {
-            super(p);
+        private ArrayList<Rute> selectedRutes = ((RuteList) prevForm).getSelectedRutes();
+        int thisRute = selectedRutes.indexOf(r);
+
+        public SwipeNavigator() {
+            Log.p(Integer.toString(thisRute));
+            Log.p(selectedRutes.toString());
+            Log.p(r.toString());
         }
 
-        public IdleState() {
-            super(new Point(0,0,0.05f));
+        private void setPressedX(int pressedX) {
+            this.pressedX = pressedX;
         }
 
-        @Override
-        public State onPress(ActionEvent evt) {
-            if(canvas.wasMultiDragged()) return this;
-            float x = axis.xPixelToFloat(evt.getX());
-            float y = axis.yPixelToFloat(evt.getY());
+        private void setReleasedX(int releasedX) {
+            this.releasedX = releasedX;
+        }
 
-            if(canvas.getSelectedRect().contains(evt.getX(),evt.getY())) {
-
-                Point newSelected = select(x, y);
-                if(selected != null) selected.setSelected(false);
-                if(newSelected == null) return new CreateState(selected).onPress(evt);
-
-                canvas.setImmediatelyDrag(true);
-                newSelected.setSelected(true);
-                if(newSelected.equals(selected)) return new MoveState(selected).onPress(evt);
-                selected = newSelected;
+        private void evalSwipe() {
+            if ((pressedX - releasedX) > 150 && thisRute < selectedRutes.size()) {
+                new Editor(selectedRutes.get(thisRute + 1), prevForm).show();
             }
 
-            return this;
-        }
-
-        @Override
-        public State onDrag(ActionEvent evt) {
-            return this;
-        }
-
-        @Override
-        public State onRelease(ActionEvent evt) {
-            canvas.setImmediatelyDrag(false);
-            editorBar.setVisible(selected != null);
-            revalidate();
-            return this;
+            if ((releasedX - pressedX) > 150 && thisRute != 0) {
+                new Editor(selectedRutes.get(thisRute - 1), prevForm).show();
+            }
         }
     }
 
-    private class MoveState extends State {
 
-        protected MoveState(Point p) {
-            super(p);
+        private abstract class State {
+
+            protected Point selected;
+
+            protected State(Point sel) {
+                selected = sel;
+            }
+
+            abstract State onPress(ActionEvent evt);
+
+            abstract State onDrag(ActionEvent evt);
+
+            abstract State onRelease(ActionEvent evt);
+
         }
 
-        @Override
-        public State onPress(ActionEvent evt) {
-            delete.setVisible(true);
-            editorBar.setVisible(false);
-            revalidate();
-            canvas.disablePointerDrag();
-            return this;
+        private class IdleState extends State {
+
+            protected IdleState(Point p) {
+                super(p);
+            }
+
+            public IdleState() {
+                super(new Point(0, 0, 0.05f));
+            }
+
+            @Override
+            public State onPress(ActionEvent evt) {
+                if (canvas.wasMultiDragged()) return this;
+                float x = axis.xPixelToFloat(evt.getX());
+                float y = axis.yPixelToFloat(evt.getY());
+
+                if (canvas.getSelectedRect().contains(evt.getX(), evt.getY())) {
+
+                    Point newSelected = select(x, y);
+                    if (selected != null) selected.setSelected(false);
+                    if (newSelected == null) return new CreateState(selected).onPress(evt);
+
+                    canvas.setImmediatelyDrag(true);
+                    newSelected.setSelected(true);
+                    if (newSelected.equals(selected)) return new MoveState(selected).onPress(evt);
+                    selected = newSelected;
+                }
+
+                return this;
+            }
+
+            @Override
+            public State onDrag(ActionEvent evt) {
+                return this;
+            }
+
+            @Override
+            public State onRelease(ActionEvent evt) {
+                canvas.setImmediatelyDrag(false);
+                editorBar.setVisible(selected != null);
+                revalidate();
+                return this;
+            }
         }
 
-        @Override
-        public State onDrag(ActionEvent evt) {
+        private class MoveState extends State {
 
-            float x = axis.xPixelToFloat(evt.getX());
-            float y = axis.yPixelToFloat(evt.getY());
-            selected.set(x, y);
+            protected MoveState(Point p) {
+                super(p);
+            }
 
-            return this;
-        }
+            @Override
+            public State onPress(ActionEvent evt) {
+                delete.setVisible(true);
+                editorBar.setVisible(false);
+                revalidate();
+                canvas.disablePointerDrag();
+                return this;
+            }
 
-        @Override
-        public State onRelease(ActionEvent evt) {
+            @Override
+            public State onDrag(ActionEvent evt) {
 
-            if(isInDeleteRegion(evt)) r.getPoints().remove(selected);
-            else {
                 float x = axis.xPixelToFloat(evt.getX());
                 float y = axis.yPixelToFloat(evt.getY());
                 selected.set(x, y);
+
+                return this;
             }
-            r.save();
-            delete.setVisible(false);
-            editorBar.setVisible(true);
-            revalidate();
-            return new IdleState(selected).onRelease(evt);
-        }
-    }
 
-    private class CreateState extends State {
+            @Override
+            public State onRelease(ActionEvent evt) {
 
-        protected CreateState(Point p) {super(p);}
-
-        @Override
-        public State onPress(ActionEvent evt) {
-
-            return this;
-        }
-
-        @Override
-        public State onDrag(ActionEvent evt) {
-            return new IdleState().onRelease(evt);
+                if (isInDeleteRegion(evt)) r.getPoints().remove(selected);
+                else {
+                    float x = axis.xPixelToFloat(evt.getX());
+                    float y = axis.yPixelToFloat(evt.getY());
+                    selected.set(x, y);
+                }
+                r.save();
+                delete.setVisible(false);
+                editorBar.setVisible(true);
+                revalidate();
+                return new IdleState(selected).onRelease(evt);
+            }
         }
 
-        @Override
-        public State onRelease(ActionEvent evt) {
-            float x = axis.xPixelToFloat(evt.getX());
-            float y = axis.yPixelToFloat(evt.getY());
-            float size = selected == null ? 0.1f : selected.getSize();
-            Type type = selected == null ? Type.NORMAL : selected.getType();
-            selected = new Point(x,y, size);
-            selected.setType(type);
-            selected.setSelected(true);
-            r.getPoints().add(selected);
-            r.save();
-            return new IdleState(selected).onRelease(evt);
+        private class CreateState extends State {
+
+            protected CreateState(Point p) {
+                super(p);
+            }
+
+            @Override
+            public State onPress(ActionEvent evt) {
+
+                return this;
+            }
+
+            @Override
+            public State onDrag(ActionEvent evt) {
+                return new IdleState().onRelease(evt);
+            }
+
+            @Override
+            public State onRelease(ActionEvent evt) {
+                float x = axis.xPixelToFloat(evt.getX());
+                float y = axis.yPixelToFloat(evt.getY());
+                float size = selected == null ? 0.1f : selected.getSize();
+                Type type = selected == null ? Type.NORMAL : selected.getType();
+                selected = new Point(x, y, size);
+                selected.setType(type);
+                selected.setSelected(true);
+                r.getPoints().add(selected);
+                r.save();
+                return new IdleState(selected).onRelease(evt);
+            }
+
         }
-
-    }
-
-
-
 }
+
