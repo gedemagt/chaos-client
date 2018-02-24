@@ -53,7 +53,7 @@ public class RuteList extends Form {
         FloatingActionButton fab = FloatingActionButton.createFAB(FontImage.MATERIAL_ADD);
         fab.setUIID("FaB");
         fab.addActionListener(evt -> {
-            new RuteCreator().show();
+            new RuteCreator(this).show();
         });
         fab.bindFabToContainer(getContentPane());
 
