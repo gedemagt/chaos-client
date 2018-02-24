@@ -2,6 +2,7 @@ package com.jhalkjar.caoscomp.gui;
 
 import com.codename1.io.Log;
 import com.codename1.ui.*;
+import com.codename1.ui.animations.Transition;
 import com.codename1.ui.events.ActionEvent;
 import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.layouts.BorderLayout;
@@ -311,28 +312,39 @@ public class Editor extends Form {
     }}
 
     @Override
-    public void pointerPressed(int x, int y){
+    public void pointerPressed(int[] x, int[] y) {
         super.pointerPressed(x, y);
-            swipe.setPressedX(x);
+        swipe.setWasMultiDragged(x.length > 1);
+        if (!swipe.isWasMultiDragged()) {
+            swipe.setPressedX(x[0]);
         }
+    }
 
     @Override
-    public void pointerReleased(int x, int y) {
+    public void pointerReleased(int[] x, int[] y) {
         super.pointerReleased(x, y);
-        swipe.setReleasedX(x);
-        swipe.evalSwipe();
+        Log.p(Integer.toString(x.length));
+
+        if (!swipe.isWasMultiDragged()) {
+            swipe.setReleasedX(x[0]);
+            swipe.evalSwipe();
+        }
+        swipe.setWasMultiDragged(false);
     }
+    @Override
+    public void pointerDragged(int[] x, int[] y){
+        super.pointerDragged(x, y);
+        swipe.setWasMultiDragged(x.length > 1);
+    }
+
 
     private class SwipeNavigator {
         private int pressedX, releasedX;
-
+        private boolean wasMultiDragged = false;
         private ArrayList<Rute> selectedRutes = ((RuteList) prevForm).getSelectedRutes();
         int thisRute = selectedRutes.indexOf(r);
 
         public SwipeNavigator() {
-            Log.p(Integer.toString(thisRute));
-            Log.p(selectedRutes.toString());
-            Log.p(r.toString());
         }
 
         private void setPressedX(int pressedX) {
@@ -343,6 +355,10 @@ public class Editor extends Form {
             this.releasedX = releasedX;
         }
 
+        public void setWasMultiDragged(boolean wasMultiDragged) { this.wasMultiDragged = wasMultiDragged; }
+
+        public boolean isWasMultiDragged() {return wasMultiDragged;}
+
         private void evalSwipe() {
             if (editMode) return;
             if ((pressedX - releasedX) > 150 && thisRute != selectedRutes.size()-1) {
@@ -350,6 +366,7 @@ public class Editor extends Form {
             }
 
             if ((releasedX - pressedX) > 150 && thisRute != 0) {
+                setTransitionOutAnimator(getTransitionOutAnimator().copy(true));
                 new Editor(selectedRutes.get(thisRute - 1), prevForm).show();
             }
         }
