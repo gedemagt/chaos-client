@@ -344,7 +344,8 @@ public class Editor extends Form {
         }
 
         private void evalSwipe() {
-            if ((pressedX - releasedX) > 150 && thisRute < selectedRutes.size()) {
+            if (editMode) return;
+            if ((pressedX - releasedX) > 150 && thisRute != selectedRutes.size()-1) {
                 new Editor(selectedRutes.get(thisRute + 1), prevForm).show();
             }
 
