@@ -6,6 +6,7 @@ import com.codename1.io.NetworkManager;
 import com.codename1.io.Preferences;
 import com.codename1.util.RunnableWithResult;
 import com.codename1.util.SuccessCallback;
+import com.jhalkjar.caoscomp.Util;
 import com.jhalkjar.caoscomp.backend.*;
 import com.jhalkjar.caoscomp.gui.Login;
 
@@ -50,8 +51,14 @@ public class DB {
     }
 
     public void syncGyms() {
+        Log.p("[DB] Syncing gyms");
         for(Gym g : web.getGyms()) {
-            if(local.getGym(g.getUUID()) == null) local.addGym(g.getUUID(), g.getName(), g.getLat(), g.getLon(), g.getDate());
+            if(local.getGym(g.getUUID()) == null) {
+                local.addGym(g.getUUID(), g.getName(), g.getLat(), g.getLon(), g.getDate());
+            }
+            for(Sector s : g.getSectors()) {
+                if(local.getSector(s.getUUID()) == null) local.addSector(s.getUUID(), s.getName(), s.getGym(), s.getDate());
+            }
         }
     }
 
@@ -70,6 +77,11 @@ public class DB {
         local.save(r);
         web.save(r);
     }
+
+//    public void save(Gym g) {
+//        local.save(g);
+//        web.save(g);
+//    }
 
     public Gym getGym(String uuid) {
         Gym g = local.getGym(uuid);
@@ -181,12 +193,13 @@ public class DB {
     public Gym createGym(String name, double lat, double lon, Date date) {
         Gym u = local.createGym(name, lat, lon, date);
         web.uploadGym(u);
+        createSector("Uncategorized", u, Util.getNow());
         return u;
     }
 
     public Sector createSector(String name, Gym g, Date date) {
         Sector u = local.createSector(name, g, date);
-        web.uploadSector(u);
+        web.save(g);
         return u;
     }
 
@@ -218,13 +231,25 @@ public class DB {
 
     public Sector getSector(String uuid) {
         Sector g = local.getSector(uuid);
-        if(g == null) {
-            g = web.getSector(uuid);
-
-            if(g != null) g = local.addSector(g.getUUID(), g.getName(), g.getGym(), g.getDate());
-
-        }
+//        if(g == null) {
+//            g = web.getSector(uuid);
+//            if(g == null) g = createSector("Uncategorized", local.unknownGym, Util.getNow());
+//            else g = local.addSector(g.getUUID(), g.getName(), g.getGym(), g.getDate());
+//        }
         return g;
+    }
+
+    public Sector createUncategorizedSector() {
+        return createSector("Uncategorized", local.unknownGym, Util.getNow());
+    }
+
+    public Gym getRememberedGym() {
+        String g = Preferences.get("last_gym", "NO_NO_NO");
+        if(g.equals("NO_NO_NO")) return null;
+        return getGym(g);
+    }
+    public void setRememberedGym(Gym g) {
+        Preferences.set("last_gym", g.getUUID());
     }
 
     public interface RefreshListener {

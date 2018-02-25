@@ -4,6 +4,7 @@ import com.codename1.ui.*;
 import com.codename1.ui.plaf.UIManager;
 import com.codename1.ui.util.Resources;
 import com.jhalkjar.caoscomp.database.DB;
+import com.jhalkjar.caoscomp.gui.GymList;
 import com.jhalkjar.caoscomp.gui.Login;
 import com.jhalkjar.caoscomp.gui.RuteList;
 import com.jhalkjar.caoscomp.gui.WaitingDialog;
@@ -38,9 +39,12 @@ public class CaosCompanion {
         Display.getInstance().lockOrientation(true);
 
 //        DB.getInstance().sync();
+
         DB.getInstance().refreshLocal();
-        if(DB.getInstance().getLoggedInUser() != null) new RuteList().show();
-        else new Login().show();
+        DB.getInstance().syncGyms();
+        if(DB.getInstance().getLoggedInUser() == null) new Login().show();
+        else if(DB.getInstance().getRememberedGym() == null) new GymList().show();
+        else new RuteList().show();
     }
 
     public void stop() {

@@ -47,7 +47,7 @@ public class UserImpl extends DatabaseEntryImpl implements User  {
 
     @Override
     public String toString() {
-        return name + "(" + passwordHash + ")";
+        return name;
     }
 
 }

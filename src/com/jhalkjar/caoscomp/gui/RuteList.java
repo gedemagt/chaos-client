@@ -5,8 +5,6 @@ package com.jhalkjar.caoscomp.gui;
  */
 
 import com.codename1.components.FloatingActionButton;
-import com.codename1.io.Log;
-import com.codename1.io.Preferences;
 import com.codename1.l10n.DateFormat;
 import com.codename1.l10n.SimpleDateFormat;
 import com.codename1.ui.*;
@@ -14,14 +12,12 @@ import com.codename1.ui.Container;
 import com.codename1.ui.Label;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
-import com.codename1.ui.plaf.Border;
 import com.codename1.ui.plaf.Style;
 import com.codename1.ui.plaf.UIManager;
 
 import com.codename1.ui.table.TableLayout;
 import com.jhalkjar.caoscomp.backend.*;
 import com.jhalkjar.caoscomp.database.DB;
-import com.jhalkjar.caoscomp.gui.GymPicker.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,10 +31,8 @@ public class RuteList extends Form {
 
     Container centerContainer = new Container(new BorderLayout());
     List<Rute> rutes;
-    Container selectionContainer;
-    Gym gymFilter = DB.getInstance().getLoggedInUser().getGym();
+    Gym gymFilter = DB.getInstance().getRememberedGym();
     Sector sectorFilter = null;
-    User userFilter = null;
     ArrayList<Grade> gradeFilter = new ArrayList<>();
     Toolbar tb;
 
@@ -56,8 +50,6 @@ public class RuteList extends Form {
         populateToolbar();
 
         Label l = new Label("Network error");
-        selectionContainer = createSelectionContainer();
-        selectionContainer.setHidden(true);
         add(BorderLayout.NORTH, l);
         add(BorderLayout.CENTER, centerContainer);
 
@@ -84,14 +76,12 @@ public class RuteList extends Form {
             }
         });
 
-
         rutes = DB.getInstance().getRutes();
         Collections.sort(rutes, (o1, o2) -> (int) (o2.getDate().getTime() - o1.getDate().getTime()));
         updateUI();
         if(rutes.size()==0) {
             forceAndShow();
         }
-
     }
 
     void forceAndShow() {
@@ -118,7 +108,7 @@ public class RuteList extends Form {
     void populateToolbar() {
         tb = new Toolbar();
         setToolbar(tb);
-        tb.setTitle("Problems");
+//        tb.setTitle("Problems");
         tb.addCommandToOverflowMenu("Log out", null, (e) -> {
             DB.getInstance().logout();
         });
@@ -128,16 +118,21 @@ public class RuteList extends Form {
 //                    selectionContainer.animateLayout(2);
 //        });
 
-        List<Gym> gymList = DB.getInstance().getGyms();
-        String[] gymStrings = new String[gymList.size() + 1];
-        gymStrings[0] = "All";
-        for (int i = 0; i < gymList.size(); i++) gymStrings[i + 1] = gymList.get(i).getName();
-
-        PickerComponent gyms = PickerComponent.createStrings(gymStrings);
-        int selected = gymList.indexOf(gymFilter);
+        List<Sector> sectors = DB.getInstance().getRememberedGym().getSectors();
+        String[] sectorStrings = new String[sectors.size() + 1];
+        sectorStrings[0] = "All";
+        for (int i = 0; i < sectors.size(); i++) sectorStrings[i + 1] = sectors.get(i).getName();
+        PickerComponent sectorPicker = PickerComponent.createStrings(sectorStrings);
+        int selected = sectors.indexOf(sectorFilter);
         if (selected == -1) selected = 0;
         else selected += 1;
-        gyms.getPicker().setSelectedStringIndex(selected);
+        sectorPicker.getPicker().setSelectedStringIndex(selected);
+
+        sectorPicker.getPicker().addActionListener(evt -> {
+            int selectedSector = sectorPicker.getPicker().getSelectedStringIndex() - 1;
+            sectorFilter = selectedSector >= 0 ? sectors.get(selectedSector) : null;
+            updateUI();
+        });
 
         Button gradePicker = new Button(FontImage.createMaterial(FontImage.MATERIAL_GRADE, s));
         gradePicker.addActionListener(evt -> {
@@ -146,65 +141,20 @@ public class RuteList extends Form {
 
         });
 
-        tb.add(BorderLayout.WEST, BoxLayout.encloseX(gyms, gradePicker));
-        gyms.getPicker().addActionListener(evt -> {
-        int selectedGym = gyms.getPicker().getSelectedStringIndex() - 1;
-        gymFilter = selectedGym >= 0 ? gymList.get(selectedGym) : null;
-        updateUI();
-        });
+        tb.setTitleComponent(BoxLayout.encloseX(sectorPicker, gradePicker));
+
+//        tb.add(BorderLayout.WEST, BoxLayout.encloseX(gyms, gradePicker));
+//        gyms.getPicker().addActionListener(evt -> {
+//            int selectedGym = gyms.getPicker().getSelectedStringIndex() - 1;
+//            gymFilter = selectedGym >= 0 ? gymList.get(selectedGym) : null;
+//            updateUI();
+//        });
 
 
         tb.addCommandToOverflowMenu("Force refresh", null, evt -> {
             forceAndShow();
         });
     }
-
-        Container createSelectionContainer(){
-            TableLayout tbl = new TableLayout(1, 4);
-            Container cnt = new Container(tbl);
-            cnt.setUIID("SelectionContainer ");
-
-
-            List<Gym> gymList = DB.getInstance().getGyms();
-            String[] gymStrings = new String[gymList.size() + 1];
-            gymStrings[0] = "All";
-            for (int i = 0; i < gymList.size(); i++) gymStrings[i + 1] = gymList.get(i).getName();
-            PickerComponent gyms = PickerComponent.createStrings(gymStrings);
-            int selected = gymList.indexOf(gymFilter);
-            if (selected == -1) selected = 0;
-            else selected += 1;
-            gyms.getPicker().setSelectedStringIndex(selected);
-
-            List<User> userList = DB.getInstance().getUsers();
-            String[] userStrings = new String[userList.size() + 1];
-            userStrings[0] = "All";
-            for (int i = 0; i < userList.size(); i++) userStrings[i + 1] = userList.get(i).getName();
-            PickerComponent users = PickerComponent.createStrings(userStrings);
-            selected = userList.indexOf(userFilter);
-            if (selected == -1) selected = 0;
-            else selected += 1;
-            users.getPicker().setSelectedStringIndex(selected);
-
-            gyms.getPicker().addActionListener(evt -> {
-                int selectedGym = gyms.getPicker().getSelectedStringIndex() - 1;
-                gymFilter = selectedGym >= 0 ? gymList.get(selectedGym) : null;
-                updateUI();
-            });
-            users.getPicker().addActionListener(evt -> {
-                int selectedUser = users.getPicker().getSelectedStringIndex() - 1;
-                userFilter = selectedUser >= 0 ? userList.get(selectedUser) : null;
-                updateUI();
-            });
-
-            cnt.add(tbl.createConstraint().widthPercentage(10), new Label(FontImage.createMaterial(FontImage.MATERIAL_HOME, s)));
-            cnt.add(tbl.createConstraint().widthPercentage(40), gyms);
-            cnt.add(tbl.createConstraint().widthPercentage(10), new Label(FontImage.createMaterial(FontImage.MATERIAL_PERSON, s)));
-            cnt.add(tbl.createConstraint().widthPercentage(40), users);
-
-            return cnt;
-        }
-
-
 
 
     private void updateUI() {
@@ -217,8 +167,7 @@ public class RuteList extends Form {
             Container list = new Container(BoxLayout.y());
             list.setScrollableY(true);
             for(Rute r : rutes) {
-                if(userFilter != null && !r.getAuthor().equals(userFilter)) continue;
-                if(sectorFilter != null && !r.getAuthor().equals(sectorFilter)) continue;
+                if(sectorFilter != null && !r.getSector().equals(sectorFilter)) continue;
                 if(gymFilter != null && !r.getSector().getGym().equals(gymFilter)) continue;
                 if(gradeFilter.size() != 0 && !gradeFilter.contains(r.getGrade())) continue;
                 Container c = createListElement(r);
@@ -229,7 +178,6 @@ public class RuteList extends Form {
                 populateToolbar();
                 revalidate();
             });
-            centerContainer.add(BorderLayout.NORTH, selectionContainer);
             centerContainer.add(BorderLayout.CENTER, list);
         }
         revalidate();

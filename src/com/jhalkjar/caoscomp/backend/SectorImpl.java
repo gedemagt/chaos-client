@@ -31,7 +31,7 @@ public class SectorImpl extends DatabaseEntryImpl implements Sector {
 
     @Override
     public String toString() {
-        return "Gym<" + name + ">";
+        return "Sector<" + name + ">";
     }
 
 }

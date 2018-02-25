@@ -34,7 +34,7 @@ public class GymImpl extends DatabaseEntryImpl implements Gym {
 
     @Override
     public void addSector(Sector s) {
-
+        sectors.add(s);
     }
 
     @Override
@@ -57,7 +57,11 @@ public class GymImpl extends DatabaseEntryImpl implements Gym {
 
     @Override
     public String toString() {
-        return "Gym<" + name + ">";
+        String sec = "";
+        for(Sector s : sectors) {
+            sec += "," + s.getName();
+        }
+        return "Gym<" + name + " - " + sec + ">";
     }
 
 }

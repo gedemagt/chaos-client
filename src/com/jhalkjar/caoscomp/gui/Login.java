@@ -32,7 +32,8 @@ public class Login extends Form {
                         Log.p("Logging in user: " + loggedin.getName() + "(" + loggedin.getUUID() + ")");
                         Preferences.set("logged_in_user", loggedin.getUUID());
                         DB.getInstance().refreshLocal();
-                        new RuteList().show();
+                        if(DB.getInstance().getRememberedGym() == null) new GymList().show();
+                        else new RuteList().show();
                     }
                 });
                 d.show();
