@@ -5,6 +5,7 @@ package com.jhalkjar.caoscomp.gui;
  */
 
 import com.codename1.components.FloatingActionButton;
+import com.codename1.io.Log;
 import com.codename1.l10n.DateFormat;
 import com.codename1.l10n.SimpleDateFormat;
 import com.codename1.ui.*;
@@ -48,6 +49,22 @@ public class RuteList extends Form {
         fab.bindFabToContainer(getContentPane());
 
         populateToolbar();
+        DB.getInstance().addGymsSyncListener(new DB.RefreshListener() {
+            @Override
+            public void OnBeginRefresh() {
+
+            }
+
+            @Override
+            public void OnEndRefresh() {
+                populateToolbar();
+            }
+
+            @Override
+            public void OnRefreshError() {
+
+            }
+        });
 
         Label l = new Label("Network error");
         add(BorderLayout.NORTH, l);
@@ -86,6 +103,7 @@ public class RuteList extends Form {
 
     void forceAndShow() {
         Dialog d = new WaitingDialog("Loading rutes");
+
         DB.getInstance().forceWebRefresh(new DB.RefreshListener() {
             @Override
             public void OnBeginRefresh() {
@@ -108,7 +126,6 @@ public class RuteList extends Form {
     void populateToolbar() {
         tb = new Toolbar();
         setToolbar(tb);
-//        tb.setTitle("Problems");
         tb.addCommandToOverflowMenu("Log out", null, (e) -> {
             DB.getInstance().logout();
         });
@@ -134,25 +151,26 @@ public class RuteList extends Form {
             updateUI();
         });
 
-        Button gradePicker = new Button(FontImage.createMaterial(FontImage.MATERIAL_GRADE, s));
+        Button gradePicker = new Button(FontImage.createMaterial(FontImage.MATERIAL_GRADE, getTitleStyle()));
         gradePicker.addActionListener(evt -> {
             gradeFilter = new GradePicker().getMultipleGrades();
             updateUI();
 
         });
-
-        tb.setTitleComponent(BoxLayout.encloseX(sectorPicker, gradePicker));
-
-//        tb.add(BorderLayout.WEST, BoxLayout.encloseX(gyms, gradePicker));
-//        gyms.getPicker().addActionListener(evt -> {
-//            int selectedGym = gyms.getPicker().getSelectedStringIndex() - 1;
-//            gymFilter = selectedGym >= 0 ? gymList.get(selectedGym) : null;
-//            updateUI();
-//        });
-
+        TableLayout tbl = new TableLayout(1, 2);
+        Container cnt = new Container(tbl);
+        cnt.add(tbl.createConstraint().widthPercentage(80), sectorPicker);
+        cnt.add(tbl.createConstraint().widthPercentage(20), gradePicker);
+        tb.setTitleComponent(cnt);
 
         tb.addCommandToOverflowMenu("Force refresh", null, evt -> {
             forceAndShow();
+        });
+        tb.addCommandToLeftBar("", FontImage.createMaterial(FontImage.MATERIAL_HOME, getTitleStyle()), evt -> {
+            new GymList().showBack();
+        });
+        tb.addCommandToOverflowMenu("Manage gym", null, evt -> {
+            new GymCreator(DB.getInstance().getRememberedGym(), this, g -> {}).show();
         });
     }
 

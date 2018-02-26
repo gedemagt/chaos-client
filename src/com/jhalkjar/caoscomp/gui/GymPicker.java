@@ -3,7 +3,7 @@ package com.jhalkjar.caoscomp.gui;
 import com.codename1.ui.Container;
 import com.codename1.ui.Form;
 import com.codename1.ui.PickerComponent;
-import com.codename1.ui.layouts.BorderLayout;
+import com.codename1.ui.layouts.GridLayout;
 import com.jhalkjar.caoscomp.backend.Gym;
 import com.jhalkjar.caoscomp.backend.Sector;
 import com.jhalkjar.caoscomp.backend.User;
@@ -20,36 +20,39 @@ public class GymPicker extends Container {
     PickerComponent pc;
     PickerComponent sector;
 
-    public GymPicker(Form f) {
-        super(new BorderLayout());
+    public GymPicker(Form f, Sector s) {
+        super(new GridLayout(1,2));
         gyms = DB.getInstance().getGyms();
         pc = PickerComponent.createStrings(gymToString(gyms));
         sector = PickerComponent.createStrings();
 
-        int index = 0;
-        User loggedIn = DB.getInstance().getLoggedInUser();
-        if(loggedIn != null && gyms.indexOf(loggedIn.getGym()) != -1) {
-            index = gyms.indexOf(loggedIn.getGym());
-        }
+//        int index = 0;
+//        User loggedIn = DB.getInstance().getLoggedInUser();
+//        if(loggedIn != null && gyms.indexOf(loggedIn.getGym()) != -1) {
+//            index = gyms.indexOf(loggedIn.getGym());
+//        }
 
 
-        pc.getPicker().setSelectedStringIndex(index);
+        pc.getPicker().setSelectedStringIndex(gyms.indexOf(DB.getInstance().getRememberedGym()));
+        sector.getPicker().setStrings(sectorsToString(getGym()));
+        if(s != null) sector.getPicker().setSelectedString(s.getName());
+        else sector.getPicker().setSelectedStringIndex(0);
 
         pc.getPicker().addActionListener(evt -> {
             if(pc.getPicker().getSelectedStringIndex() == gyms.size()) {
 
-                GymCreator creator = new GymCreator(f, gym-> {
+                GymCreator creator = new GymCreator(null, f, gym-> {
                     gyms = DB.getInstance().getGyms();
                     pc.getPicker().setStrings(gymToString(gyms));
-
                     pc.getPicker().setSelectedStringIndex(gyms.indexOf(gym));
+                    sector.getPicker().setStrings(sectorsToString(getGym()));
                 });
                 creator.show();
             }
             else sector.getPicker().setStrings(sectorsToString(getGym()));
         });
-        add(BorderLayout.CENTER, pc);
-        add(BorderLayout.EAST, sector);
+        add(pc);
+        add(sector);
     }
 
     public Gym getGym() {

@@ -14,12 +14,15 @@ public class GymImpl extends DatabaseEntryImpl implements Gym {
     private String name;
     private double lat, lon;
     private List<Sector> sectors = new ArrayList<>();
+    private Sector uncategorized;
 
     public GymImpl(long id, String uuid, Date date, String name, double lat, double lon) {
         super(uuid, id, date);
         this.name = name;
         this.lat = lat;
         this.lon = lon;
+        uncategorized = new Sector("Uncategorized", this);
+        sectors.add(uncategorized);
     }
 
     @Override
@@ -38,11 +41,19 @@ public class GymImpl extends DatabaseEntryImpl implements Gym {
     }
 
     @Override
-    public Sector getSector(String uuid) {
-        for(Sector s : sectors) {
-            if(uuid.equals(s.getUUID())) return s;
+    public void setSectors(List<Sector> s) {
+        for(Sector ss : s) {
+            ss.setGym(this);
         }
-        return null;
+        sectors = s;
+    }
+
+    @Override
+    public Sector getSector(String name) {
+        for(Sector s : sectors) {
+            if(s.getName().equals(name)) return s;
+        }
+        return uncategorized;
     }
 
     @Override

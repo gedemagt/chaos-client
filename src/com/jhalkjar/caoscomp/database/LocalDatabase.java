@@ -2,8 +2,10 @@ package com.jhalkjar.caoscomp.database;
 
 import ca.weblite.codename1.db.DAO;
 import ca.weblite.codename1.db.DAOProvider;
+import ca.weblite.codename1.json.JSONArray;
 import com.codename1.db.Database;
 import com.codename1.io.FileSystemStorage;
+import com.codename1.io.JSONParser;
 import com.codename1.io.Log;
 import com.codename1.l10n.ParseException;
 import com.codename1.ui.Image;
@@ -81,7 +83,8 @@ public class LocalDatabase extends ChaosDatabase{
             rute.put("name", name);
             rute.put("coordinates", "[]");
             rute.put("author", author.getUUID());
-            rute.put("sector", gym.getUUID());
+            rute.put("gym", gym.getGym().getUUID());
+            rute.put("sector", gym.getName());
             if(date == null) date = Util.getNow();
             rute.put("datetime", Util.format(date));
             rute.put("edit", Util.format(date));
@@ -101,25 +104,12 @@ public class LocalDatabase extends ChaosDatabase{
         return null;
     }
 
-    public Sector getSector(String uuid) {
-        for(Gym g : gyms.values()) {
-            for(Sector s : g.getSectors()) {
-                if(s.getUUID().equals(uuid)) return s;
-            }
-        }
-        return null;//DB.getInstance().createUncategorizedSector();
-    }
-
     public void sync(Map<String, Rute> rutes) {
         for(Map.Entry<String, Rute> entry : rutes.entrySet()) {
             Rute r = entry.getValue();
             if(r.getStatus() == 1) delete(r);
             else if(hasRute(r)) save(r);
             else {
-                if(getSector(r.getSector().getUUID()) == null){
-                    Sector s = r.getSector();
-                    addSector(s.getUUID(), s.getName(), s.getGym(), s.getDate());
-                }
                 if(getUser(r.getAuthor().getUUID()) == null){
                     User u = r.getAuthor();
                     addUser(r.getUUID(), u.getName(), u.getEmail(), u.getPasswordHash(), u.getGym(), u.getDate(), u.getRole());
@@ -198,12 +188,12 @@ public class LocalDatabase extends ChaosDatabase{
             DAOProvider provider = new DAOProvider(db, configPath, VERSION);
             DAO rutes = provider.get("rute");
             Map rute = (Map) rutes.newObject();
-            Log.p(r.getSector()+"");
             rute.put("uuid", r.getUUID());
             rute.put("name", r.getName());
             rute.put("coordinates", Util.valsToString(r.getPoints()));
             rute.put("author", r.getAuthor().getUUID());
-            rute.put("sector", r.getSector().getUUID());
+            rute.put("sector", r.getSector().getName());
+            rute.put("gym", r.getSector().getGym().getUUID());
             rute.put("datetime", Util.format(r.getDate()));
             rute.put("image", r.getImageUUID());
             rute.put("grade", r.getGrade().name());
@@ -264,11 +254,11 @@ public class LocalDatabase extends ChaosDatabase{
         return null;
     }
 
-    public Gym createGym(String name, double lat, double lon, Date date) {
-        return addGym(UUID.randomUUID().toString(), name, lat, lon, date);
+    public Gym createGym(String name, double lat, double lon, Date date, List<Sector> sectors) {
+        return addGym(UUID.randomUUID().toString(), name, lat, lon, date, sectors);
     }
 
-    public Gym addGym(String uuid, String name, double lat, double lon, Date date) {
+    public Gym addGym(String uuid, String name, double lat, double lon, Date date, List<Sector> sectors) {
         try {
             Database db = Database.openOrCreate(dbname);
             DAOProvider provider = new DAOProvider(db, configPath, VERSION);
@@ -280,6 +270,7 @@ public class LocalDatabase extends ChaosDatabase{
             gym.put("lon", lon);
             if(date == null) date = Util.getNow();
             gym.put("datetime", Util.format(date));
+            gym.put("sectors", Util.sectorsToJSON(sectors));
             gyms.save(gym);
             db.close();
 
@@ -293,36 +284,6 @@ public class LocalDatabase extends ChaosDatabase{
         return null;
     }
 
-    public Sector addSector(String uuid, String name, Gym g, Date date) {
-        try {
-            Database db = Database.openOrCreate(dbname);
-            DAOProvider provider = new DAOProvider(db, configPath, VERSION);
-            DAO gyms = provider.get("sector");
-            Map gym = (Map) gyms.newObject();
-            gym.put("uuid", uuid);
-            gym.put("name", name);
-            gym.put("gym", g.getUUID());
-            if(date == null) date = Util.getNow();
-            gym.put("datetime", Util.format(date));
-            gyms.save(gym);
-            db.close();
-            loadGyms();
-
-            return this.gyms.get(g.getUUID()).getSector(uuid);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public Sector createSector(String name, Gym g, Date date) {
-
-        if(getGym(g.getUUID()) == null) {
-            addGym(g.getUUID(), g.getName(), g.getLat(), g.getLon(), g.getDate());
-        }
-        return addSector(UUID.randomUUID().toString(), name, g, date);
-    }
 
     private void loadRutes() {
         try {
@@ -336,6 +297,7 @@ public class LocalDatabase extends ChaosDatabase{
                 String name = (String) m.get("name");
                 String points = (String) m.get("coordinates");
                 String author = (String) m.get("author");
+                Gym gym = DB.getInstance().getGym((String) m.get("gym"));
                 String sector = (String) m.get("sector");
                 Date date = getDate(m.get("datetime"));
                 Date lastedit = getDate(m.get("edit"));
@@ -350,7 +312,7 @@ public class LocalDatabase extends ChaosDatabase{
                     grade = Grade.NO_GRADE;
                 }
 
-                RuteImpl r = new RuteImpl(id, uuid, image, date, lastedit, name, DB.getInstance().getUser(author), DB.getInstance().getSector(sector), Util.stringToVals(points), grade, 0);
+                RuteImpl r = new RuteImpl(id, uuid, image, date, lastedit, name, DB.getInstance().getUser(author), gym.getSector(sector), Util.stringToVals(points), grade, 0);
                 rutes.put(uuid, r);
             }
             Log.p("[LocalDatabase] Loaded rutes " + getRutes().size() + " rutes.");
@@ -409,12 +371,14 @@ public class LocalDatabase extends ChaosDatabase{
                 long id = (Long) m.get("id");
                 gyms.put(uuid, new GymImpl(id, uuid, date, name, lat, lon));
 
-                List<Map> sectors = provider.get("sector").fetch(new String[]{"gym", uuid});
-                for(Map sectorm : sectors) {
-                    String sectorName = (String) sectorm.get("name");
-                    String sectorUUID = (String) sectorm.get("uuid");
-                    Date sectorDate = getDate(sectorm.get("datetime"));
-                    gyms.get(uuid).addSector(new SectorImpl((Long) sectorm.get("id"), sectorUUID, sectorDate, sectorName, gyms.get(uuid)));
+                String sectors = (String) m.get("sectors");
+                if(sectors != null) {
+                    JSONParser parser = new JSONParser();
+
+                    List<Object> vals = (List<Object>) parser.parseJSON(new com.codename1.util.regex.StringReader(sectors)).get("root");
+                    for (Object sec : vals) {
+                        gyms.get(uuid).addSector(new Sector((String) sec, gyms.get(uuid)));
+                    }
                 }
 
             }
@@ -466,7 +430,8 @@ public class LocalDatabase extends ChaosDatabase{
                 result.put("coordinates", Util.valsToString(r.getPoints()));
                 result.put("edit", Util.format(r.lastEdit()));
                 result.put("name", r.getName());
-                result.put("sector", r.getSector().getUUID());
+                result.put("sector", r.getSector().getName());
+                result.put("gym", r.getSector().getGym().getUUID());
                 result.put("grade", r.getGrade());
                 games.update(result);
                 for(DatabaseListener l : listeners) l.OnSaved(r);
@@ -475,7 +440,27 @@ public class LocalDatabase extends ChaosDatabase{
             Log.p("[LocalDatabase] Saved rute " + r);
 
         } catch (IOException e) {
-            Log.e(e);
+            e.printStackTrace();
         }
+    }
+
+    public void save(Gym g) {
+        try {
+            Database db = Database.openOrCreate(dbname);
+            DAOProvider provider = new DAOProvider(db, configPath, VERSION);
+            DAO games = provider.get("gym");
+            Map result = (Map) games.fetchOne(new String[]{"uuid", g.getUUID()});
+            if(result != null) {
+                result.put("name", g.getName());
+                result.put("sectors", Util.sectorsToJSON(g.getSectors()));
+                games.update(result);
+            }
+            db.close();
+            Log.p("[LocalDatabase] Saved gym " + g);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 }

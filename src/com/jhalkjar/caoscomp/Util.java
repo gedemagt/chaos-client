@@ -1,11 +1,14 @@
 package com.jhalkjar.caoscomp;
 
+import ca.weblite.codename1.json.JSONArray;
 import com.codename1.io.JSONParser;
 import com.codename1.io.Log;
 import com.codename1.l10n.DateFormat;
 import com.codename1.l10n.ParseException;
 import com.codename1.l10n.SimpleDateFormat;
 import com.codename1.properties.InstantUI;
+import com.codename1.util.regex.StringReader;
+import com.jhalkjar.caoscomp.backend.Sector;
 import com.jhalkjar.caoscomp.gui.Point;
 import com.jhalkjar.caoscomp.gui.Type;
 
@@ -16,6 +19,29 @@ import java.util.*;
  * Created by jesper on 11/7/17.
  */
 public class Util {
+
+    public static String sectorsToJSON(List<Sector> s) {
+        JSONArray arr = new JSONArray();
+        for(Sector sec: s) {
+            if(!sec.getName().equals("Uncategorized"))arr.put(sec.getName());
+        }
+        return arr.toString();
+    }
+
+    public static List<String> jsonToSectors(String json) {
+        List<String> re = new ArrayList<>();
+        JSONParser parser = new JSONParser();
+        try {
+            List<Object> points = (List<Object>) parser.parseJSON(new StringReader(json)).get("root");
+            if(points == null) return re;
+            for(Object o : points) {
+                re.add((String) o);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return re;
+    }
 
     public static ArrayList<Point> stringToVals(String string) {
         ArrayList<Point> result = new ArrayList<>();

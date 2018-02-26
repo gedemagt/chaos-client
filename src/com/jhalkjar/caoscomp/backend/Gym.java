@@ -12,7 +12,8 @@ public interface Gym extends DatabaseEntry {
     String getName();
     List<Sector> getSectors();
     void addSector(Sector s);
-    Sector getSector(String uuid);
+    void setSectors(List<Sector> s);
+    Sector getSector(String name);
     double getLat();
     double getLon();
 }

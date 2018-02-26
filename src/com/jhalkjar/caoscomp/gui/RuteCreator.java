@@ -19,7 +19,6 @@ import com.jhalkjar.caoscomp.database.DB;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Date;
 
 
 /**
@@ -37,7 +36,7 @@ public class RuteCreator extends Form {
 
         TextComponent name = new TextComponent().label("Name").text("Mysterious Problem");
 
-        GymPicker gym = new GymPicker(this);
+        GymPicker gym = new GymPicker(this, null);
         Button b = new Button(FontImage.createMaterial(FontImage.MATERIAL_PHOTO_CAMERA, s));
         b.addActionListener(evt -> {
             takePicture(path);

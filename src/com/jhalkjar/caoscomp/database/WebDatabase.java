@@ -54,11 +54,12 @@ public class WebDatabase extends ChaosDatabase {
         Date date = Util.parse((String) vals.get("date"));
         String uuid = (String) vals.get("uuid");
         Gym g = new GymImpl(-1, uuid, date, name, lat, lon);
-        for(Map<String, Object> sectors : (List<Map<String, Object>>) vals.get("sectors")) {
-            String suuid = (String) sectors.get("uuid");
-            String sname = (String) sectors.get("name");
-            Date sdate = Util.parse((String) sectors.get("date"));
-            g.addSector(new SectorImpl(-1, suuid, sdate, sname, g));
+        List<Map<String,Object>> sectors = (List<Map<String, Object>>) vals.get("sectors");
+        if(sectors != null) {
+            for(Map<String, Object> sector : sectors) {
+                String sname = (String) sector.get("name");
+                g.addSector(new Sector(sname, g));
+            }
         }
         Log.p("[WebDatabase] Loaded gym: " + g);
         return g;
@@ -75,11 +76,11 @@ public class WebDatabase extends ChaosDatabase {
             Date date = Util.parse((String) vals.get("date"));
             String uuid = (String) vals.get("uuid");
             Gym g = new GymImpl(-1, uuid, date, name, lat, lon);
-            for(Map<String, Object> sectors : (List<Map<String, Object>>) vals.get("sectors")) {
-                String suuid = (String) sectors.get("uuid");
-                String sname = (String) sectors.get("name");
-                Date sdate = Util.parse((String) sectors.get("date"));
-                g.addSector(new SectorImpl(-1, suuid, sdate, sname, g));
+            Object sectors = vals.get("sectors");
+            if(sectors != null) {
+                for(String sector : Util.jsonToSectors((String) sectors)) {
+                    g.addSector(new Sector(sector, g));
+                }
             }
             re.add(g);
         }
@@ -92,7 +93,8 @@ public class WebDatabase extends ChaosDatabase {
         try {
             object.put("name", r.getName());
             object.put("author", r.getAuthor().getUUID());
-            object.put("sector", r.getSector().getUUID());
+            object.put("gym", r.getSector().getGym().getUUID());
+            object.put("sector", r.getSector().getName());
             object.put("date", Util.format(r.getDate()));
             object.put("edit", Util.format(r.lastEdit()));
             object.put("uuid", r.getUUID());
@@ -187,7 +189,8 @@ public class WebDatabase extends ChaosDatabase {
             object.put("coordinates", Util.valsToString(r.getPoints()));
             object.put("edit", Util.format(r.lastEdit()));
             object.put("name", r.getName());
-            object.put("sector", r.getSector().getUUID());
+            object.put("gym", r.getSector().getGym().getUUID());
+            object.put("sector", r.getSector().getName());
             object.put("grade", r.getGrade());
         } catch (JSONException e) {
             e.printStackTrace();
@@ -237,9 +240,8 @@ public class WebDatabase extends ChaosDatabase {
             Map<String,Object> vals = (Map<String, Object>) result.get(key);
             String name = (String) vals.get("name");
             String coordinates = (String) vals.get("coordinates");
-            String sectorS = (String) vals.get("sector");
-            Sector sector = DB.getInstance().getSector(sectorS);
-//            Log.p(sector + " " + name);
+            Gym gym = DB.getInstance().getGym((String) vals.get("gym"));
+            String sector = (String) vals.get("sector");
             Date date = Util.parse((String) vals.get("date"));
             Date last_edit = Util.parse((String) vals.get("edit"));
             User author = DB.getInstance().getUser((String) vals.get("author"));
@@ -248,7 +250,7 @@ public class WebDatabase extends ChaosDatabase {
             String grader = (String) (vals.get("grade"));
             int status = (int) ((double) vals.get("status"));
             Grade grade = grader != null ? Grade.valueOf(grader) : Grade.NO_GRADE;
-            list.put(uuid, new RuteImpl(-1, uuid, image, date, last_edit, name, author, sector, Util.stringToVals(coordinates), grade, status));
+            list.put(uuid, new RuteImpl(-1, uuid, image, date, last_edit, name, author, gym.getSector(sector), Util.stringToVals(coordinates), grade, status));
         }
         Log.p("[WebDatabase] Loaded " + list.size() + " rutes.");
         Preferences.set(LAST_WEB_CONNECTION, Util.format(Util.getNow()));
@@ -329,37 +331,21 @@ public class WebDatabase extends ChaosDatabase {
     }
 
     public void save(Gym g) {
-
-
+        JSONObject object = new JSONObject();
+        try {
+            object.put("name", g.getName());
+            object.put("lat", g.getLat());
+            object.put("lon", g.getLon());
+            object.put("uuid", g.getUUID());
+            object.put("sectors", Util.sectorsToJSON(g.getSectors()));
+            object.put("tags", "");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        Log.p("[WebDatabase] Saving gym: " + g.toString());
+        Rest.post(host + "/save_gym").jsonContent().acceptJson().body(object.toString()).getAsString();
 
     }
-
-    public Sector getSector(String uuid) {
-        if(uuid.length() == 0) return null;
-        Map<String, Object> result = Rest.get(host + "/get_sector/" + uuid).acceptJson().getAsJsonMap().getResponseData();
-        Map<String, Object> vals = (Map<String,Object>) result.values().iterator().next();
-        String name = (String) vals.get("name");
-        String gym = (String) vals.get("gym");
-        Date date = Util.parse((String) vals.get("date"));
-        Sector s = new SectorImpl(-1, uuid, date, name, DB.getInstance().getGym(gym));
-        Log.p("[WebDatabase] Loaded sector: " + s.toString());
-        return s;
-    }
-
-//    public void uploadSector(Sector u) {
-//        JSONObject object = new JSONObject();
-//        try {
-//            object.put("name", u.getName());
-//            object.put("gym", u.getGym().getUUID());
-//            object.put("date", Util.format(u.getDate()));
-//            object.put("uuid", u.getUUID());
-//
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-//        Log.p("[WebDatabase] Uploading sector: " + u.toString());
-//        Rest.post(host + "/add_sector").jsonContent().acceptJson().body(object.toString());
-//    }
 
     public interface Result<T> {
         void OnResult(T t);
