@@ -21,17 +21,14 @@ public class GymPicker extends Container {
     PickerComponent sector;
 
     public GymPicker(Form f, Sector s) {
+        this(f, s, true, true);
+    }
+
+    public GymPicker(Form f, Sector s, boolean showGym, boolean showSector) {
         super(new GridLayout(1,2));
         gyms = DB.getInstance().getGyms();
         pc = PickerComponent.createStrings(gymToString(gyms));
         sector = PickerComponent.createStrings();
-
-//        int index = 0;
-//        User loggedIn = DB.getInstance().getLoggedInUser();
-//        if(loggedIn != null && gyms.indexOf(loggedIn.getGym()) != -1) {
-//            index = gyms.indexOf(loggedIn.getGym());
-//        }
-
 
         pc.getPicker().setSelectedStringIndex(gyms.indexOf(DB.getInstance().getRememberedGym()));
         sector.getPicker().setStrings(sectorsToString(getGym()));
@@ -51,8 +48,8 @@ public class GymPicker extends Container {
             }
             else sector.getPicker().setStrings(sectorsToString(getGym()));
         });
-        add(pc);
-        add(sector);
+        if(showGym) add(pc);
+        if(showSector) add(sector);
     }
 
     public Gym getGym() {

@@ -1,6 +1,5 @@
 package com.jhalkjar.caoscomp.gui;
 
-import com.codename1.io.Log;
 import com.codename1.ui.*;
 import com.codename1.ui.events.ActionEvent;
 import com.codename1.ui.events.ActionListener;
@@ -13,11 +12,8 @@ import com.codename1.ui.plaf.UIManager;
 import com.jhalkjar.caoscomp.Util;
 import com.jhalkjar.caoscomp.backend.*;
 import com.jhalkjar.caoscomp.database.DB;
-import com.jhalkjar.caoscomp.database.NoImageException;
 
 import java.io.IOException;
-import java.util.Date;
-import java.util.List;
 
 /**
  * Created by jesper on 11/5/17.
@@ -271,7 +267,7 @@ public class Editor extends Form {
                 Dialog d = new Dialog();
                 d.setLayout(new BorderLayout());
                 Button ok = new Button("OK");
-                GymPicker gymPicker = new GymPicker(this, r.getSector());
+                GymPicker gymPicker = new GymPicker(this, r.getSector(), false, true);
                 ok.addActionListener(evt1 -> {
                     Gym newGym = gymPicker.getGym();
                     Sector newSector = gymPicker.getSector();

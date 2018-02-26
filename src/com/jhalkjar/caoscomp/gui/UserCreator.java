@@ -27,7 +27,7 @@ public class UserCreator extends Form {
         TextComponent password = new TextComponent().label("Password");
         password.getField().setConstraint(TextArea.PASSWORD);
         DB.getInstance().syncGyms();
-        GymPicker gym = new GymPicker(this, null);
+        GymPicker gym = new GymPicker(this, null, true, false);
 
         Validator val = new Validator();
         val.addConstraint(name, new Constraint() {

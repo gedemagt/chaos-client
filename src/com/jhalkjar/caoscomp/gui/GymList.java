@@ -86,15 +86,15 @@ public class GymList extends Form {
         Label date = new Label(dateFormat.format(gym.getDate()));
         date.setUIID("DateListElement");
 
-        TableLayout tbl = new TableLayout(2, 4);
+        TableLayout tbl = new TableLayout(2, 2);
         Container cnt = new Container(tbl);
         cnt.setUIID("ListElement");
 
-        cnt.add(tbl.createConstraint().widthPercentage(60).horizontalSpan(2), name);
-        cnt.add(tbl.createConstraint().widthPercentage(30).horizontalAlign(LEFT), date);
+        cnt.add(tbl.createConstraint().widthPercentage(50), name);
+        cnt.add(tbl.createConstraint().widthPercentage(50).horizontalAlign(LEFT), date);
 
-        cnt.add(tbl.createConstraint().widthPercentage(10), new Label(FontImage.createMaterial(FontImage.MATERIAL_PERSON, s)));
-        cnt.add(tbl.createConstraint().widthPercentage(40), author);
+        cnt.add(tbl.createConstraint().widthPercentage(50).horizontalAlign(LEFT), new Label("Rutes: " + countRutes(DB.getInstance().getRutes(), gym)));
+        cnt.add(tbl.createConstraint().widthPercentage(50).horizontalAlign(LEFT), new Label("Sectors: " + gym.getSectors().size()));
 
         for(int i=0; i<cnt.getComponentCount(); i++) {
             cnt.getComponentAt(i).addPointerReleasedListener(evt -> {
@@ -108,6 +108,15 @@ public class GymList extends Form {
         });
 
         return BoxLayout.encloseY(cnt, new Spacer());
+    }
+
+
+    private int countRutes(List<Rute> rutes, Gym g) {
+        int i=0;
+        for(Rute r : rutes) {
+            if(r.getSector().getGym().equals(g)) i++;
+        }
+        return i;
     }
 
     private class Spacer extends Container {
