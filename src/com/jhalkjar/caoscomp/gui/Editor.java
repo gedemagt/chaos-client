@@ -313,29 +313,25 @@ public class Editor extends Form {
 
     @Override
     public void pointerPressed(int x[], int y[]) {
-
-        Log.p(Boolean.toString(swipe.isWasMultiDragged()));
-        if (!swipe.isWasMultiDragged()) {
-            swipe.setPressedX(x[0]);
-        }
-        swipe.setWasMultiDragged(x.length > 1);
         super.pointerPressed(x, y);
+        swipe.setPressedX(x[0]);
     }
 
     @Override
     public void pointerReleased(int[] x, int[] y) {
-        if (!swipe.isWasMultiDragged() && canvas.getZoom() == 1.0f) {
-            swipe.setReleasedX(x[0]);
-            swipe.evalSwipe();
-        }
-        swipe.setWasMultiDragged(x.length > 1);
         super.pointerReleased(x, y);
+        if(canvas.getZoom() != 1.0f) return;
+
+        swipe.setReleasedX(x[0]);
+        swipe.evalSwipe();
+
+        swipe.setWasMultiDragged(false);
+
     }
 
     @Override
     public void pointerDragged(int[] x, int[] y){
-        swipe.setWasMultiDragged(x.length > 1);
-        Log.p(Boolean.toString(swipe.isWasMultiDragged()));
+        if(x.length>1) swipe.setWasMultiDragged(true);
         super.pointerDragged(x, y);
     }
 
@@ -346,7 +342,9 @@ public class Editor extends Form {
         private ArrayList<Rute> selectedRutes = ((RuteList) prevForm).getSelectedRutes();
         int thisRute = selectedRutes.indexOf(r);
 
+
         public SwipeNavigator() {
+
         }
 
         private void setPressedX(int pressedX) {
@@ -359,10 +357,10 @@ public class Editor extends Form {
 
         public void setWasMultiDragged(boolean wasMultiDragged) { this.wasMultiDragged = wasMultiDragged; }
 
-        public boolean isWasMultiDragged() {return wasMultiDragged;}
 
         private void evalSwipe() {
             if (editMode) return;
+            if (wasMultiDragged) return;
             if ((pressedX - releasedX) > 150 && thisRute != selectedRutes.size()-1) {
                 new Editor(selectedRutes.get(thisRute + 1), prevForm).show();
             }
