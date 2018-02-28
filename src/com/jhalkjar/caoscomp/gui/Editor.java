@@ -16,6 +16,7 @@ import com.jhalkjar.caoscomp.database.DB;
 import com.jhalkjar.caoscomp.database.NoImageException;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -264,33 +265,10 @@ public class Editor extends Form {
             }
         }));
 
-        if(canEdit) {
-            char image = editMode ? FontImage.MATERIAL_VISIBILITY : FontImage.MATERIAL_EDIT;
-            tb.addCommandToRightBar("", FontImage.createMaterial(image, s), evt -> {
-                toggleEditMode(!editMode);
-                populateToolbar(canEdit);
-                if(!editMode) for(Point p : r.getPoints()) p.setSelected(false);
-            });
 
-            tb.addCommandToOverflowMenu("Change sector", null, evt -> {
-                Dialog d = new Dialog();
-                d.setLayout(new BorderLayout());
-                Button ok = new Button("OK");
-                GymPicker gymPicker = new GymPicker(this, r.getSector(), false, true);
-                ok.addActionListener(evt1 -> {
-                    Gym newGym = gymPicker.getGym();
-                    Sector newSector = gymPicker.getSector();
-                    r.setSector(newSector);
-                    r.save();
-                    d.dispose();
-                });
-                d.add(BorderLayout.CENTER, gymPicker);
-                d.add(BorderLayout.SOUTH, ok);
-                d.show((Display.getInstance().getDisplayHeight() - ok.getPreferredH()*3)/2,
-                        (Display.getInstance().getDisplayHeight() - ok.getPreferredH()*3)/2,
-                        20,
-                        20);
-            });
+        removeComponent(title);
+        tb.setTitleComponent(title);
+        title.setEditable(editMode);
 
         tb.addCommandToOverflowMenu("Copy", FontImage.createMaterial(FontImage.MATERIAL_CONTENT_COPY, s2), (e) -> {
             Dialog d = new Dialog();
@@ -311,20 +289,35 @@ public class Editor extends Form {
             d.show();
         });
 
-        tb.setTitleComponent(title);
-        title.setEditable(editMode);
-
         if(canEdit) {
             char image = editMode ? FontImage.MATERIAL_VISIBILITY : FontImage.MATERIAL_EDIT;
             tb.addCommandToRightBar("", FontImage.createMaterial(image, s), evt -> {
                 toggleEditMode(!editMode);
                 populateToolbar(canEdit);
-                if(!editMode) for(Point p : r.getPoints()) p.setSelected(false);
+                if (!editMode) for (Point p : r.getPoints()) p.setSelected(false);
             });
 
 
 
-            removeComponent(title);
+            tb.addCommandToOverflowMenu("Change sector", null, evt -> {
+                Dialog d = new Dialog();
+                d.setLayout(new BorderLayout());
+                Button ok = new Button("OK");
+                GymPicker gymPicker = new GymPicker(this, r.getSector(), false, true);
+                ok.addActionListener(evt1 -> {
+                    Gym newGym = gymPicker.getGym();
+                    Sector newSector = gymPicker.getSector();
+                    r.setSector(newSector);
+                    r.save();
+                    d.dispose();
+                });
+                d.add(BorderLayout.CENTER, gymPicker);
+                d.add(BorderLayout.SOUTH, ok);
+                d.show((Display.getInstance().getDisplayHeight() - ok.getPreferredH() * 3) / 2,
+                        (Display.getInstance().getDisplayHeight() - ok.getPreferredH() * 3) / 2,
+                        20,
+                        20);
+            });
 
             if(edit) {
                 getToolbar().addCommandToOverflowMenu("Delete", FontImage.createMaterial(FontImage.MATERIAL_DELETE, s2), evt -> {
@@ -333,8 +326,8 @@ public class Editor extends Form {
                     new RuteList().showBack();
                 });
             }
-
             revalidate();
+
         }
     }
 
