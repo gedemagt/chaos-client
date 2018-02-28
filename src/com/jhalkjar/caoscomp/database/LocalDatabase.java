@@ -14,7 +14,6 @@ import com.jhalkjar.caoscomp.UUID;
 import com.jhalkjar.caoscomp.backend.*;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.*;
 
 /**

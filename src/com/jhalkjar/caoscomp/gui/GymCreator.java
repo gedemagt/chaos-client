@@ -9,7 +9,6 @@ import com.jhalkjar.caoscomp.Util;
 import com.jhalkjar.caoscomp.backend.Gym;
 import com.jhalkjar.caoscomp.backend.Sector;
 import com.jhalkjar.caoscomp.database.DB;
-import com.sun.istack.internal.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
