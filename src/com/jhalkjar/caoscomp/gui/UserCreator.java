@@ -49,6 +49,11 @@ public class UserCreator extends Form {
                         email,
                         password,
                         gym));
+
+        setBackCommand(getToolbar().addCommandToLeftBar("", FontImage.createMaterial(FontImage.MATERIAL_ARROW_BACK, s), (e) -> {
+                    f.showBack();
+                }));
+
         getToolbar().addCommandToRightBar("", FontImage.createMaterial(FontImage.MATERIAL_DONE, s), (e) -> {
             if(!freeUsername(name.getField().getText())) Dialog.show("Invalid username", "Username already taken. Please pick a new one!", "OK", null);
             else if(password.getField().getText().length()==0) Dialog.show("No password", "Please choose a password!", "OK", null);
