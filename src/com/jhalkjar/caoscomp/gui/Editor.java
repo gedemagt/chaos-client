@@ -1,8 +1,6 @@
 package com.jhalkjar.caoscomp.gui;
 
-import com.codename1.io.Log;
 import com.codename1.ui.*;
-import com.codename1.ui.animations.Transition;
 import com.codename1.ui.events.ActionEvent;
 import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.layouts.BorderLayout;
@@ -14,12 +12,9 @@ import com.codename1.ui.plaf.UIManager;
 import com.jhalkjar.caoscomp.Util;
 import com.jhalkjar.caoscomp.backend.*;
 import com.jhalkjar.caoscomp.database.DB;
-import com.jhalkjar.caoscomp.database.NoImageException;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /**
  * Created by jesper on 11/5/17.
@@ -267,15 +262,6 @@ public class Editor extends Form {
             }
         }));
 
-        if(canEdit) {
-            char image = editMode ? FontImage.MATERIAL_VISIBILITY : FontImage.MATERIAL_EDIT;
-            tb.addCommandToRightBar("", FontImage.createMaterial(image, s), evt -> {
-                toggleEditMode(!editMode);
-                populateToolbar(canEdit);
-                if(!editMode) for(Point p : r.getPoints()) p.setSelected(false);
-            });
-
-
         tb.addCommandToOverflowMenu("Copy", FontImage.createMaterial(FontImage.MATERIAL_CONTENT_COPY, s2), (e) -> {
             Dialog d = new Dialog();
             d.setUIID("Form");
@@ -295,21 +281,32 @@ public class Editor extends Form {
             d.show();
         });
 
-
-        title.setEditable(editMode);
-        removeComponent(title);
         tb.setTitleComponent(title);
+        title.setEditable(editMode);
 
-        if(edit) {
-            getToolbar().addCommandToOverflowMenu("Delete", FontImage.createMaterial(FontImage.MATERIAL_DELETE, s2), evt -> {
-
-                r.delete();
-                new RuteList().showBack();
+        if(canEdit) {
+            char image = editMode ? FontImage.MATERIAL_VISIBILITY : FontImage.MATERIAL_EDIT;
+            tb.addCommandToRightBar("", FontImage.createMaterial(image, s), evt -> {
+                toggleEditMode(!editMode);
+                populateToolbar(canEdit);
+                if(!editMode) for(Point p : r.getPoints()) p.setSelected(false);
             });
-        }
 
-        revalidate();
-    }}
+
+
+            removeComponent(title);
+
+            if(edit) {
+                getToolbar().addCommandToOverflowMenu("Delete", FontImage.createMaterial(FontImage.MATERIAL_DELETE, s2), evt -> {
+
+                    r.delete();
+                    new RuteList().showBack();
+                });
+            }
+
+            revalidate();
+        }
+    }
 
     @Override
     public void pointerPressed(int x[], int y[]) {
