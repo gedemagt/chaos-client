@@ -5,10 +5,9 @@ import ca.weblite.codename1.db.DAOProvider;
 import com.codename1.db.Database;
 import com.codename1.io.FileSystemStorage;
 import com.codename1.io.Log;
-import com.codename1.l10n.ParseException;
 import com.codename1.ui.Image;
-import com.jhalkjar.caoscomp.*;
 import com.jhalkjar.caoscomp.UUID;
+import com.jhalkjar.caoscomp.Util;
 import com.jhalkjar.caoscomp.backend.*;
 
 import java.io.IOException;
