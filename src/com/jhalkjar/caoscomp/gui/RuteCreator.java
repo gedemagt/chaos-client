@@ -30,7 +30,7 @@ public class RuteCreator extends Form {
     String path = FileSystemStorage.getInstance().getAppHomePath() + "TEMP_IMAGE.jpg";
     boolean imageLoaded = false;
 
-    public RuteCreator() {
+    public RuteCreator(Form rutelist) {
         super(new BorderLayout());
         Style s = UIManager.getInstance().getComponentStyle("Title");
 
@@ -62,7 +62,7 @@ public class RuteCreator extends Form {
             if(!imageLoaded) Dialog.show("No image", "Please choose an image!", Dialog.TYPE_ERROR, null, "OK", null);
             else {
                 Rute r = DB.getInstance().createRute(name.getField().getText(), path, DB.getInstance().getLoggedInUser(), gym.getSector(), com.jhalkjar.caoscomp.Util.getNow(), null, Grade.NO_GRADE);
-                new Editor(r, this).show();
+                new Editor(r, rutelist).show();
             }
         });
         setBackCommand(getToolbar().addCommandToLeftBar("", FontImage.createMaterial(FontImage.MATERIAL_ARROW_BACK, s), (e) -> {

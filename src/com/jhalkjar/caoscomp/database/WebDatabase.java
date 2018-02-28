@@ -161,8 +161,17 @@ public class WebDatabase extends ChaosDatabase {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        Log.p("[WebDatabase] Uploading user: " + u.toString());
-        Rest.post(host + "/add_user").jsonContent().acceptJson().body(object.toString());
+        Rest.post(host + "/add_user").jsonContent().acceptJson().body(object.toString()).getAsStringAsync(new Callback<Response<String>>() {
+            @Override
+            public void onError(Object sender, Throwable err, int errorCode, String errorMessage) {
+                err.printStackTrace();
+            }
+
+            @Override
+            public void onSucess(Response<String> value) {
+                Log.p("[WebDatabase] Uploading user: " + u.toString());
+            }
+        });
     }
 
     public void uploadGym(Gym g) {
@@ -177,8 +186,17 @@ public class WebDatabase extends ChaosDatabase {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        Log.p("[WebDatabase] Uploading gym: " + g.toString());
-        Rest.post(host + "/add_gym").jsonContent().acceptJson().body(object.toString());
+        Rest.post(host + "/add_gym").jsonContent().acceptJson().body(object.toString()).getAsStringAsync(new Callback<Response<String>>() {
+            @Override
+            public void onError(Object sender, Throwable err, int errorCode, String errorMessage) {
+                err.printStackTrace();
+            }
+
+            @Override
+            public void onSucess(Response<String> value) {
+                Log.p("[WebDatabase] Uploading gym: " + g.toString());
+            }
+        });
     }
 
     @Override
@@ -195,8 +213,17 @@ public class WebDatabase extends ChaosDatabase {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        Log.p("[WebDatabase] Saving rute: " + r.toString());
-        Rest.post(host + "/update_coordinates").jsonContent().acceptJson().body(object.toString());
+        Rest.post(host + "/update_coordinates").jsonContent().acceptJson().body(object.toString()).getAsStringAsync(new Callback<Response<String>>() {
+            @Override
+            public void onError(Object sender, Throwable err, int errorCode, String errorMessage) {
+                err.printStackTrace();
+            }
+
+            @Override
+            public void onSucess(Response<String> value) {
+                Log.p("[WebDatabase] Saving rute: " + r.toString());
+            }
+        });
     }
 
     public void login(String username, String password, WebDatabase.Result<String> onLogin) {
@@ -327,7 +354,7 @@ public class WebDatabase extends ChaosDatabase {
     }
 
     public void logout() {
-        Rest.get(host + "/logout");
+        Rest.get(host + "/logout").getAsString();
     }
 
     public void save(Gym g) {

@@ -37,6 +37,8 @@ public class RuteList extends Form {
     ArrayList<Grade> gradeFilter = new ArrayList<>();
     Toolbar tb;
 
+    ArrayList<Rute> selectedRutes = new ArrayList<>();
+
 
     public RuteList() {
         super(new BorderLayout());
@@ -44,7 +46,7 @@ public class RuteList extends Form {
         FloatingActionButton fab = FloatingActionButton.createFAB(FontImage.MATERIAL_ADD);
         fab.setUIID("FaB");
         fab.addActionListener(evt -> {
-            new RuteCreator().show();
+            new RuteCreator(this).show();
         });
         fab.bindFabToContainer(getContentPane());
 
@@ -184,11 +186,13 @@ public class RuteList extends Form {
         else {
             Container list = new Container(BoxLayout.y());
             list.setScrollableY(true);
+            selectedRutes = new ArrayList<>();
             for(Rute r : rutes) {
                 if(sectorFilter != null && !r.getSector().equals(sectorFilter)) continue;
                 if(gymFilter != null && !r.getSector().getGym().equals(gymFilter)) continue;
                 if(gradeFilter.size() != 0 && !gradeFilter.contains(r.getGrade())) continue;
                 Container c = createListElement(r);
+                selectedRutes.add(r);
                 list.add(c);
             }
             list.addPullToRefresh(()  -> {
@@ -238,6 +242,10 @@ public class RuteList extends Form {
         cnt.addPointerReleasedListener(evt -> new Editor(rute, this).show());
 
         return BoxLayout.encloseY(cnt, new Spacer());
+    }
+
+    public ArrayList<Rute> getSelectedRutes() {
+        return selectedRutes;
     }
 
     private class Spacer extends Container {
