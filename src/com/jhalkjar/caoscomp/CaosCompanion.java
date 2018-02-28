@@ -41,10 +41,12 @@ public class CaosCompanion {
 //        DB.getInstance().sync();
 
         DB.getInstance().refreshLocal();
-        DB.getInstance().syncGyms();
         if(DB.getInstance().getLoggedInUser() == null) new Login().show();
-        else if(DB.getInstance().getRememberedGym() == null) new GymList().show();
-        else new RuteList().show();
+        else{
+            DB.getInstance().syncGyms();
+            if(DB.getInstance().getRememberedGym() == null) new GymList().show();
+            else new RuteList().show();
+        }
     }
 
     public void stop() {

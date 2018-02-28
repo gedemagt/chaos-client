@@ -32,17 +32,20 @@ public class GymList extends Form {
     public GymList() {
         super(new BorderLayout());
 
-        FloatingActionButton fab = FloatingActionButton.createFAB(FontImage.MATERIAL_ADD);
-        fab.setUIID("FaB");
-        fab.addActionListener(evt -> {
+//        FloatingActionButton fab = FloatingActionButton.createFAB(FontImage.MATERIAL_ADD);
+//        fab.setUIID("FaB");
+//        fab.addActionListener(evt -> {
 //            new GymCreator().show();
-        });
-        fab.bindFabToContainer(getContentPane());
+//        });
+//        fab.bindFabToContainer(getContentPane());
 
         add(BorderLayout.CENTER, centerContainer);
 
 
         gyms = DB.getInstance().getGyms();
+        getToolbar().addCommandToOverflowMenu("Log out", null, (e) -> {
+            DB.getInstance().logout();
+        });
 //        Collections.sort(rutes, (o1, o2) -> (int) (o2.getDate().getTime() - o1.getDate().getTime()));
         updateUI();
     }

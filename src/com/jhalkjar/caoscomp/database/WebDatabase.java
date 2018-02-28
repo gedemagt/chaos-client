@@ -20,8 +20,8 @@ import java.util.*;
 public class WebDatabase extends ChaosDatabase {
 
 
-//    private static final String host = "https://jeshj.pythonanywhere.com";
-    private static String host = "http://localhost:5000";
+    private static final String host = "https://jeshj.pythonanywhere.com";
+//    private static String host = "http://localhost:5000";
 
     private static String LAST_WEB_CONNECTION = "last_sync";
 
@@ -54,11 +54,10 @@ public class WebDatabase extends ChaosDatabase {
         Date date = Util.parse((String) vals.get("date"));
         String uuid = (String) vals.get("uuid");
         Gym g = new GymImpl(-1, uuid, date, name, lat, lon);
-        List<Map<String,Object>> sectors = (List<Map<String, Object>>) vals.get("sectors");
+        Object sectors = vals.get("sectors");
         if(sectors != null) {
-            for(Map<String, Object> sector : sectors) {
-                String sname = (String) sector.get("name");
-                g.addSector(new Sector(sname, g));
+            for(String sector : Util.jsonToSectors((String) sectors)) {
+                g.addSector(new Sector(sector, g));
             }
         }
         Log.p("[WebDatabase] Loaded gym: " + g);

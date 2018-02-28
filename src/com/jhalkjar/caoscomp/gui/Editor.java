@@ -313,10 +313,7 @@ public class Editor extends Form {
                 });
                 d.add(BorderLayout.CENTER, gymPicker);
                 d.add(BorderLayout.SOUTH, ok);
-                d.show((Display.getInstance().getDisplayHeight() - ok.getPreferredH() * 3) / 2,
-                        (Display.getInstance().getDisplayHeight() - ok.getPreferredH() * 3) / 2,
-                        20,
-                        20);
+                d.show(20, 20, 20, 20);
             });
 
             if(edit) {

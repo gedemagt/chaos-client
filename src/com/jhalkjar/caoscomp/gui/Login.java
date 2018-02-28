@@ -31,7 +31,28 @@ public class Login extends Form {
                     if(loggedin != null) {
                         Log.p("Logging in user: " + loggedin.getName() + "(" + loggedin.getUUID() + ")");
                         Preferences.set("logged_in_user", loggedin.getUUID());
+
                         DB.getInstance().refreshLocal();
+                        DB.getInstance().syncGyms();
+                        Dialog dd = new WaitingDialog("Loading rutes");
+
+                        DB.getInstance().sync(new DB.RefreshListener() {
+                            @Override
+                            public void OnBeginRefresh() {
+
+                            }
+
+                            @Override
+                            public void OnEndRefresh() {
+                                dd.dispose();
+                            }
+
+                            @Override
+                            public void OnRefreshError() {
+                                dd.dispose();
+                            }
+                        });
+                        dd.show();
                         if(DB.getInstance().getRememberedGym() == null) new GymList().show();
                         else new RuteList().show();
                     }
