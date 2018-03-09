@@ -9,12 +9,16 @@ public class DatabaseEntryImpl implements DatabaseEntry {
     protected String uuid;
     protected long id;
     protected Date date;
+    protected int status;
 
-    public DatabaseEntryImpl(String uuid, long id, Date date) {
+    public DatabaseEntryImpl(String uuid, long id, Date date, int status) {
         this.uuid = uuid;
         this.id = id;
         this.date = date;
+        this.status = status;
     }
+
+
 
     @Override
     public String getUUID() {
@@ -29,6 +33,11 @@ public class DatabaseEntryImpl implements DatabaseEntry {
     @Override
     public Date getDate() {
         return date;
+    }
+
+    @Override
+    public int getStatus() {
+        return status;
     }
 
     @Override

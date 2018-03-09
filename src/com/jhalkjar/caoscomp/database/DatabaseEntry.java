@@ -11,4 +11,6 @@ public interface DatabaseEntry {
     long getID();
     Date getDate();
 
+    int getStatus();
+
 }

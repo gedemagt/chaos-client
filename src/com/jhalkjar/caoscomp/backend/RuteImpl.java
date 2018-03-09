@@ -53,7 +53,7 @@ public class RuteImpl extends AbstractRute{
     private int status;
 
     public RuteImpl(long id, String uuid, String imageuuid, Date date, Date lastEdit, String name, User author, Sector sector, List<Point> points, Grade grade, int status) {
-        super(id, uuid, date, name, author, sector, points, grade);
+        super(id, uuid, date, name, author, sector, points, grade, status);
         this.lastEdit = lastEdit;
         this.imageuuid = imageuuid;
         this.status = status;

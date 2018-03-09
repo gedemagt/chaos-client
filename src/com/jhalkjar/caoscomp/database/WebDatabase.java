@@ -20,8 +20,8 @@ import java.util.*;
 public class WebDatabase extends ChaosDatabase {
 
 
-    private static final String host = "https://jeshj.pythonanywhere.com";
-//    private static String host = "http://localhost:5000";
+//    private static final String host = "https://jeshj.pythonanywhere.com";
+    private static String host = "http://localhost:5000";
 
     private static String LAST_WEB_CONNECTION = "last_sync";
 
@@ -38,7 +38,7 @@ public class WebDatabase extends ChaosDatabase {
         String roler = (String) vals.get("role");
         Role role = roler != null ? Role.valueOf(roler) : Role.USER;
 
-        User s = new UserImpl(-1, uuid, date, name, email, gym, password, role);
+        User s = new UserImpl(-1, uuid, date, name, email, gym, password, role, 0);
         Log.p("[WebDatabase] Loaded users: " + s.toString());
         return s;
     }
@@ -53,7 +53,7 @@ public class WebDatabase extends ChaosDatabase {
         double lat = Double.parseDouble((String) vals.get("lat"));
         Date date = Util.parse((String) vals.get("date"));
         String uuid = (String) vals.get("uuid");
-        Gym g = new GymImpl(-1, uuid, date, name, lat, lon);
+        Gym g = new GymImpl(-1, uuid, date, name, lat, lon, 0);
         Object sectors = vals.get("sectors");
         if(sectors != null) {
             for(String sector : Util.jsonToSectors((String) sectors)) {
@@ -74,7 +74,7 @@ public class WebDatabase extends ChaosDatabase {
             double lat = Double.parseDouble((String) vals.get("lat"));
             Date date = Util.parse((String) vals.get("date"));
             String uuid = (String) vals.get("uuid");
-            Gym g = new GymImpl(-1, uuid, date, name, lat, lon);
+            Gym g = new GymImpl(-1, uuid, date, name, lat, lon, 0);
             Object sectors = vals.get("sectors");
             if(sectors != null) {
                 for(String sector : Util.jsonToSectors((String) sectors)) {

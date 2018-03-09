@@ -28,8 +28,8 @@ public class LocalDatabase extends ChaosDatabase{
     private Map<String, User> users = new HashMap<>();
     private Map<String, Rute> rutes = new HashMap<>();
 
-    public final Gym unknownGym = new GymImpl(-1, "", Util.getNow(), "UnknowGym", 0,0);
-    public final User unknownUser = new UserImpl(-1, "", Util.getNow(), "UnknownUser", "", unknownGym, "",Role.USER);
+    public final Gym unknownGym = new GymImpl(-1, "", Util.getNow(), "UnknowGym", 0,0, 0);
+    public final User unknownUser = new UserImpl(-1, "", Util.getNow(), "UnknownUser", "", unknownGym, "",Role.USER, 0);
 
     public void refresh() {
         Log.p("[LocalDatabase] Refreshing..");
@@ -102,11 +102,29 @@ public class LocalDatabase extends ChaosDatabase{
         return null;
     }
 
+    public void syncGyms(Map<String, Gym> gyms) {
+        for(Map.Entry<String, Gym> entry : gyms.entrySet()) {
+            Gym r = entry.getValue();
+            if(r.getStatus() == 1) delete(r);
+            else if(has(r)) save(r);
+        }
+        refresh();
+    }
+
+    public void syncUsers(Map<String, User> users) {
+        for(Map.Entry<String, User> entry : users.entrySet()) {
+            User r = entry.getValue();
+            if(r.getStatus() == 1) delete(r);
+//            else if(has(r)) save(r);
+        }
+        refresh();
+    }
+
     public void sync(Map<String, Rute> rutes) {
         for(Map.Entry<String, Rute> entry : rutes.entrySet()) {
             Rute r = entry.getValue();
             if(r.getStatus() == 1) delete(r);
-            else if(hasRute(r)) save(r);
+            else if(has(r)) save(r);
             else {
                 if(getUser(r.getAuthor().getUUID()) == null){
                     User u = r.getAuthor();
@@ -204,7 +222,7 @@ public class LocalDatabase extends ChaosDatabase{
         }
     }
 
-    public boolean hasRute(Rute r) {
+    public boolean has(Rute r) {
         try {
             Database db = Database.openOrCreate(dbname);
             DAOProvider provider = new DAOProvider(db, configPath, VERSION);
@@ -219,6 +237,39 @@ public class LocalDatabase extends ChaosDatabase{
 
         return false;
     }
+
+    public boolean has(Gym g) {
+        try {
+            Database db = Database.openOrCreate(dbname);
+            DAOProvider provider = new DAOProvider(db, configPath, VERSION);
+            DAO games = provider.get("gym");
+            Map result = (Map) games.fetchOne(new String[]{"uuid", g.getUUID()});
+            db.close();
+            return result != null;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    public boolean has(User g) {
+        try {
+            Database db = Database.openOrCreate(dbname);
+            DAOProvider provider = new DAOProvider(db, configPath, VERSION);
+            DAO games = provider.get("user");
+            Map result = (Map) games.fetchOne(new String[]{"uuid", g.getUUID()});
+            db.close();
+            return result != null;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
 
     public User createUser(String name, String email, String passwordHash, Gym gym, Date date, Role role) {
         return addUser(UUID.randomUUID().toString(), name, email, passwordHash, gym, date, role);
@@ -341,7 +392,7 @@ public class LocalDatabase extends ChaosDatabase{
                 Role role = roler != null ? Role.valueOf(roler) : Role.USER;
 
 
-                users.put(uuid, new UserImpl(id, uuid, date, name, email, getGym(gym), pass, role));
+                users.put(uuid, new UserImpl(id, uuid, date, name, email, getGym(gym), pass, role, 0));
             }
             Log.p("[LocalDatabase] Loaded users: " + users.values());
             db.close();
@@ -367,7 +418,7 @@ public class LocalDatabase extends ChaosDatabase{
                 Date date = getDate(m.get("datetime"));
                 String uuid = (String) m.get("uuid");
                 long id = (Long) m.get("id");
-                gyms.put(uuid, new GymImpl(id, uuid, date, name, lat, lon));
+                gyms.put(uuid, new GymImpl(id, uuid, date, name, lat, lon, 0));
 
                 String sectors = (String) m.get("sectors");
                 if(sectors != null) {
@@ -417,6 +468,35 @@ public class LocalDatabase extends ChaosDatabase{
 
     }
 
+    public void delete(Gym g) {
+        Log.p("[LocalDatabase] Deleting gym " + g.toString());
+        try {
+
+            Database db = Database.openOrCreate(dbname);
+            db.execute("DELETE FROM gym WHERE uuid='" + g.getUUID() + "'");
+            db.close();
+            gyms.remove(g.getUUID());
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void delete(User u) {
+        Log.p("[LocalDatabase] Deleting user " + u.toString());
+        try {
+
+            Database db = Database.openOrCreate(dbname);
+            db.execute("DELETE FROM user WHERE uuid='" + u.getUUID() + "'");
+            db.close();
+            users.remove(u.getUUID());
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
     @Override
     public void save(Rute r) {
         try {
@@ -459,6 +539,5 @@ public class LocalDatabase extends ChaosDatabase{
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 }

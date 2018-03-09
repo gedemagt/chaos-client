@@ -63,7 +63,7 @@ public class Editor extends Form {
         if (DB.getInstance().getLoggedInUser().getRole() == Role.ADMIN) {
             edit = true;
         } else {
-            edit = r.getAuthor().equals(DB.getInstance().getLoggedInUser());
+            edit = r.getAuthor().equals(DB.getInstance().getLoggedInUser()) || DB.getInstance().getLoggedInUser().getRole() == Role.ADMIN;
         }
 
         canvas = new Canvas();

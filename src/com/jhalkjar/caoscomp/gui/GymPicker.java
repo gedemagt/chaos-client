@@ -26,10 +26,10 @@ public class GymPicker extends Container {
 
     public GymPicker(Form f, Sector s, boolean showGym, boolean showSector) {
         super(new GridLayout(1,2));
+        DB.getInstance().syncGyms();
         gyms = DB.getInstance().getGyms();
         pc = PickerComponent.createStrings(gymToString(gyms));
         sector = PickerComponent.createStrings();
-        DB.getInstance().syncGyms();
         pc.getPicker().setSelectedStringIndex(gyms.indexOf(DB.getInstance().getRememberedGym()));
         sector.getPicker().setStrings(sectorsToString(getGym()));
         if(s != null) sector.getPicker().setSelectedString(s.getName());

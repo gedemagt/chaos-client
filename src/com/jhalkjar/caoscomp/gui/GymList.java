@@ -5,6 +5,7 @@ package com.jhalkjar.caoscomp.gui;
  */
 
 import com.codename1.components.FloatingActionButton;
+import com.codename1.io.Log;
 import com.codename1.l10n.DateFormat;
 import com.codename1.l10n.SimpleDateFormat;
 import com.codename1.ui.*;

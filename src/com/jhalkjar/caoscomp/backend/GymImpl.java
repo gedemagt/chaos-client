@@ -16,8 +16,8 @@ public class GymImpl extends DatabaseEntryImpl implements Gym {
     private List<Sector> sectors = new ArrayList<>();
     private Sector uncategorized;
 
-    public GymImpl(long id, String uuid, Date date, String name, double lat, double lon) {
-        super(uuid, id, date);
+    public GymImpl(long id, String uuid, Date date, String name, double lat, double lon, int status) {
+        super(uuid, id, date, status);
         this.name = name;
         this.lat = lat;
         this.lon = lon;

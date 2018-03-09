@@ -15,8 +15,8 @@ public abstract class AbstractRute extends DatabaseEntryImpl implements Rute {
     protected List<Point> p;
     protected Grade grade;
 
-    public AbstractRute(long id, String uuid, Date date, String name, User author, Sector sector, List<Point> points, Grade grade) {
-        super(uuid, id, date);
+    public AbstractRute(long id, String uuid, Date date, String name, User author, Sector sector, List<Point> points, Grade grade, int status) {
+        super(uuid, id, date, status);
         this.author = author;
         this.sector = sector;
         this.name = name;
