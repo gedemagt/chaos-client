@@ -200,7 +200,7 @@ public class Editor extends Form {
         });
         Button gradePicker = new Button(FontImage.createMaterial(FontImage.MATERIAL_GRADE, s));
         gradePicker.addActionListener(evt -> {
-            r.setGrade(gp.getGrade());
+            r.setGrade(gp.getGrade(r.getGrade()));
             gradePicker.getAllStyles().setBorder(Border.createEmpty());
             gradePicker.getAllStyles().setBgTransparency(255);
             gradePicker.getAllStyles().setBgColor(Grade.getColorInt(r.getGrade()));

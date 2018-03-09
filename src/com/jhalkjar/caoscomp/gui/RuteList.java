@@ -155,7 +155,7 @@ public class RuteList extends Form {
 
         Button gradePicker = new Button(FontImage.createMaterial(FontImage.MATERIAL_GRADE, getTitleStyle()));
         gradePicker.addActionListener(evt -> {
-            gradeFilter = new GradePicker().getMultipleGrades();
+            gradeFilter = new GradePicker().getMultipleGrades(gradeFilter);
             updateUI();
 
         });
