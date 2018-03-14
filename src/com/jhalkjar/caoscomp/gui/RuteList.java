@@ -171,7 +171,7 @@ public class RuteList extends Form {
         tb.addCommandToLeftBar("", FontImage.createMaterial(FontImage.MATERIAL_HOME, getTitleStyle()), evt -> {
             new GymList().showBack();
         });
-        if(DB.getInstance().getLoggedInUser().getRole() == Role.ADMIN) {
+        if(DB.getInstance().getLoggedInUser() != null && DB.getInstance().getLoggedInUser().getRole() == Role.ADMIN) {
             tb.addCommandToOverflowMenu("Manage gym", null, evt -> {
                 new GymCreator(DB.getInstance().getRememberedGym(), this, g -> {}).show();
             });
