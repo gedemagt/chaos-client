@@ -88,6 +88,7 @@ public class DB {
     }
 
     public Gym getGym(String uuid) {
+        if(uuid == null) return local.unknownGym;
         Gym g = local.getGym(uuid);
         if(g == null) {
             g = web.getGym(uuid);
@@ -99,6 +100,7 @@ public class DB {
     }
 
     public User getUser(String uuid) {
+        if(uuid == null) return local.unknownUser;
         User g = local.getUser(uuid);
         if(g == null) {
             g = web.getUser(uuid);
@@ -200,7 +202,7 @@ public class DB {
         return u;
     }
 
-    public void checkLogin(String username, String password, WebDatabase.Result<User> onLogin) {
+    public void checkLogin(String username, String password, WebDatabase.Result<User> onLogin, Runnable onError) {
         web.login(username, password, uuid -> {
             if(uuid=="") onLogin.OnResult(null);
             if(local.getUser(uuid) == null) {
@@ -208,7 +210,7 @@ public class DB {
                 local.addUser(u.getUUID(), u.getName(), u.getEmail(), u.getPasswordHash(), u.getGym(), u.getDate(), u.getRole());
             }
             onLogin.OnResult(local.getUser(uuid));
-        });
+        }, onError);
 
     }
 

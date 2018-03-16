@@ -56,6 +56,9 @@ public class Login extends Form {
                         if(DB.getInstance().getRememberedGym() == null) new GymList().show();
                         else new RuteList().show();
                     }
+                }, ()-> {
+                    d.dispose();
+                    Dialog.show("Login error", "Invalid username or password", "OK", null);
                 });
                 d.show();
 
