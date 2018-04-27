@@ -203,6 +203,7 @@ public class RuteList extends Form {
                 else if(v1>v2) return -1;
                 else return 1;
             });
+
             for(Rute r : selectedRutes) {
                 Container c = createListElement(r);
                 list.add(c);
