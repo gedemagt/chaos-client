@@ -194,7 +194,7 @@ public class RuteList extends Form {
                 selectedRutes.add(r);
             }
 
-            Collections.sort(selectedRutes, (o1, o2) -> o2.getDate().compareTo(o1.getDate()));
+            Collections.sort(selectedRutes, (o1, o2) -> new Long(o2.getDate().getTime()).compareTo(new Long(o1.getDate().getTime())));
             for(Rute r : selectedRutes) {
                 Container c = createListElement(r);
                 list.add(c);
