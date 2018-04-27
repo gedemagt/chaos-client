@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static java.lang.Math.toIntExact;
+
 
 /**
  * Created by jesper on 2/8/17.
@@ -194,7 +196,13 @@ public class RuteList extends Form {
                 selectedRutes.add(r);
             }
 
-            Collections.sort(selectedRutes, (o1, o2) -> new Long(o2.getDate().getTime()).compareTo(new Long(o1.getDate().getTime())));
+            Collections.sort(selectedRutes, (o1, o2) -> {
+                long v1 = o1.getDate().getTime();
+                long v2 = o2.getDate().getTime();
+                if(v1==v2) return 0;
+                else if(v1>v2) return -1;
+                else return 1;
+            });
             for(Rute r : selectedRutes) {
                 Container c = createListElement(r);
                 list.add(c);
