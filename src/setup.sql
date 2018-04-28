@@ -12,8 +12,6 @@ CREATE TABLE user (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	uuid VARCHAR,
 	name VARCHAR,
-	password VARCHAR,
-	email VARCHAR,
 	gym VARCHAR,
 	datetime TIMESTAMP DEFAULT (datetime('now'))
 );

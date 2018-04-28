@@ -30,7 +30,8 @@ public class GymPicker extends Container {
         gyms = DB.getInstance().getGyms();
         pc = PickerComponent.createStrings(gymToString(gyms));
         sector = PickerComponent.createStrings();
-        pc.getPicker().setSelectedStringIndex(gyms.indexOf(DB.getInstance().getRememberedGym()));
+        int gymIndex = Math.max(0, gyms.indexOf(DB.getInstance().getRememberedGym()));
+        pc.getPicker().setSelectedStringIndex(gymIndex);
         sector.getPicker().setStrings(sectorsToString(getGym()));
         if(s != null) sector.getPicker().setSelectedString(s.getName());
         else sector.getPicker().setSelectedStringIndex(0);

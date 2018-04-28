@@ -83,7 +83,6 @@ public class RuteList extends Form {
             public void OnEndRefresh() {
                 l.setHidden(true);
                 rutes = DB.getInstance().getRutes();
-                Collections.sort(rutes, (o1, o2) -> (int) (o2.getDate().getTime() - o1.getDate().getTime()));
                 populateToolbar();
                 updateUI();
             }
@@ -96,7 +95,6 @@ public class RuteList extends Form {
         });
 
         rutes = DB.getInstance().getRutes();
-        Collections.sort(rutes, (o1, o2) -> (int) (o2.getDate().getTime() - o1.getDate().getTime()));
         updateUI();
         if(rutes.size()==0) {
             forceAndShow();
@@ -193,10 +191,22 @@ public class RuteList extends Form {
                 if(sectorFilter != null && !r.getSector().equals(sectorFilter)) continue;
                 if(gymFilter != null && !r.getSector().getGym().equals(gymFilter)) continue;
                 if(gradeFilter.size() != 0 && !gradeFilter.contains(r.getGrade())) continue;
-                Container c = createListElement(r);
                 selectedRutes.add(r);
+            }
+
+            Collections.sort(selectedRutes, (o1, o2) -> {
+                long v1 = o1.getDate().getTime();
+                long v2 = o2.getDate().getTime();
+                if(v1==v2) return 0;
+                else if(v1>v2) return -1;
+                else return 1;
+            });
+
+            for(Rute r : selectedRutes) {
+                Container c = createListElement(r);
                 list.add(c);
             }
+
             list.addPullToRefresh(()  -> {
                 DB.getInstance().sync();
                 populateToolbar();
