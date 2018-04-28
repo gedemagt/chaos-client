@@ -356,7 +356,7 @@ public class Editor extends Form {
     private class SwipeNavigator {
         private int pressedX, releasedX;
         private boolean wasMultiDragged = false;
-        private ArrayList<Rute> selectedRutes = ((RuteList) prevForm).getSelectedRutes();
+        private List<Rute> selectedRutes = ((RuteList) prevForm).getSelectedRutes();
         int thisRute = selectedRutes.indexOf(r);
 
 

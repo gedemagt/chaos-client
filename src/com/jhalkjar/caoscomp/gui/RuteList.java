@@ -31,13 +31,13 @@ import java.util.List;
 public class RuteList extends Form {
 
     Container centerContainer = new Container(new BorderLayout());
-    List<Rute> rutes;
+    RuteCollection rutes;//List<Rute> rutes;
     Gym gymFilter = DB.getInstance().getRememberedGym();
     Sector sectorFilter = null;
     ArrayList<Grade> gradeFilter = new ArrayList<>();
     Toolbar tb;
 
-    ArrayList<Rute> selectedRutes = new ArrayList<>();
+    List<Rute> selectedRutes = new ArrayList<>();
 
 
     public RuteList() {
@@ -82,7 +82,7 @@ public class RuteList extends Form {
             @Override
             public void OnEndRefresh() {
                 l.setHidden(true);
-                rutes = DB.getInstance().getRutes();
+                rutes = new RuteCollection(DB.getInstance().getRutes());
                 populateToolbar();
                 updateUI();
             }
@@ -94,7 +94,7 @@ public class RuteList extends Form {
             }
         });
 
-        rutes = DB.getInstance().getRutes();
+        rutes = new RuteCollection(DB.getInstance().getRutes());
         updateUI();
         if(rutes.size()==0) {
             forceAndShow();
@@ -186,13 +186,16 @@ public class RuteList extends Form {
         else {
             Container list = new Container(BoxLayout.y());
             list.setScrollableY(true);
-            selectedRutes = new ArrayList<>();
-            for(Rute r : rutes) {
-                if(sectorFilter != null && !r.getSector().equals(sectorFilter)) continue;
-                if(gymFilter != null && !r.getSector().getGym().equals(gymFilter)) continue;
-                if(gradeFilter.size() != 0 && !gradeFilter.contains(r.getGrade())) continue;
-                selectedRutes.add(r);
-            }
+
+            selectedRutes = rutes.filter().sector(sectorFilter).gym(gymFilter).grade(gradeFilter).get().getAllRutes();
+
+//            selectedRutes = new ArrayList<>();
+//            for(Rute r : rutes) {
+//                if(sectorFilter != null && !r.getSector().equals(sectorFilter)) continue;
+//                if(gymFilter != null && !r.getSector().getGym().equals(gymFilter)) continue;
+//                if(gradeFilter.size() != 0 && !gradeFilter.contains(r.getGrade())) continue;
+//                selectedRutes.add(r);
+//            }
 
             Collections.sort(selectedRutes, (o1, o2) -> {
                 long v1 = o1.getDate().getTime();
@@ -256,7 +259,7 @@ public class RuteList extends Form {
         return BoxLayout.encloseY(cnt, new Spacer());
     }
 
-    public ArrayList<Rute> getSelectedRutes() {
+    public List<Rute> getSelectedRutes() {
         return selectedRutes;
     }
 
