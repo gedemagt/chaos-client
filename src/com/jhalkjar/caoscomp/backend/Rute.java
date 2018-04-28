@@ -21,6 +21,9 @@ public interface Rute extends DatabaseEntry {
   
     Grade getGrade();
     void setGrade(Grade grade);
+
+    String getTag();
+    void setTag(String tag);
   
     void getImage(ImageListener callback);
     Date lastEdit();

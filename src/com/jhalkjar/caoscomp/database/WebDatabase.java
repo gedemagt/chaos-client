@@ -98,6 +98,7 @@ public class WebDatabase extends ChaosDatabase {
             object.put("uuid", r.getUUID());
             object.put("image", r.getImageUUID());
             object.put("grade", r.getGrade().name());
+            object.put("tag", r.getTag());
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -197,6 +198,7 @@ public class WebDatabase extends ChaosDatabase {
             object.put("gym", r.getSector().getGym().getUUID());
             object.put("sector", r.getSector().getName());
             object.put("grade", r.getGrade());
+            object.put("tag", r.getTag());
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -259,7 +261,10 @@ public class WebDatabase extends ChaosDatabase {
             String grader = (String) (vals.get("grade"));
             int status = (int) ((double) vals.get("status"));
             Grade grade = grader != null ? Grade.valueOf(grader) : Grade.NO_GRADE;
-            list.put(uuid, new RuteImpl(-1, uuid, image, date, last_edit, name, author, gym.getSector(sector), Util.stringToVals(coordinates), grade, status));
+            String tag = (String) vals.get("tag");
+            if(tag == null) tag = "";
+
+            list.put(uuid, new RuteImpl(-1, uuid, image, date, last_edit, name, author, gym.getSector(sector), Util.stringToVals(coordinates), grade, status, tag));
         }
         Log.p("[WebDatabase] Loaded " + list.size() + " rutes.");
         Preferences.set(LAST_WEB_CONNECTION, Util.format(Util.getNow()));

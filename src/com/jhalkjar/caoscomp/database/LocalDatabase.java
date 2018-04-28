@@ -2,7 +2,6 @@ package com.jhalkjar.caoscomp.database;
 
 import ca.weblite.codename1.db.DAO;
 import ca.weblite.codename1.db.DAOProvider;
-import ca.weblite.codename1.json.JSONArray;
 import com.codename1.db.Database;
 import com.codename1.io.FileSystemStorage;
 import com.codename1.io.JSONParser;
@@ -213,6 +212,7 @@ public class LocalDatabase extends ChaosDatabase{
             rute.put("datetime", Util.format(r.getDate()));
             rute.put("image", r.getImageUUID());
             rute.put("grade", r.getGrade().name());
+            rute.put("tag", r.getTag());
             rutes.save(rute);
             db.close();
 
@@ -360,8 +360,10 @@ public class LocalDatabase extends ChaosDatabase{
                 } catch (IllegalArgumentException|NullPointerException e) {
                     grade = Grade.NO_GRADE;
                 }
+                String tag = (String) (m.get("tag"));
+                if(tag == null) tag = "";
 
-                RuteImpl r = new RuteImpl(id, uuid, image, date, lastedit, name, DB.getInstance().getUser(author), gym.getSector(sector), Util.stringToVals(points), grade, 0);
+                RuteImpl r = new RuteImpl(id, uuid, image, date, lastedit, name, DB.getInstance().getUser(author), gym.getSector(sector), Util.stringToVals(points), grade, 0, tag);
                 rutes.put(uuid, r);
             }
             Log.p("[LocalDatabase] Loaded rutes " + getRutes().size() + " rutes.");
@@ -511,6 +513,7 @@ public class LocalDatabase extends ChaosDatabase{
                 result.put("sector", r.getSector().getName());
                 result.put("gym", r.getSector().getGym().getUUID());
                 result.put("grade", r.getGrade());
+                result.put("tag", r.getTag());
                 games.update(result);
                 for(DatabaseListener l : listeners) l.OnSaved(r);
             }

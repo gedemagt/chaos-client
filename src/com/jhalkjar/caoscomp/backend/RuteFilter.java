@@ -9,6 +9,7 @@ public class RuteFilter {
     private List<Gym> g = new ArrayList<>();
     private List<Grade> gr = new ArrayList<>();
     private List<Sector> s = new ArrayList<>();
+    private List<String> t = new ArrayList<>();
 
     private List<Rute> rute = new ArrayList();
 
@@ -56,6 +57,15 @@ public class RuteFilter {
         return this;
     }
 
+    public RuteFilter tag(String t) {
+        if(t != null) this.t.add(t);
+        return this;
+    }
+    public RuteFilter tag(List<String> t) {
+        for(String tt : t) tag(tt);
+        return this;
+    }
+
     public RuteCollection get() {
 
         List<Rute> re = new ArrayList();
@@ -66,6 +76,7 @@ public class RuteFilter {
             if(g.size() >0 && !g.contains(r.getSector().getGym()))  discard = true;
             if(gr.size()>0 && !gr.contains(r.getGrade()))           discard = true;
             if(s.size() >0 && !s.contains(r.getSector()))           discard = true;
+            if(t.size() >0 && !t.contains(r.getTag()))              discard = true;
 
             if(!discard) re.add(r);
         }

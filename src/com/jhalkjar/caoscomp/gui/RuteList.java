@@ -189,14 +189,6 @@ public class RuteList extends Form {
 
             selectedRutes = rutes.filter().sector(sectorFilter).gym(gymFilter).grade(gradeFilter).get().getAllRutes();
 
-//            selectedRutes = new ArrayList<>();
-//            for(Rute r : rutes) {
-//                if(sectorFilter != null && !r.getSector().equals(sectorFilter)) continue;
-//                if(gymFilter != null && !r.getSector().getGym().equals(gymFilter)) continue;
-//                if(gradeFilter.size() != 0 && !gradeFilter.contains(r.getGrade())) continue;
-//                selectedRutes.add(r);
-//            }
-
             Collections.sort(selectedRutes, (o1, o2) -> {
                 long v1 = o1.getDate().getTime();
                 long v2 = o2.getDate().getTime();
