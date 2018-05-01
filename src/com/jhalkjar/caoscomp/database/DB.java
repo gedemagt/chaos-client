@@ -99,6 +99,15 @@ public class DB {
         return g;
     }
 
+    public Rute getRute(String uuid) {
+        if(uuid == null) return null;
+        Rute r = local.getRute(uuid);
+        if(r == null) {
+            r = web.getRutes().get(uuid);
+        }
+        return r;
+    }
+
     public User getUser(String uuid) {
         if(uuid == null) return local.unknownUser;
         User g = local.getUser(uuid);
@@ -135,6 +144,22 @@ public class DB {
         Collections.sort(l, (o1, o2) -> o1.getName().compareTo(o2.getName()));
 
         return l;
+    }
+
+    public List<Competition> getCompetitions() {
+        return web.getCompetitions();
+    }
+
+    public Competition createCompetition(String name, Date start, Date stop, int type, List<User> admins) {
+        return web.createCompetition(name, start, stop, type, admins);
+    }
+
+    public void saveCompetition(Competition c) {
+        web.saveCompetition(c);
+    }
+
+    public void addRute(Competition c, Rute r) {
+        web.addRute(c, r);
     }
     
 //    public boolean isRefreshing() {

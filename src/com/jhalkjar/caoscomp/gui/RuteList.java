@@ -4,6 +4,7 @@ package com.jhalkjar.caoscomp.gui;
  * Created by jesper on 11/5/17.
  */
 
+import com.codename1.charts.util.ColorUtil;
 import com.codename1.components.FloatingActionButton;
 import com.codename1.io.Log;
 import com.codename1.l10n.DateFormat;
@@ -17,6 +18,7 @@ import com.codename1.ui.plaf.Style;
 import com.codename1.ui.plaf.UIManager;
 
 import com.codename1.ui.table.TableLayout;
+import com.jhalkjar.caoscomp.Util;
 import com.jhalkjar.caoscomp.backend.*;
 import com.jhalkjar.caoscomp.database.DB;
 
@@ -140,6 +142,7 @@ public class RuteList extends Form {
         sectorStrings[0] = "All";
         for (int i = 0; i < sectors.size(); i++) sectorStrings[i + 1] = sectors.get(i).getName();
         PickerComponent sectorPicker = PickerComponent.createStrings(sectorStrings);
+
         int selected = sectors.indexOf(sectorFilter);
         if (selected == -1) selected = 0;
         else selected += 1;

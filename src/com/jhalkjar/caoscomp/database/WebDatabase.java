@@ -5,6 +5,7 @@ import ca.weblite.codename1.json.JSONObject;
 import com.codename1.io.*;
 import com.codename1.ui.EncodedImage;
 import com.codename1.ui.Image;
+import com.jhalkjar.caoscomp.UUID;
 import com.jhalkjar.caoscomp.Util;
 import com.jhalkjar.caoscomp.backend.*;
 import com.jhalkjar.caoscomp.web.Response;
@@ -19,8 +20,8 @@ import java.util.*;
 public class WebDatabase extends ChaosDatabase {
 
 
-    private static final String host = "https://jeshj.pythonanywhere.com";
-//    private static String host = "http://localhost:5000";
+//    private static final String host = "https://jeshj.pythonanywhere.com";
+    private static String host = "http://localhost:5000";
 
     private static String LAST_WEB_CONNECTION = "last_sync";
 
@@ -186,6 +187,103 @@ public class WebDatabase extends ChaosDatabase {
                 }
         );
     }
+
+
+    public List<Competition> getCompetitions() {
+        Map<String, Object> result = Rest.get(host + "/get_comps").acceptJson().getAsJsonMap(false).getResponseData();
+        List<Competition> comps = new ArrayList<>();
+        for(Object key : (List<Object>) result.get("root")) {
+            Map<String, Object> vals = (Map<String, Object>) key;
+            String name = (String) vals.get("name");
+            String uuid = (String) vals.get("uuid");
+            Date date = Util.parse((String) vals.get("date"));
+            Date start = Util.parse((String) vals.get("start"));
+            Date end = Util.parse((String) vals.get("stop"));
+            int pin = (int) (double) vals.get("pin");
+            int type = (int) (double) vals.get("type");
+
+            List<Rute> rutes = new ArrayList<>();
+            for(Object r : (List<Object>) vals.get("rutes")) {
+                String ruteUUID = (String) r;
+                rutes.add(DB.getInstance().getRute(ruteUUID));
+            }
+
+            List<User> admins = new ArrayList<>();
+            for(Object r : (List<Object>) vals.get("admins")) {
+                String userUUID = (String) r;
+                admins.add(DB.getInstance().getUser(userUUID));
+            }
+
+            comps.add(new CompetitionImpl(uuid, date, 0, name, start, end, type, admins, rutes, pin));
+        }
+        return comps;
+    }
+
+    public Competition createCompetition(String name, Date start, Date stop, int type, List<User> admins) {
+        JSONObject object = new JSONObject();
+        Date date = Util.getNow();
+        String uuid = UUID.randomUUID().toString();
+        try {
+            object.put("uuid", uuid);
+            object.put("name", name);
+            object.put("date", Util.format(date));
+            object.put("edit", Util.format(date));
+            object.put("start", Util.format(start));
+            object.put("stop", Util.format(stop));
+            object.put("type", type);
+            String adminsS = "";
+            for(int i=0; i<admins.size(); i++) {
+                adminsS += admins.get(i).getUUID();
+                if(i<admins.size()-1) adminsS += ",";
+            }
+            object.put("admins", adminsS);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        int pin =  Integer.parseInt(Rest.post(host + "/update_comp").jsonContent().acceptJson().body(object.toString()).getAsString(true).getResponseData());
+
+        return new CompetitionImpl(uuid, date, 0, name, start, stop, type, admins, new ArrayList<>(), pin);
+    }
+
+    public void saveCompetition(Competition c) {
+        JSONObject object = new JSONObject();
+        try {
+            object.put("uuid", c.getUUID());
+            object.put("name", c.getName());
+            object.put("edit", Util.format(Util.getNow()));
+            object.put("start", Util.format(c.getStart()));
+            object.put("stop", Util.format(c.getStop()));
+            object.put("type", c.getType());
+            String adminsS = "";
+            for(int i=0; i<c.getAdmins().size(); i++) {
+                adminsS += c.getAdmins().get(i).getUUID();
+                if(i<c.getAdmins().size()-1) adminsS += ",";
+            }
+            object.put("admins", adminsS);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        Rest.post(host + "/update_comp").jsonContent().acceptJson().body(object.toString()).getAsString(true).getResponseData();
+    }
+
+    public void addRute(Competition c, Rute r) {
+        JSONObject object = new JSONObject();
+        try {
+            object.put("comp", c.getUUID());
+            object.put("rute", r.getUUID());
+            object.put("date", Util.format(Util.getNow()));
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        Rest.post(host + "/add_rute_comp").jsonContent().acceptJson().body(object.toString()).getAsString(true).getResponseData();
+    }
+
+
+
 
     @Override
     public void save(Rute r) {
