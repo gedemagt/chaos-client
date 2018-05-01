@@ -282,7 +282,37 @@ public class WebDatabase extends ChaosDatabase {
         Rest.post(host + "/add_rute_comp").jsonContent().acceptJson().body(object.toString()).getAsString(true).getResponseData();
     }
 
+    public Competition.Status getStatus(Competition c, Rute r, User u) {
+        JSONObject object = new JSONObject();
+        try {
+            object.put("comp", c.getUUID());
+            object.put("rute", r.getUUID());
+            object.put("user", u.getUUID());
 
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        Map<String, Object> result = Rest.post(host + "/get_part").jsonContent().acceptJson().body(object.toString()).getAsJsonMap(true).getResponseData();
+        return new Competition.Status((int) ((double) result.get("tries")), Boolean.parseBoolean(result.get("completed").toString()));
+    }
+
+    public void setStatus(Competition c, Rute r, User u, Competition.Status status) {
+        JSONObject object = new JSONObject();
+        try {
+            object.put("comp", c.getUUID());
+            object.put("rute", r.getUUID());
+            object.put("user", u.getUUID());
+            object.put("tries", status.tries);
+            object.put("completed", status.completed);
+            object.put("date", Util.format(Util.getNow()));
+            object.put("edit", Util.format(Util.getNow()));
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        Rest.post(host + "/update_part").jsonContent().acceptJson().body(object.toString()).getAsJsonMap(true).getResponseData();
+
+    }
 
 
     @Override

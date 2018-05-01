@@ -161,6 +161,14 @@ public class DB {
     public void addRute(Competition c, Rute r) {
         web.addRute(c, r);
     }
+
+    public Competition.Status getStatus(Competition c, Rute r, User u) {
+        return web.getStatus(c, r, u);
+    }
+
+    public void setStatus(Competition c, Rute r, User u, Competition.Status s) {
+        web.setStatus(c, r, u, s);
+    }
     
 //    public boolean isRefreshing() {
 //        return isRefreshing;

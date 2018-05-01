@@ -3,7 +3,6 @@ package com.jhalkjar.caoscomp.backend;
 import com.jhalkjar.caoscomp.database.DB;
 import com.jhalkjar.caoscomp.database.DatabaseEntryImpl;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -14,6 +13,8 @@ public class CompetitionImpl extends DatabaseEntryImpl implements Competition{
     private Date start, end;
     private String name;
     private int pin, type;
+
+
 
     public CompetitionImpl(String uuid, Date date, int status, String name, Date start, Date end, int type, List<User> admins, List<Rute> rutes, int pin) {
         super(uuid, 0, date, status);
@@ -64,6 +65,16 @@ public class CompetitionImpl extends DatabaseEntryImpl implements Competition{
     @Override
     public void save() {
         DB.getInstance().saveCompetition(this);
+    }
+
+    @Override
+    public Status getStatus(User u, Rute r) {
+        return DB.getInstance().getStatus(this, r, u);
+    }
+
+    @Override
+    public void setStatus(User u, Rute r, Status s) {
+        DB.getInstance().setStatus(this, r, u, s);
     }
 
     @Override

@@ -16,6 +16,9 @@ public interface Competition extends DatabaseEntry {
     int getPin();
     void save();
 
+    Status getStatus(User u, Rute r);
+    void setStatus(User u, Rute r, Status s);
+
     void setName(String name);
     void setStart(Date start);
     void setStop(Date stop);
@@ -23,5 +26,17 @@ public interface Competition extends DatabaseEntry {
     void addRute(Rute r);
     void addAdmin(User r);
     void removeAdmin(User r);
+
+
+    public class Status {
+        public final int tries;
+        public final boolean completed;
+
+        public Status(int tries, boolean completed) {
+            this.tries = tries;
+            this.completed = completed;
+        }
+
+    }
 
 }
