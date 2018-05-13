@@ -5,7 +5,9 @@ import com.codename1.ui.*;
 import com.codename1.ui.plaf.UIManager;
 import com.codename1.ui.util.Resources;
 import com.jhalkjar.caoscomp.backend.Competition;
+import com.jhalkjar.caoscomp.backend.RuteCollection;
 import com.jhalkjar.caoscomp.database.DB;
+import com.jhalkjar.caoscomp.database.RuteProvider.DBRuteProvider;
 import com.jhalkjar.caoscomp.gui.GymList;
 import com.jhalkjar.caoscomp.gui.Login;
 import com.jhalkjar.caoscomp.gui.RuteList;
@@ -44,15 +46,12 @@ public class CaosCompanion {
 
         DB.getInstance().sync();
 
-//        Competition comp = DB.getInstance().getCompetitions().get(0);
-//        new CompetitionList().show();
-//        new CompetitionStats(comp).show();
         DB.getInstance().refreshLocal();
         if(DB.getInstance().getLoggedInUser() == null) new Login().show();
         else{
             DB.getInstance().syncGyms();
             if(DB.getInstance().getRememberedGym() == null) new GymList().show();
-            else new RuteList().show();
+            else new RuteList(new DBRuteProvider()).show();
         }
     }
 

@@ -12,6 +12,7 @@ import com.codename1.ui.plaf.UIManager;
 import com.jhalkjar.caoscomp.Util;
 import com.jhalkjar.caoscomp.backend.*;
 import com.jhalkjar.caoscomp.database.DB;
+import com.jhalkjar.caoscomp.database.RuteProvider.DBRuteProvider;
 import com.jhalkjar.caoscomp.gui.misc.Point;
 
 import java.io.IOException;
@@ -258,7 +259,7 @@ public class Editor extends Form {
             if (prevForm instanceof RuteList) {
                 prevForm.showBack();
             } else {
-                new RuteList().showBack();
+                new RuteList(new DBRuteProvider()).showBack();
             }
         }));
 
@@ -317,7 +318,7 @@ public class Editor extends Form {
                 getToolbar().addCommandToOverflowMenu("Delete", FontImage.createMaterial(FontImage.MATERIAL_DELETE, s2), evt -> {
 
                     r.delete();
-                    new RuteList().showBack();
+                    new RuteList(new DBRuteProvider()).showBack();
                 });
             }
             revalidate();

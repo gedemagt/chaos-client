@@ -15,6 +15,7 @@ import com.codename1.ui.plaf.UIManager;
 import com.codename1.ui.table.TableLayout;
 import com.jhalkjar.caoscomp.backend.*;
 import com.jhalkjar.caoscomp.database.DB;
+import com.jhalkjar.caoscomp.database.RuteProvider.CompetitionRuteProvider;
 import com.jhalkjar.caoscomp.gui.*;
 import com.jhalkjar.caoscomp.gui.misc.ColoredSquare;
 import com.jhalkjar.caoscomp.gui.misc.WaitingDialog;
@@ -103,10 +104,10 @@ public class CompetitionList extends Form {
         cnt.add(tbl.createConstraint().widthPercentage(10), new Label(FontImage.createMaterial(FontImage.MATERIAL_ALARM_OFF, s)));
         cnt.add(tbl.createConstraint().widthPercentage(40), new Label(dateFormat.format(comp.getStop())));
 
-//        for(int i=0; i<cnt.getComponentCount(); i++) {
-//            cnt.getComponentAt(i).addPointerReleasedListener(evt -> new Editor(rute, this).show());
-//        }
-//        cnt.addPointerReleasedListener(evt -> new Editor(rute, this).show());
+        for(int i=0; i<cnt.getComponentCount(); i++) {
+            cnt.getComponentAt(i).addPointerReleasedListener(evt -> new RuteList(new CompetitionRuteProvider(comp)).show());
+        }
+        cnt.addPointerReleasedListener(evt -> new RuteList(new CompetitionRuteProvider(comp)).show());
 
         return BoxLayout.encloseY(cnt, new Spacer());
     }

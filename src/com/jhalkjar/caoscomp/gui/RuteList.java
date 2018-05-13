@@ -5,6 +5,7 @@ package com.jhalkjar.caoscomp.gui;
  */
 
 import com.codename1.components.FloatingActionButton;
+import com.codename1.io.FileSystemStorage;
 import com.codename1.l10n.DateFormat;
 import com.codename1.l10n.SimpleDateFormat;
 import com.codename1.ui.*;
@@ -18,6 +19,8 @@ import com.codename1.ui.plaf.UIManager;
 import com.codename1.ui.table.TableLayout;
 import com.jhalkjar.caoscomp.backend.*;
 import com.jhalkjar.caoscomp.database.DB;
+import com.jhalkjar.caoscomp.database.RuteProvider.RuteProvider;
+import com.jhalkjar.caoscomp.gui.competition.CompetitionList;
 import com.jhalkjar.caoscomp.gui.misc.ColoredSquare;
 import com.jhalkjar.caoscomp.gui.misc.WaitingDialog;
 
@@ -32,7 +35,7 @@ import java.util.List;
 public class RuteList extends Form {
 
     Container centerContainer = new Container(new BorderLayout());
-    RuteCollection rutes;//List<Rute> rutes;
+    RuteProvider provider;
     Gym gymFilter = DB.getInstance().getRememberedGym();
     Sector sectorFilter = null;
     ArrayList<Grade> gradeFilter = new ArrayList<>();
@@ -41,7 +44,7 @@ public class RuteList extends Form {
     List<Rute> selectedRutes = new ArrayList<>();
 
 
-    public RuteList() {
+    public RuteList(RuteProvider provider) {
         super(new BorderLayout());
 
         FloatingActionButton fab = FloatingActionButton.createFAB(FontImage.MATERIAL_ADD);
@@ -50,6 +53,8 @@ public class RuteList extends Form {
             new RuteCreator(this).show();
         });
         fab.bindFabToContainer(getContentPane());
+
+        this.provider = provider;
 
         populateToolbar();
         DB.getInstance().addGymsSyncListener(new DB.RefreshListener() {
@@ -82,10 +87,7 @@ public class RuteList extends Form {
 
             @Override
             public void OnEndRefresh() {
-                l.setHidden(true);
-                rutes = new RuteCollection(DB.getInstance().getRutes());
-                populateToolbar();
-                updateUI();
+
             }
 
             @Override
@@ -95,11 +97,19 @@ public class RuteList extends Form {
             }
         });
 
-        rutes = new RuteCollection(DB.getInstance().getRutes());
+        provider.attach(new RuteProvider.RuteProviderListener() {
+            @Override
+            public void onUpdatedRutes(RuteCollection rc) {
+                l.setHidden(true);
+                populateToolbar();
+                updateUI();
+            }
+        });
+
         updateUI();
-        if(rutes.size()==0) {
-            forceAndShow();
-        }
+        //if(rutes.size()==0) {
+//            forceAndShow();
+//        }
     }
 
     void forceAndShow() {
@@ -127,14 +137,15 @@ public class RuteList extends Form {
     void populateToolbar() {
         tb = new Toolbar();
         setToolbar(tb);
-        tb.addCommandToOverflowMenu("Log out", null, (e) -> {
-            DB.getInstance().logout();
+
+        tb.addCommandToSideMenu("Gyms", FontImage.createMaterial(FontImage.MATERIAL_HOME, getTitleStyle()), (e) -> {
+            new GymList().show();
         });
 
-//        tb.addCommandToRightBar("", FontImage.createMaterial(FontImage.MATERIAL_FILTER_LIST, s), evt -> {
-//                    selectionContainer.setHidden(!selectionContainer.isHidden());
-//                    selectionContainer.animateLayout(2);
-//        });
+        tb.addCommandToSideMenu("Comps", FontImage.createMaterial(FontImage.MATERIAL_CAKE, getTitleStyle()), (e) -> {
+            new CompetitionList().show();
+        });
+
 
         List<Sector> sectors = DB.getInstance().getRememberedGym().getSectors();
         String[] sectorStrings = new String[sectors.size() + 1];
@@ -168,20 +179,24 @@ public class RuteList extends Form {
         tb.addCommandToOverflowMenu("Force refresh", null, evt -> {
             forceAndShow();
         });
-        tb.addCommandToLeftBar("", FontImage.createMaterial(FontImage.MATERIAL_HOME, getTitleStyle()), evt -> {
-            new GymList().showBack();
-        });
+
         if(DB.getInstance().getLoggedInUser() != null && DB.getInstance().getLoggedInUser().getRole() == Role.ADMIN) {
-            tb.addCommandToOverflowMenu("Manage gym", null, evt -> {
+            tb.addCommandToSideMenu("Manage gym", FontImage.createMaterial(FontImage.MATERIAL_SETTINGS, getTitleStyle()), evt -> {
                 new GymCreator(DB.getInstance().getRememberedGym(), this, g -> {}).show();
             });
         }
+
+        tb.addCommandToSideMenu("Log out", FontImage.createMaterial(FontImage.MATERIAL_EXIT_TO_APP, getTitleStyle()), (e) -> {
+            DB.getInstance().logout();
+        });
+
+
     }
 
 
     private void updateUI() {
         centerContainer.removeAll();
-        if(rutes.size() == 0) {
+        if(provider.getRutes().size() == 0) {
             Label l = new Label("Got a problem?");
             centerContainer.add(BorderLayout.CENTER, l);
         }
@@ -189,7 +204,7 @@ public class RuteList extends Form {
             Container list = new Container(BoxLayout.y());
             list.setScrollableY(true);
 
-            selectedRutes = rutes.filter().sector(sectorFilter).gym(gymFilter).grade(gradeFilter).get().getAllRutes();
+            selectedRutes = provider.getRutes().filter().sector(sectorFilter).gym(gymFilter).grade(gradeFilter).get().getAllRutes();
 
             Collections.sort(selectedRutes, (o1, o2) -> {
                 long v1 = o1.getDate().getTime();

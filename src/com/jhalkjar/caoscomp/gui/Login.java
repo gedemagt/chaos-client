@@ -5,7 +5,9 @@ import com.codename1.io.Preferences;
 import com.codename1.ui.*;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
+import com.jhalkjar.caoscomp.backend.RuteCollection;
 import com.jhalkjar.caoscomp.database.DB;
+import com.jhalkjar.caoscomp.database.RuteProvider.DBRuteProvider;
 import com.jhalkjar.caoscomp.gui.misc.WaitingDialog;
 
 /**
@@ -55,7 +57,7 @@ public class Login extends Form {
                         });
                         dd.show();
                         if(DB.getInstance().getRememberedGym() == null) new GymList().show();
-                        else new RuteList().show();
+                        else new RuteList(new DBRuteProvider()).show();
                     }
                 }, ()-> {
                     d.dispose();

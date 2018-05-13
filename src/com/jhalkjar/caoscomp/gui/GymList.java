@@ -16,6 +16,7 @@ import com.codename1.ui.plaf.UIManager;
 import com.codename1.ui.table.TableLayout;
 import com.jhalkjar.caoscomp.backend.*;
 import com.jhalkjar.caoscomp.database.DB;
+import com.jhalkjar.caoscomp.database.RuteProvider.DBRuteProvider;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -103,12 +104,12 @@ public class GymList extends Form {
         for(int i=0; i<cnt.getComponentCount(); i++) {
             cnt.getComponentAt(i).addPointerReleasedListener(evt -> {
                 DB.getInstance().setRememberedGym(gym);
-                new RuteList().show();
+                new RuteList(new DBRuteProvider()).show();
             });
         }
         cnt.addPointerReleasedListener(evt -> {
             DB.getInstance().setRememberedGym(gym);
-            new RuteList().show();
+            new RuteList(new DBRuteProvider()).show();
         });
 
         return BoxLayout.encloseY(cnt, new Spacer());
