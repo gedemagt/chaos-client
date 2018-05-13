@@ -1,6 +1,5 @@
 package com.jhalkjar.caoscomp.gui;
 
-import com.codename1.io.Log;
 import com.codename1.ui.*;
 import com.codename1.ui.events.ActionEvent;
 import com.codename1.ui.events.ActionListener;
@@ -13,11 +12,9 @@ import com.codename1.ui.plaf.UIManager;
 import com.jhalkjar.caoscomp.Util;
 import com.jhalkjar.caoscomp.backend.*;
 import com.jhalkjar.caoscomp.database.DB;
-import com.jhalkjar.caoscomp.database.NoImageException;
+import com.jhalkjar.caoscomp.gui.misc.Point;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**

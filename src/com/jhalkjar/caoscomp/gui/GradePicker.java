@@ -6,6 +6,7 @@ import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.GridLayout;
 import com.codename1.ui.plaf.Style;
 import com.jhalkjar.caoscomp.backend.Grade;
+import com.jhalkjar.caoscomp.gui.misc.CustomCheckButton;
 
 import java.util.ArrayList;
 import java.util.List;

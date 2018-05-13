@@ -1,4 +1,4 @@
-package com.jhalkjar.caoscomp.gui;
+package com.jhalkjar.caoscomp.gui.misc;
 
 import com.codename1.ui.*;
 import com.codename1.ui.plaf.Border;

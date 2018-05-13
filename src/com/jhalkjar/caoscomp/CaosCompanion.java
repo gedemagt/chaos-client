@@ -1,13 +1,17 @@
 package com.jhalkjar.caoscomp;
 
+import com.codename1.io.Log;
 import com.codename1.ui.*;
 import com.codename1.ui.plaf.UIManager;
 import com.codename1.ui.util.Resources;
+import com.jhalkjar.caoscomp.backend.Competition;
 import com.jhalkjar.caoscomp.database.DB;
 import com.jhalkjar.caoscomp.gui.GymList;
 import com.jhalkjar.caoscomp.gui.Login;
 import com.jhalkjar.caoscomp.gui.RuteList;
-import com.jhalkjar.caoscomp.gui.WaitingDialog;
+import com.jhalkjar.caoscomp.gui.competition.CompetitionCreator;
+import com.jhalkjar.caoscomp.gui.competition.CompetitionList;
+import com.jhalkjar.caoscomp.gui.competition.CompetitionStats;
 
 
 /**
@@ -38,8 +42,11 @@ public class CaosCompanion {
 
         Display.getInstance().lockOrientation(true);
 
-//        DB.getInstance().sync();
+        DB.getInstance().sync();
 
+//        Competition comp = DB.getInstance().getCompetitions().get(0);
+//        new CompetitionList().show();
+//        new CompetitionStats(comp).show();
         DB.getInstance().refreshLocal();
         if(DB.getInstance().getLoggedInUser() == null) new Login().show();
         else{

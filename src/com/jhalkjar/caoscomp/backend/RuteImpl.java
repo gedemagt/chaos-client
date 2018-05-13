@@ -2,7 +2,7 @@ package com.jhalkjar.caoscomp.backend;
 
 import com.jhalkjar.caoscomp.Util;
 import com.jhalkjar.caoscomp.database.DB;
-import com.jhalkjar.caoscomp.gui.Point;
+import com.jhalkjar.caoscomp.gui.misc.Point;
 
 import java.util.Date;
 import java.util.List;

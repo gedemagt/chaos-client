@@ -1,6 +1,7 @@
-package com.jhalkjar.caoscomp.gui;
+package com.jhalkjar.caoscomp.gui.misc;
 
 import com.codename1.ui.Graphics;
+import com.jhalkjar.caoscomp.gui.Type;
 
 /**
  * Created by jesper on 11/5/17.

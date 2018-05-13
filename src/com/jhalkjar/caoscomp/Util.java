@@ -6,10 +6,9 @@ import com.codename1.io.Log;
 import com.codename1.l10n.DateFormat;
 import com.codename1.l10n.ParseException;
 import com.codename1.l10n.SimpleDateFormat;
-import com.codename1.properties.InstantUI;
 import com.codename1.util.regex.StringReader;
 import com.jhalkjar.caoscomp.backend.Sector;
-import com.jhalkjar.caoscomp.gui.Point;
+import com.jhalkjar.caoscomp.gui.misc.Point;
 import com.jhalkjar.caoscomp.gui.Type;
 
 import java.io.IOException;

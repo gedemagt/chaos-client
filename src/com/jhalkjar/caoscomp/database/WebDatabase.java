@@ -293,7 +293,10 @@ public class WebDatabase extends ChaosDatabase {
             e.printStackTrace();
         }
         Map<String, Object> result = Rest.post(host + "/get_part").jsonContent().acceptJson().body(object.toString()).getAsJsonMap(true).getResponseData();
-        return new Competition.Status((int) ((double) result.get("tries")), Boolean.parseBoolean(result.get("completed").toString()));
+        int tries = (int) ((double) result.get("tries"));
+        boolean completed = Boolean.parseBoolean(result.get("completed").toString());
+
+        return new Competition.Status(tries, completed, r, u);
     }
 
     public void setStatus(Competition c, Rute r, User u, Competition.Status status) {
@@ -311,7 +314,23 @@ public class WebDatabase extends ChaosDatabase {
             e.printStackTrace();
         }
         Rest.post(host + "/update_part").jsonContent().acceptJson().body(object.toString()).getAsJsonMap(true).getResponseData();
+    }
 
+    public Map<Rute, List<Competition.Status>> getStats(Competition c) {
+        Map<String, Object> result = Rest.get(host + "/get_stats/" + c.getPin()).acceptJson().getAsJsonMap(true).getResponseData();
+
+        Map<Rute, List<Competition.Status>> stats = new HashMap<>();
+        for(Map<String, Object> stat : (List<Map<String, Object>>) result.get("root")) {
+            Rute r = DB.getInstance().getRute((String) stat.get("rute"));
+
+            if(!stats.containsKey(r)) stats.put(r, new ArrayList<>());
+
+            int tries = (int) (double) stat.get("tries");
+            boolean completed = (double) stat.get("tries") == 1.0;
+            User u = DB.getInstance().getUser((String) stat.get("user"));
+            stats.get(r).add(new Competition.Status(tries, completed, r, u));
+        }
+        return stats;
     }
 
 

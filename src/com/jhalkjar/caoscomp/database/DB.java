@@ -169,7 +169,11 @@ public class DB {
     public void setStatus(Competition c, Rute r, User u, Competition.Status s) {
         web.setStatus(c, r, u, s);
     }
-    
+
+    public Map<Rute, List<Competition.Status>> getStats(Competition c) {
+        return web.getStats(c);
+    }
+
 //    public boolean isRefreshing() {
 //        return isRefreshing;
 //    }

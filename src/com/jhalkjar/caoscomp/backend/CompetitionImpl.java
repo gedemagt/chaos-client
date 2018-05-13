@@ -5,6 +5,7 @@ import com.jhalkjar.caoscomp.database.DatabaseEntryImpl;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public class CompetitionImpl extends DatabaseEntryImpl implements Competition{
 
@@ -111,5 +112,10 @@ public class CompetitionImpl extends DatabaseEntryImpl implements Competition{
     @Override
     public void removeAdmin(User r) {
         this.users.remove(r);
+    }
+
+    @Override
+    public Map<Rute, List<Competition.Status>> getStats() {
+        return DB.getInstance().getStats(this);
     }
 }

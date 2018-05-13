@@ -1,4 +1,4 @@
-package com.jhalkjar.caoscomp.gui;
+package com.jhalkjar.caoscomp.gui.misc;
 
 import com.codename1.ui.Component;
 import com.codename1.ui.Graphics;

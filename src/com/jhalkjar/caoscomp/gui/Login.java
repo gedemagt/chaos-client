@@ -6,6 +6,7 @@ import com.codename1.ui.*;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
 import com.jhalkjar.caoscomp.database.DB;
+import com.jhalkjar.caoscomp.gui.misc.WaitingDialog;
 
 /**
  * Created by jesper on 11/13/17.

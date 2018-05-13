@@ -18,6 +18,8 @@ import com.codename1.ui.plaf.UIManager;
 import com.codename1.ui.table.TableLayout;
 import com.jhalkjar.caoscomp.backend.*;
 import com.jhalkjar.caoscomp.database.DB;
+import com.jhalkjar.caoscomp.gui.misc.ColoredSquare;
+import com.jhalkjar.caoscomp.gui.misc.WaitingDialog;
 
 import java.util.ArrayList;
 import java.util.Collections;
