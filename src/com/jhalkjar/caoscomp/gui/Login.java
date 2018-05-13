@@ -5,10 +5,10 @@ import com.codename1.io.Preferences;
 import com.codename1.ui.*;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
-import com.jhalkjar.caoscomp.backend.RuteCollection;
 import com.jhalkjar.caoscomp.database.DB;
 import com.jhalkjar.caoscomp.database.RuteProvider.DBRuteProvider;
 import com.jhalkjar.caoscomp.gui.misc.WaitingDialog;
+import com.jhalkjar.caoscomp.gui.rutelist.RuteList;
 
 /**
  * Created by jesper on 11/13/17.

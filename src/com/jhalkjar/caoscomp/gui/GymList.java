@@ -4,8 +4,6 @@ package com.jhalkjar.caoscomp.gui;
  * Created by jesper on 11/5/17.
  */
 
-import com.codename1.components.FloatingActionButton;
-import com.codename1.io.Log;
 import com.codename1.l10n.DateFormat;
 import com.codename1.l10n.SimpleDateFormat;
 import com.codename1.ui.*;
@@ -17,9 +15,8 @@ import com.codename1.ui.table.TableLayout;
 import com.jhalkjar.caoscomp.backend.*;
 import com.jhalkjar.caoscomp.database.DB;
 import com.jhalkjar.caoscomp.database.RuteProvider.DBRuteProvider;
+import com.jhalkjar.caoscomp.gui.rutelist.RuteList;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 

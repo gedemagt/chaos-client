@@ -294,7 +294,8 @@ public class WebDatabase extends ChaosDatabase {
         }
         Map<String, Object> result = Rest.post(host + "/get_part").jsonContent().acceptJson().body(object.toString()).getAsJsonMap(true).getResponseData();
         int tries = (int) ((double) result.get("tries"));
-        boolean completed = Boolean.parseBoolean(result.get("completed").toString());
+        boolean completed = (double) result.get("completed") == 1.0;
+        Log.p(result.get("completed") + " John");
 
         return new Competition.Status(tries, completed, r, u);
     }
@@ -326,7 +327,7 @@ public class WebDatabase extends ChaosDatabase {
             if(!stats.containsKey(r)) stats.put(r, new ArrayList<>());
 
             int tries = (int) (double) stat.get("tries");
-            boolean completed = (double) stat.get("tries") == 1.0;
+            boolean completed = (double) stat.get("completed") == 1.0;
             User u = DB.getInstance().getUser((String) stat.get("user"));
             stats.get(r).add(new Competition.Status(tries, completed, r, u));
         }

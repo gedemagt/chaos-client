@@ -1,27 +1,22 @@
-package com.jhalkjar.caoscomp.gui;
+package com.jhalkjar.caoscomp.gui.rutelist;
 
 /**
  * Created by jesper on 11/5/17.
  */
 
 import com.codename1.components.FloatingActionButton;
-import com.codename1.io.FileSystemStorage;
-import com.codename1.l10n.DateFormat;
-import com.codename1.l10n.SimpleDateFormat;
 import com.codename1.ui.*;
 import com.codename1.ui.Container;
 import com.codename1.ui.Label;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
-import com.codename1.ui.plaf.Style;
-import com.codename1.ui.plaf.UIManager;
 
 import com.codename1.ui.table.TableLayout;
 import com.jhalkjar.caoscomp.backend.*;
 import com.jhalkjar.caoscomp.database.DB;
 import com.jhalkjar.caoscomp.database.RuteProvider.RuteProvider;
+import com.jhalkjar.caoscomp.gui.*;
 import com.jhalkjar.caoscomp.gui.competition.CompetitionList;
-import com.jhalkjar.caoscomp.gui.misc.ColoredSquare;
 import com.jhalkjar.caoscomp.gui.misc.WaitingDialog;
 
 import java.util.ArrayList;
@@ -42,10 +37,18 @@ public class RuteList extends Form {
     Toolbar tb;
 
     List<Rute> selectedRutes = new ArrayList<>();
+    RuteListElementDrawer drawer;
 
+    boolean canFilter = true;
 
     public RuteList(RuteProvider provider) {
+        this(provider, new DefaultElementDrawer(), true);
+    }
+
+    public RuteList(RuteProvider provider, RuteListElementDrawer drawer, boolean canFilter) {
         super(new BorderLayout());
+        this.drawer = drawer;
+        this.canFilter = canFilter;
 
         FloatingActionButton fab = FloatingActionButton.createFAB(FontImage.MATERIAL_ADD);
         fab.setUIID("FaB");
@@ -97,19 +100,20 @@ public class RuteList extends Form {
             }
         });
 
-        provider.attach(new RuteProvider.RuteProviderListener() {
-            @Override
-            public void onUpdatedRutes(RuteCollection rc) {
-                l.setHidden(true);
-                populateToolbar();
-                updateUI();
-            }
+        provider.attach(rc -> {
+            l.setHidden(true);
+            populateToolbar();
+            updateUI();
         });
 
         updateUI();
         //if(rutes.size()==0) {
 //            forceAndShow();
 //        }
+    }
+
+    public void setCanFilter(boolean canFilter) {
+        this.canFilter = canFilter;
     }
 
     void forceAndShow() {
@@ -138,43 +142,43 @@ public class RuteList extends Form {
         tb = new Toolbar();
         setToolbar(tb);
 
-        tb.addCommandToSideMenu("Gyms", FontImage.createMaterial(FontImage.MATERIAL_HOME, getTitleStyle()), (e) -> {
-            new GymList().show();
-        });
+        tb.addCommandToSideMenu("Gyms", FontImage.createMaterial(FontImage.MATERIAL_HOME, getTitleStyle()),
+                (e) -> new GymList().show());
 
-        tb.addCommandToSideMenu("Comps", FontImage.createMaterial(FontImage.MATERIAL_CAKE, getTitleStyle()), (e) -> {
-            new CompetitionList().show();
-        });
+        tb.addCommandToSideMenu("Comps", FontImage.createMaterial(FontImage.MATERIAL_CAKE, getTitleStyle()),
+                (e) -> new CompetitionList().show());
 
+        if(canFilter) {
+            List<Sector> sectors = DB.getInstance().getRememberedGym().getSectors();
+            String[] sectorStrings = new String[sectors.size() + 1];
+            sectorStrings[0] = "All";
+            for (int i = 0; i < sectors.size(); i++) sectorStrings[i + 1] = sectors.get(i).getName();
+            PickerComponent sectorPicker = PickerComponent.createStrings(sectorStrings);
 
-        List<Sector> sectors = DB.getInstance().getRememberedGym().getSectors();
-        String[] sectorStrings = new String[sectors.size() + 1];
-        sectorStrings[0] = "All";
-        for (int i = 0; i < sectors.size(); i++) sectorStrings[i + 1] = sectors.get(i).getName();
-        PickerComponent sectorPicker = PickerComponent.createStrings(sectorStrings);
+            int selected = sectors.indexOf(sectorFilter);
+            if (selected == -1) selected = 0;
+            else selected += 1;
+            sectorPicker.getPicker().setSelectedStringIndex(selected);
 
-        int selected = sectors.indexOf(sectorFilter);
-        if (selected == -1) selected = 0;
-        else selected += 1;
-        sectorPicker.getPicker().setSelectedStringIndex(selected);
+            sectorPicker.getPicker().addActionListener(evt -> {
+                int selectedSector = sectorPicker.getPicker().getSelectedStringIndex() - 1;
+                sectorFilter = selectedSector >= 0 ? sectors.get(selectedSector) : null;
+                updateUI();
+            });
 
-        sectorPicker.getPicker().addActionListener(evt -> {
-            int selectedSector = sectorPicker.getPicker().getSelectedStringIndex() - 1;
-            sectorFilter = selectedSector >= 0 ? sectors.get(selectedSector) : null;
-            updateUI();
-        });
+            Button gradePicker = new Button(FontImage.createMaterial(FontImage.MATERIAL_GRADE, getTitleStyle()));
+            gradePicker.addActionListener(evt -> {
+                gradeFilter = new GradePicker().getMultipleGrades(gradeFilter);
+                updateUI();
 
-        Button gradePicker = new Button(FontImage.createMaterial(FontImage.MATERIAL_GRADE, getTitleStyle()));
-        gradePicker.addActionListener(evt -> {
-            gradeFilter = new GradePicker().getMultipleGrades(gradeFilter);
-            updateUI();
+            });
+            TableLayout tbl = new TableLayout(1, 2);
+            Container cnt = new Container(tbl);
+            cnt.add(tbl.createConstraint().widthPercentage(80), sectorPicker);
+            cnt.add(tbl.createConstraint().widthPercentage(20), gradePicker);
+            tb.setTitleComponent(cnt);
+        }
 
-        });
-        TableLayout tbl = new TableLayout(1, 2);
-        Container cnt = new Container(tbl);
-        cnt.add(tbl.createConstraint().widthPercentage(80), sectorPicker);
-        cnt.add(tbl.createConstraint().widthPercentage(20), gradePicker);
-        tb.setTitleComponent(cnt);
 
         tb.addCommandToOverflowMenu("Force refresh", null, evt -> {
             forceAndShow();
@@ -215,7 +219,7 @@ public class RuteList extends Form {
             });
 
             for(Rute r : selectedRutes) {
-                Container c = createListElement(r);
+                Container c = drawer.createElement(this, r);
                 list.add(c);
             }
 
@@ -229,55 +233,8 @@ public class RuteList extends Form {
         revalidate();
     }
 
-    DateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy");
-    Style s = UIManager.getInstance().getComponentStyle("Label");
-
-
-    private Container createListElement(Rute rute) {
-
-        Label name = new Label(rute.getName());
-        name.setUIID("RuteName");
-
-        Label author = new Label(rute.getAuthor().getName());
-        Label gym = new Label(rute.getSector().getName());
-        author.setUIID("DetailListElement");
-        gym.setUIID("DetailListElement");
-
-        Label date = new Label(dateFormat.format(rute.getDate()));
-        date.setUIID("DateListElement");
-
-        TableLayout tbl = new TableLayout(2, 4);
-        Container cnt = new Container(tbl);
-        cnt.setUIID("ListElement");
-
-        cnt.add(tbl.createConstraint().widthPercentage(60).horizontalSpan(2), name);
-        cnt.add(tbl.createConstraint().widthPercentage(30).horizontalAlign(LEFT), date);
-        cnt.add(tbl.createConstraint().widthPercentage(10).horizontalAlign(RIGHT).verticalAlign(CENTER),
-                BorderLayout.center(new ColoredSquare(Grade.getColorInt(rute.getGrade()), name.getStyle().getFont().getHeight())));
-
-        cnt.add(tbl.createConstraint().widthPercentage(10), new Label(FontImage.createMaterial(FontImage.MATERIAL_HOME, s)));
-        cnt.add(tbl.createConstraint().widthPercentage(40), gym);
-        cnt.add(tbl.createConstraint().widthPercentage(10), new Label(FontImage.createMaterial(FontImage.MATERIAL_PERSON, s)));
-        cnt.add(tbl.createConstraint().widthPercentage(40), author);
-
-        for(int i=0; i<cnt.getComponentCount(); i++) {
-            cnt.getComponentAt(i).addPointerReleasedListener(evt -> new Editor(rute, this).show());
-        }
-        cnt.addPointerReleasedListener(evt -> new Editor(rute, this).show());
-
-        return BoxLayout.encloseY(cnt, new Spacer());
-    }
-
     public List<Rute> getSelectedRutes() {
         return selectedRutes;
-    }
-
-    private class Spacer extends Container {
-
-        public Spacer() {
-            setUIID("Spacer");
-        }
-
     }
 
 }

@@ -9,7 +9,8 @@ import com.jhalkjar.caoscomp.backend.Competition;
 import com.jhalkjar.caoscomp.backend.User;
 import com.jhalkjar.caoscomp.database.DB;
 import com.jhalkjar.caoscomp.database.RuteProvider.CompetitionRuteProvider;
-import com.jhalkjar.caoscomp.gui.RuteList;
+import com.jhalkjar.caoscomp.gui.rutelist.CompetitionElementDrawer;
+import com.jhalkjar.caoscomp.gui.rutelist.RuteList;
 
 import java.util.ArrayList;
 
@@ -39,7 +40,7 @@ public class CompetitionCreator extends Form {
             ArrayList<User> admins = new ArrayList();
             admins.add(DB.getInstance().getLoggedInUser());
             Competition comp = DB.getInstance().createCompetition(name.getText(), start.getPicker().getDate(), end.getPicker().getDate(), 0, admins);
-            new RuteList(new CompetitionRuteProvider(comp)).show();
+            new RuteList(new CompetitionRuteProvider(comp), new CompetitionElementDrawer(comp), false).show();
         });
         setBackCommand(getToolbar().addCommandToLeftBar("", FontImage.createMaterial(FontImage.MATERIAL_ARROW_BACK, s), (e) -> {
             back.showBack();
