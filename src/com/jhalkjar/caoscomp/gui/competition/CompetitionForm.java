@@ -71,7 +71,7 @@ public class CompetitionForm extends Form {
             new CompetitionCreator(this, null).show();
         });
 
-        new ToolbarBuilder().gyms().defaultGym().build(getToolbar());
+        new ToolbarBuilder().gyms().defaultGym().spacer().compsAll().build(getToolbar());
 
         updateUI();
     }

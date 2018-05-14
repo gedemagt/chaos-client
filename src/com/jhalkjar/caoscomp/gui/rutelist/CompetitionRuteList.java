@@ -14,7 +14,6 @@ import com.jhalkjar.caoscomp.database.DB;
 import com.jhalkjar.caoscomp.gui.Editor;
 import com.jhalkjar.caoscomp.gui.ToolbarBuilder;
 import com.jhalkjar.caoscomp.gui.competition.CompetitionCreator;
-import com.jhalkjar.caoscomp.gui.competition.CompetitionForm;
 import com.jhalkjar.caoscomp.gui.misc.Spacer;
 
 
@@ -26,7 +25,7 @@ public class CompetitionRuteList extends RuteList {
 
     public CompetitionRuteList(Competition comp) {
         this.comp = comp;
-        ToolbarBuilder tb = new ToolbarBuilder().gyms().defaultGym().spacer().comps();
+        ToolbarBuilder tb = new ToolbarBuilder().gyms().defaultGym().spacer().comps().compsAll();
         if(comp.getAdmins().contains(DB.getInstance().getLoggedInUser()) || DB.getInstance().getLoggedInUser().getRole()== Role.ADMIN) {
             tb.spacer().custom("Manage comp", FontImage.MATERIAL_SETTINGS, evt -> new CompetitionCreator(this, comp).show());
         }

@@ -41,7 +41,7 @@ public class CompetitionList extends Form {
         comps = DB.getInstance().getCompetitions();
         add(BorderLayout.CENTER, centerContainer);
 
-        new ToolbarBuilder().gyms().defaultGym().build(getToolbar());
+        new ToolbarBuilder().gyms().defaultGym().spacer().comps().build(getToolbar());
         updateUI();
     }
 
@@ -82,13 +82,16 @@ public class CompetitionList extends Form {
 
         Label name = new Label(comp.getName());
         name.setUIID("RuteName");
+        Label pin = new Label(comp.getPin()+"");
+
 
 
         TableLayout tbl = new TableLayout(2, 4);
         Container cnt = new Container(tbl);
         cnt.setUIID("ListElement");
 
-        cnt.add(tbl.createConstraint().widthPercentage(100).horizontalSpan(4), name);
+        cnt.add(tbl.createConstraint().widthPercentage(100).horizontalSpan(3), name);
+        cnt.add(tbl.createConstraint().widthPercentage(74).horizontalSpan(1), pin);
 
         cnt.add(tbl.createConstraint().widthPercentage(10), new Label(FontImage.createMaterial(FontImage.MATERIAL_ALARM, s)));
         cnt.add(tbl.createConstraint().widthPercentage(40), new Label(dateFormat.format(comp.getStart())));

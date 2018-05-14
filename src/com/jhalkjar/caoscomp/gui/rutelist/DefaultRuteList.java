@@ -136,7 +136,7 @@ public class DefaultRuteList extends RuteList {
 
 
         ToolbarBuilder builder = new ToolbarBuilder();
-        builder.gyms().spacer().comps().spacer().custom("Refresh", FontImage.MATERIAL_REFRESH, evt-> forceAndShow());
+        builder.gyms().spacer().comps().compsAll().spacer().custom("Refresh", FontImage.MATERIAL_REFRESH, evt-> forceAndShow());
 
         if(DB.getInstance().getLoggedInUser() != null && DB.getInstance().getLoggedInUser().getRole() == Role.ADMIN) {
 

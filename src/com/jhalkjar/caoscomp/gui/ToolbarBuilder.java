@@ -8,6 +8,7 @@ import com.codename1.ui.plaf.UIManager;
 import com.jhalkjar.caoscomp.backend.Role;
 import com.jhalkjar.caoscomp.database.DB;
 import com.jhalkjar.caoscomp.gui.competition.CompetitionForm;
+import com.jhalkjar.caoscomp.gui.competition.CompetitionList;
 import com.jhalkjar.caoscomp.gui.misc.ToolbarSpacer;
 import com.jhalkjar.caoscomp.gui.rutelist.DefaultRuteList;
 
@@ -36,9 +37,16 @@ public class ToolbarBuilder {
     }
 
     public ToolbarBuilder comps() {
+         cmds.add(new CommandAddable(Command.create("Comps", FontImage.createMaterial(FontImage.MATERIAL_CAKE, s),
+                (e) -> new CompetitionForm().show())));
+
+        return this;
+    }
+
+    public ToolbarBuilder compsAll() {
         if(DB.getInstance().getLoggedInUser() != null && DB.getInstance().getLoggedInUser().getRole() == Role.ADMIN) {
-            cmds.add(new CommandAddable(Command.create("Comps", FontImage.createMaterial(FontImage.MATERIAL_CAKE, s),
-                    (e) -> new CompetitionForm().show())));
+            cmds.add(new CommandAddable(Command.create("Comps (ADMIN)", FontImage.createMaterial(FontImage.MATERIAL_PANORAMA, s),
+                    (e) -> new CompetitionList().show())));
         }
         return this;
     }

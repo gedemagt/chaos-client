@@ -39,7 +39,7 @@ public class GymList extends Form {
 
         add(BorderLayout.CENTER, centerContainer);
 
-        new ToolbarBuilder().comps().build(getToolbar());
+        new ToolbarBuilder().comps().compsAll().build(getToolbar());
 
         updateUI();
     }
