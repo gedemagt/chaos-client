@@ -321,7 +321,7 @@ public class Editor extends Form {
                 getToolbar().addCommandToOverflowMenu("Delete", FontImage.createMaterial(FontImage.MATERIAL_DELETE, s2), evt -> {
 
                     r.delete();
-                    new DefaultRuteList().showBack();
+                    prevForm.showBack();
                 });
             }
             revalidate();

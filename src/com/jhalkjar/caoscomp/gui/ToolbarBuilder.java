@@ -25,8 +25,10 @@ public class ToolbarBuilder {
     }
 
     public ToolbarBuilder defaultGym() {
-        cmds.add(new CommandAddable(Command.create(DB.getInstance().getRememberedGym().getName(), FontImage.createMaterial(FontImage.MATERIAL_HOME, s),
-                (e) -> new DefaultRuteList().show())));
+        if(DB.getInstance().getRememberedGym() != null) {
+            cmds.add(new CommandAddable(Command.create(DB.getInstance().getRememberedGym().getName(), FontImage.createMaterial(FontImage.MATERIAL_HOME, s),
+                    (e) -> new DefaultRuteList().show())));
+        }
         return this;
     }
 
