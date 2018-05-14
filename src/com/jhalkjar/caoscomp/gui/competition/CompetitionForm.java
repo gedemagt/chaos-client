@@ -19,8 +19,6 @@ import com.jhalkjar.caoscomp.gui.ToolbarBuilder;
 import com.jhalkjar.caoscomp.gui.misc.Spacer;
 import com.jhalkjar.caoscomp.gui.rutelist.CompetitionRuteList;
 
-import javax.swing.*;
-
 
 public class CompetitionForm extends Form {
 

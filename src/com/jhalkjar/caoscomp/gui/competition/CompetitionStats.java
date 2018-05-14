@@ -58,7 +58,8 @@ public class CompetitionStats extends Form {
         list.setScrollableY(true);
 
         for(Rute r : rutes) {
-            Container c = createListElement(r, stats.getOrDefault(r, new ArrayList<>()));
+            List<Competition.Status> statuses = stats.containsKey(r) ? stats.get(r) : new ArrayList<>();
+            Container c = createListElement(r, statuses);
             list.add(c);
         }
         centerContainer.add(BorderLayout.CENTER, list);
