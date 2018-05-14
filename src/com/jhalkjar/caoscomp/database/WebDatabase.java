@@ -334,6 +334,21 @@ public class WebDatabase extends ChaosDatabase {
         return stats;
     }
 
+    public List<Competition> getParticipated(User u) {
+        Map<String, Object> result = Rest.get(host + "/get_participated_comps/" + u.getUUID()).acceptJson().getAsJsonMap(true).getResponseData();
+
+        List<Competition> comps = DB.getInstance().getCompetitions();
+        List<Competition> re = new ArrayList<>();
+        for(Object stat : (List<Object>) result.get("root")) {
+                String uuid = stat.toString();
+                for(Competition com : comps) {
+                    if(com.getUUID().equals(uuid)) re.add(com);
+                }
+
+        }
+        return re;
+    }
+
 
     @Override
     public void save(Rute r) {

@@ -27,7 +27,7 @@ public class CompetitionStats extends Form {
 
     Style s = UIManager.getInstance().getComponentStyle("Label");
 
-    public CompetitionStats(Competition comp) {
+    public CompetitionStats(Competition comp, Form back) {
         super(new BorderLayout());
         this.comp = comp;
 
@@ -39,6 +39,10 @@ public class CompetitionStats extends Form {
         tb.addCommandToRightBar("", FontImage.createMaterial(FontImage.MATERIAL_HOME, getTitleStyle()), evt -> {
             createScoreBoard(addUp(comp.getStats()));
         });
+        tb.addCommandToLeftBar("", FontImage.createMaterial(FontImage.MATERIAL_ARROW_BACK, getTitleStyle()), evt -> {
+            back.showBack();
+        });
+        tb.setTitle(comp.getName());
 
         rutes = comp.getRutes();
         add(BorderLayout.CENTER, centerContainer);

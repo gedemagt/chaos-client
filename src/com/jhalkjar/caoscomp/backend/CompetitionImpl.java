@@ -115,6 +115,12 @@ public class CompetitionImpl extends DatabaseEntryImpl implements Competition{
     }
 
     @Override
+    public void setAdmins(List<User> r) {
+        this.users.clear();
+        this.users.addAll(r);
+    }
+
+    @Override
     public Map<Rute, List<Competition.Status>> getStats() {
         return DB.getInstance().getStats(this);
     }

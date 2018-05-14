@@ -1,9 +1,5 @@
 package com.jhalkjar.caoscomp.gui.competition;
 
-/**
- * Created by jesper on 11/5/17.
- */
-
 import com.codename1.components.FloatingActionButton;
 import com.codename1.l10n.DateFormat;
 import com.codename1.l10n.SimpleDateFormat;
@@ -15,9 +11,9 @@ import com.codename1.ui.plaf.UIManager;
 import com.codename1.ui.table.TableLayout;
 import com.jhalkjar.caoscomp.backend.*;
 import com.jhalkjar.caoscomp.database.DB;
-import com.jhalkjar.caoscomp.database.RuteProvider.CompetitionRuteProvider;
-import com.jhalkjar.caoscomp.gui.rutelist.CompetitionElementDrawer;
-import com.jhalkjar.caoscomp.gui.rutelist.RuteList;
+import com.jhalkjar.caoscomp.gui.ToolbarBuilder;
+import com.jhalkjar.caoscomp.gui.misc.Spacer;
+import com.jhalkjar.caoscomp.gui.rutelist.CompetitionRuteList;
 
 import java.util.Collections;
 import java.util.List;
@@ -32,8 +28,6 @@ public class CompetitionList extends Form {
 
     List<Competition> comps;
 
-    Toolbar tb;
-
 
     public CompetitionList() {
         super(new BorderLayout());
@@ -41,16 +35,15 @@ public class CompetitionList extends Form {
         FloatingActionButton fab = FloatingActionButton.createFAB(FontImage.MATERIAL_ADD);
         fab.setUIID("FaB");
         fab.addActionListener(evt -> {
-            new CompetitionCreator(this).show();
+            new CompetitionCreator(this, null).show();
         });
         fab.bindFabToContainer(getContentPane());
         comps = DB.getInstance().getCompetitions();
-        tb = getToolbar();
         add(BorderLayout.CENTER, centerContainer);
 
+        new ToolbarBuilder().gyms().defaultGym().build(getToolbar());
         updateUI();
     }
-
 
 
     private void updateUI() {
@@ -103,20 +96,13 @@ public class CompetitionList extends Form {
         cnt.add(tbl.createConstraint().widthPercentage(40), new Label(dateFormat.format(comp.getStop())));
 
         for(int i=0; i<cnt.getComponentCount(); i++) {
-            cnt.getComponentAt(i).addPointerReleasedListener(evt -> new RuteList(new CompetitionRuteProvider(comp), new CompetitionElementDrawer(comp), false).show());
+            cnt.getComponentAt(i).addPointerReleasedListener(evt -> new CompetitionRuteList(comp).show());
         }
-        cnt.addPointerReleasedListener(evt -> new RuteList(new CompetitionRuteProvider(comp), new CompetitionElementDrawer(comp), false).show());
+        cnt.addPointerReleasedListener(evt -> new CompetitionRuteList(comp).show());
 
         return BoxLayout.encloseY(cnt, new Spacer());
     }
 
-    private class Spacer extends Container {
-
-        public Spacer() {
-            setUIID("Spacer");
-        }
-
-    }
 
 }
 

@@ -8,6 +8,7 @@ import com.codename1.ui.layouts.BoxLayout;
 import com.jhalkjar.caoscomp.database.DB;
 import com.jhalkjar.caoscomp.database.RuteProvider.DBRuteProvider;
 import com.jhalkjar.caoscomp.gui.misc.WaitingDialog;
+import com.jhalkjar.caoscomp.gui.rutelist.DefaultRuteList;
 import com.jhalkjar.caoscomp.gui.rutelist.RuteList;
 
 /**
@@ -57,7 +58,7 @@ public class Login extends Form {
                         });
                         dd.show();
                         if(DB.getInstance().getRememberedGym() == null) new GymList().show();
-                        else new RuteList(new DBRuteProvider()).show();
+                        else new DefaultRuteList().show();
                     }
                 }, ()-> {
                     d.dispose();

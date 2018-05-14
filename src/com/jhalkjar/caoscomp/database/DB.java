@@ -278,6 +278,22 @@ public class DB {
         Preferences.set("last_gym", g.getUUID());
     }
 
+    public List<Competition> getParticipated(User u) {
+        return web.getParticipated(u);
+    }
+
+    public void setCurrentCompetition(Competition comp) {
+        Preferences.set("comp", comp.getPin());
+    }
+
+    public Competition getCurrentCompetition() {
+        int remembered = Integer.parseInt(Preferences.get("comp", "-1"));
+        for(Competition c : getCompetitions()) {
+            if(c.getPin() == remembered) return c;
+        }
+        return null;
+    }
+
     public interface RefreshListener {
         void OnBeginRefresh();
         void OnEndRefresh();

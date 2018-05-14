@@ -4,22 +4,19 @@ package com.jhalkjar.caoscomp.gui.rutelist;
  * Created by jesper on 11/5/17.
  */
 
-import com.codename1.components.FloatingActionButton;
 import com.codename1.ui.*;
 import com.codename1.ui.Container;
 import com.codename1.ui.Label;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
 
-import com.codename1.ui.table.TableLayout;
 import com.jhalkjar.caoscomp.backend.*;
 import com.jhalkjar.caoscomp.database.DB;
-import com.jhalkjar.caoscomp.database.RuteProvider.RuteProvider;
 import com.jhalkjar.caoscomp.gui.*;
 import com.jhalkjar.caoscomp.gui.competition.CompetitionList;
+import com.jhalkjar.caoscomp.gui.misc.ToolbarSpacer;
 import com.jhalkjar.caoscomp.gui.misc.WaitingDialog;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -27,94 +24,35 @@ import java.util.List;
 /**
  * Created by jesper on 2/8/17.
  */
-public class RuteList extends Form {
+public abstract class RuteList extends Form {
 
     Container centerContainer = new Container(new BorderLayout());
-    RuteProvider provider;
-    Gym gymFilter = DB.getInstance().getRememberedGym();
-    Sector sectorFilter = null;
-    ArrayList<Grade> gradeFilter = new ArrayList<>();
-    Toolbar tb;
 
-    List<Rute> selectedRutes = new ArrayList<>();
-    RuteListElementDrawer drawer;
-
-    boolean canFilter = true;
-
-    public RuteList(RuteProvider provider) {
-        this(provider, new DefaultElementDrawer(), true);
-    }
-
-    public RuteList(RuteProvider provider, RuteListElementDrawer drawer, boolean canFilter) {
+    public RuteList() {
         super(new BorderLayout());
-        this.drawer = drawer;
-        this.canFilter = canFilter;
 
-        FloatingActionButton fab = FloatingActionButton.createFAB(FontImage.MATERIAL_ADD);
-        fab.setUIID("FaB");
-        fab.addActionListener(evt -> {
-            new RuteCreator(this).show();
-        });
-        fab.bindFabToContainer(getContentPane());
 
-        this.provider = provider;
+//        DB.getInstance().addGymsSyncListener(new DB.RefreshListener() {
+//            @Override
+//            public void OnBeginRefresh() {
+//
+//            }
+//
+//            @Override
+//            public void OnEndRefresh() {
+//                populateToolbar();
+//            }
+//
+//            @Override
+//            public void OnRefreshError() {
+//
+//            }
+//        });
 
-        populateToolbar();
-        DB.getInstance().addGymsSyncListener(new DB.RefreshListener() {
-            @Override
-            public void OnBeginRefresh() {
-
-            }
-
-            @Override
-            public void OnEndRefresh() {
-                populateToolbar();
-            }
-
-            @Override
-            public void OnRefreshError() {
-
-            }
-        });
-
-        Label l = new Label("Network error");
-        add(BorderLayout.NORTH, l);
         add(BorderLayout.CENTER, centerContainer);
 
-        l.setHidden(true);
-
-        DB.getInstance().addRefreshListener(new DB.RefreshListener() {
-            @Override
-            public void OnBeginRefresh() {
-            }
-
-            @Override
-            public void OnEndRefresh() {
-
-            }
-
-            @Override
-            public void OnRefreshError() {
-                l.setHidden(false);
-                revalidate();
-            }
-        });
-
-        provider.attach(rc -> {
-            l.setHidden(true);
-            populateToolbar();
-            updateUI();
-        });
-
-        updateUI();
-        //if(rutes.size()==0) {
-//            forceAndShow();
-//        }
     }
 
-    public void setCanFilter(boolean canFilter) {
-        this.canFilter = canFilter;
-    }
 
     void forceAndShow() {
         Dialog d = new WaitingDialog("Loading rutes");
@@ -138,69 +76,11 @@ public class RuteList extends Form {
         d.show();
     }
 
-    void populateToolbar() {
-        tb = new Toolbar();
-        setToolbar(tb);
 
-        tb.addCommandToSideMenu("Gyms", FontImage.createMaterial(FontImage.MATERIAL_HOME, getTitleStyle()),
-                (e) -> new GymList().show());
-
-        tb.addCommandToSideMenu("Comps", FontImage.createMaterial(FontImage.MATERIAL_CAKE, getTitleStyle()),
-                (e) -> new CompetitionList().show());
-
-        if(canFilter) {
-            List<Sector> sectors = DB.getInstance().getRememberedGym().getSectors();
-            String[] sectorStrings = new String[sectors.size() + 1];
-            sectorStrings[0] = "All";
-            for (int i = 0; i < sectors.size(); i++) sectorStrings[i + 1] = sectors.get(i).getName();
-            PickerComponent sectorPicker = PickerComponent.createStrings(sectorStrings);
-
-            int selected = sectors.indexOf(sectorFilter);
-            if (selected == -1) selected = 0;
-            else selected += 1;
-            sectorPicker.getPicker().setSelectedStringIndex(selected);
-
-            sectorPicker.getPicker().addActionListener(evt -> {
-                int selectedSector = sectorPicker.getPicker().getSelectedStringIndex() - 1;
-                sectorFilter = selectedSector >= 0 ? sectors.get(selectedSector) : null;
-                updateUI();
-            });
-
-            Button gradePicker = new Button(FontImage.createMaterial(FontImage.MATERIAL_GRADE, getTitleStyle()));
-            gradePicker.addActionListener(evt -> {
-                gradeFilter = new GradePicker().getMultipleGrades(gradeFilter);
-                updateUI();
-
-            });
-            TableLayout tbl = new TableLayout(1, 2);
-            Container cnt = new Container(tbl);
-            cnt.add(tbl.createConstraint().widthPercentage(80), sectorPicker);
-            cnt.add(tbl.createConstraint().widthPercentage(20), gradePicker);
-            tb.setTitleComponent(cnt);
-        }
-
-
-        tb.addCommandToOverflowMenu("Force refresh", null, evt -> {
-            forceAndShow();
-        });
-
-        if(DB.getInstance().getLoggedInUser() != null && DB.getInstance().getLoggedInUser().getRole() == Role.ADMIN) {
-            tb.addCommandToSideMenu("Manage gym", FontImage.createMaterial(FontImage.MATERIAL_SETTINGS, getTitleStyle()), evt -> {
-                new GymCreator(DB.getInstance().getRememberedGym(), this, g -> {}).show();
-            });
-        }
-
-        tb.addCommandToSideMenu("Log out", FontImage.createMaterial(FontImage.MATERIAL_EXIT_TO_APP, getTitleStyle()), (e) -> {
-            DB.getInstance().logout();
-        });
-
-
-    }
-
-
-    private void updateUI() {
+    protected void updateUI() {
         centerContainer.removeAll();
-        if(provider.getRutes().size() == 0) {
+        List<Rute> rutes = getRutes().getAllRutes();
+        if(rutes.size() == 0) {
             Label l = new Label("Got a problem?");
             centerContainer.add(BorderLayout.CENTER, l);
         }
@@ -208,9 +88,7 @@ public class RuteList extends Form {
             Container list = new Container(BoxLayout.y());
             list.setScrollableY(true);
 
-            selectedRutes = provider.getRutes().filter().sector(sectorFilter).gym(gymFilter).grade(gradeFilter).get().getAllRutes();
-
-            Collections.sort(selectedRutes, (o1, o2) -> {
+            Collections.sort(rutes, (o1, o2) -> {
                 long v1 = o1.getDate().getTime();
                 long v2 = o2.getDate().getTime();
                 if(v1==v2) return 0;
@@ -218,23 +96,26 @@ public class RuteList extends Form {
                 else return 1;
             });
 
-            for(Rute r : selectedRutes) {
-                Container c = drawer.createElement(this, r);
+            for(Rute r : rutes) {
+                Container c = createElement(r);
                 list.add(c);
             }
 
             list.addPullToRefresh(()  -> {
-                DB.getInstance().sync();
-                populateToolbar();
-                revalidate();
+                onPull();
             });
             centerContainer.add(BorderLayout.CENTER, list);
         }
         revalidate();
     }
 
+    protected abstract Container createElement(Rute r);
+
+    protected abstract RuteCollection getRutes();
+    protected void onPull() {}
+
     public List<Rute> getSelectedRutes() {
-        return selectedRutes;
+        return getRutes().getAllRutes();
     }
 
 }

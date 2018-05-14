@@ -27,6 +27,7 @@ public interface Competition extends DatabaseEntry {
     void addRute(Rute r);
     void addAdmin(User r);
     void removeAdmin(User r);
+    void setAdmins(List<User> r);
 
     Map<Rute, List<Competition.Status>> getStats();
 

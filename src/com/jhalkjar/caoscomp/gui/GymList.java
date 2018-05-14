@@ -4,18 +4,17 @@ package com.jhalkjar.caoscomp.gui;
  * Created by jesper on 11/5/17.
  */
 
+import com.codename1.components.FloatingActionButton;
 import com.codename1.l10n.DateFormat;
 import com.codename1.l10n.SimpleDateFormat;
 import com.codename1.ui.*;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
-import com.codename1.ui.plaf.Style;
-import com.codename1.ui.plaf.UIManager;
 import com.codename1.ui.table.TableLayout;
 import com.jhalkjar.caoscomp.backend.*;
 import com.jhalkjar.caoscomp.database.DB;
-import com.jhalkjar.caoscomp.database.RuteProvider.DBRuteProvider;
-import com.jhalkjar.caoscomp.gui.rutelist.RuteList;
+import com.jhalkjar.caoscomp.gui.misc.Spacer;
+import com.jhalkjar.caoscomp.gui.rutelist.DefaultRuteList;
 
 import java.util.List;
 
@@ -31,27 +30,24 @@ public class GymList extends Form {
     public GymList() {
         super(new BorderLayout());
 
-//        FloatingActionButton fab = FloatingActionButton.createFAB(FontImage.MATERIAL_ADD);
-//        fab.setUIID("FaB");
-//        fab.addActionListener(evt -> {
-//            new GymCreator().show();
-//        });
-//        fab.bindFabToContainer(getContentPane());
+        FloatingActionButton fab = FloatingActionButton.createFAB(FontImage.MATERIAL_ADD);
+        fab.setUIID("FaB");
+        fab.addActionListener(evt -> {
+            new GymCreator(null, this, g->{updateUI();}).show();
+        });
+        fab.bindFabToContainer(getContentPane());
 
         add(BorderLayout.CENTER, centerContainer);
 
+        new ToolbarBuilder().comps().build(getToolbar());
 
-        gyms = DB.getInstance().getGyms();
-        getToolbar().addCommandToOverflowMenu("Log out", null, (e) -> {
-            DB.getInstance().logout();
-        });
-//        Collections.sort(rutes, (o1, o2) -> (int) (o2.getDate().getTime() - o1.getDate().getTime()));
         updateUI();
     }
 
 
 
     private void updateUI() {
+        gyms = DB.getInstance().getGyms();
         centerContainer.removeAll();
         if(gyms.size() == 0) {
             Label l = new Label("Please add a gym?");
@@ -74,7 +70,6 @@ public class GymList extends Form {
     }
 
     DateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy");
-    Style s = UIManager.getInstance().getComponentStyle("Label");
 
 
     private Container createListElement(Gym gym) {
@@ -101,12 +96,12 @@ public class GymList extends Form {
         for(int i=0; i<cnt.getComponentCount(); i++) {
             cnt.getComponentAt(i).addPointerReleasedListener(evt -> {
                 DB.getInstance().setRememberedGym(gym);
-                new RuteList(new DBRuteProvider()).show();
+                new DefaultRuteList().show();
             });
         }
         cnt.addPointerReleasedListener(evt -> {
             DB.getInstance().setRememberedGym(gym);
-            new RuteList(new DBRuteProvider()).show();
+            new DefaultRuteList().show();
         });
 
         return BoxLayout.encloseY(cnt, new Spacer());
@@ -119,14 +114,6 @@ public class GymList extends Form {
             if(r.getSector().getGym().equals(g)) i++;
         }
         return i;
-    }
-
-    private class Spacer extends Container {
-
-        public Spacer() {
-            setUIID("Spacer");
-        }
-
     }
 
 }

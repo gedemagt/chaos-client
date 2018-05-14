@@ -13,9 +13,11 @@ import com.codename1.ui.plaf.UIManager;
 import com.codename1.ui.util.ImageIO;
 import com.codename1.ui.validation.LengthConstraint;
 import com.codename1.ui.validation.Validator;
+import com.codename1.util.RunnableWithResult;
 import com.jhalkjar.caoscomp.backend.Grade;
 import com.jhalkjar.caoscomp.backend.Rute;
 import com.jhalkjar.caoscomp.database.DB;
+import com.jhalkjar.caoscomp.database.WebDatabase;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -30,7 +32,7 @@ public class RuteCreator extends Form {
     String path = FileSystemStorage.getInstance().getAppHomePath() + "TEMP_IMAGE.jpg";
     boolean imageLoaded = false;
 
-    public RuteCreator(Form rutelist) {
+    public RuteCreator(Form rutelist, WebDatabase.Result<Rute> onCreation) {
         super(new BorderLayout());
         Style s = UIManager.getInstance().getComponentStyle("Title");
 
@@ -62,6 +64,7 @@ public class RuteCreator extends Form {
             if(!imageLoaded) Dialog.show("No image", "Please choose an image!", Dialog.TYPE_ERROR, null, "OK", null);
             else {
                 Rute r = DB.getInstance().createRute(name.getField().getText(), path, DB.getInstance().getLoggedInUser(), gym.getSector(), com.jhalkjar.caoscomp.Util.getNow(), null, Grade.NO_GRADE);
+                onCreation.OnResult(r);
                 new Editor(r, rutelist).show();
             }
         });

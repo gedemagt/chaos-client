@@ -7,6 +7,7 @@ import com.jhalkjar.caoscomp.database.DB;
 import com.jhalkjar.caoscomp.database.RuteProvider.DBRuteProvider;
 import com.jhalkjar.caoscomp.gui.GymList;
 import com.jhalkjar.caoscomp.gui.Login;
+import com.jhalkjar.caoscomp.gui.rutelist.DefaultRuteList;
 import com.jhalkjar.caoscomp.gui.rutelist.RuteList;
 
 
@@ -45,7 +46,7 @@ public class CaosCompanion {
         else{
             DB.getInstance().syncGyms();
             if(DB.getInstance().getRememberedGym() == null) new GymList().show();
-            else new RuteList(new DBRuteProvider()).show();
+            else new DefaultRuteList().show();
         }
     }
 

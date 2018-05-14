@@ -14,9 +14,11 @@ import com.jhalkjar.caoscomp.backend.*;
 import com.jhalkjar.caoscomp.database.DB;
 import com.jhalkjar.caoscomp.database.RuteProvider.DBRuteProvider;
 import com.jhalkjar.caoscomp.gui.misc.Point;
+import com.jhalkjar.caoscomp.gui.rutelist.DefaultRuteList;
 import com.jhalkjar.caoscomp.gui.rutelist.RuteList;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -257,11 +259,12 @@ public class Editor extends Form {
             tb.getAllStyles().setBgColor(Grade.getColorInt(r.getGrade()));
         }
         setBackCommand(tb.addCommandToLeftBar("", FontImage.createMaterial(FontImage.MATERIAL_ARROW_BACK, s), (e) -> {
-            if (prevForm instanceof RuteList) {
-                prevForm.showBack();
-            } else {
-                new RuteList(new DBRuteProvider()).showBack();
-            }
+            prevForm.showBack();
+//            if (prevForm instanceof RuteList) {
+//                prevForm.showBack();
+//            } else {
+//                new DefaultRuteList().showBack();
+//            }
         }));
 
 
@@ -319,7 +322,7 @@ public class Editor extends Form {
                 getToolbar().addCommandToOverflowMenu("Delete", FontImage.createMaterial(FontImage.MATERIAL_DELETE, s2), evt -> {
 
                     r.delete();
-                    new RuteList(new DBRuteProvider()).showBack();
+                    new DefaultRuteList().showBack();
                 });
             }
             revalidate();
@@ -355,12 +358,18 @@ public class Editor extends Form {
     private class SwipeNavigator {
         private int pressedX, releasedX;
         private boolean wasMultiDragged = false;
-        private List<Rute> selectedRutes = ((RuteList) prevForm).getSelectedRutes();
-        int thisRute = selectedRutes.indexOf(r);
+        private List<Rute> selectedRutes;
+        int thisRute;
 
 
         public SwipeNavigator() {
-
+            // Hacky? oh yes!
+            if(prevForm instanceof RuteList) selectedRutes = ((RuteList) prevForm).getSelectedRutes();
+            else {
+                selectedRutes = new ArrayList<>();
+                selectedRutes.add(r);
+            }
+            thisRute = selectedRutes.indexOf(r);
         }
 
         private void setPressedX(int pressedX) {
