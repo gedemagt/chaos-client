@@ -63,6 +63,7 @@ public class CompetitionCreator extends Form {
         add.addActionListener(evt -> {
             new RuteCreator(CompetitionCreator.this, r-> {
                 c.addRute(r);
+                c.setStatus(DB.getInstance().getLoggedInUser(), r, new Competition.Status(0, false, r, DB.getInstance().getLoggedInUser()));
                 updateRutes();
             }).show();
         });
@@ -91,7 +92,7 @@ public class CompetitionCreator extends Form {
             back.showBack();
         }));
 
-        updateRutes();
+        if(c != null) updateRutes();
     }
 
     private void updateRutes() {
