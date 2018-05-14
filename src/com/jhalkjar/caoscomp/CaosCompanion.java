@@ -4,11 +4,9 @@ import com.codename1.ui.*;
 import com.codename1.ui.plaf.UIManager;
 import com.codename1.ui.util.Resources;
 import com.jhalkjar.caoscomp.database.DB;
-import com.jhalkjar.caoscomp.database.RuteProvider.DBRuteProvider;
 import com.jhalkjar.caoscomp.gui.GymList;
 import com.jhalkjar.caoscomp.gui.Login;
 import com.jhalkjar.caoscomp.gui.rutelist.DefaultRuteList;
-import com.jhalkjar.caoscomp.gui.rutelist.RuteList;
 
 
 /**

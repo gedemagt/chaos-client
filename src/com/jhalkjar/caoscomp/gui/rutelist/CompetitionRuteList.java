@@ -7,11 +7,14 @@ import com.codename1.ui.plaf.Style;
 import com.codename1.ui.plaf.UIManager;
 import com.codename1.ui.table.TableLayout;
 import com.jhalkjar.caoscomp.backend.Competition;
+import com.jhalkjar.caoscomp.backend.Role;
 import com.jhalkjar.caoscomp.backend.Rute;
 import com.jhalkjar.caoscomp.backend.RuteCollection;
 import com.jhalkjar.caoscomp.database.DB;
 import com.jhalkjar.caoscomp.gui.Editor;
 import com.jhalkjar.caoscomp.gui.ToolbarBuilder;
+import com.jhalkjar.caoscomp.gui.competition.CompetitionCreator;
+import com.jhalkjar.caoscomp.gui.competition.CompetitionForm;
 import com.jhalkjar.caoscomp.gui.misc.Spacer;
 
 
@@ -23,7 +26,11 @@ public class CompetitionRuteList extends RuteList {
 
     public CompetitionRuteList(Competition comp) {
         this.comp = comp;
-        new ToolbarBuilder().comps().gyms().defaultGym().build(getToolbar());
+        ToolbarBuilder tb = new ToolbarBuilder().gyms().defaultGym().spacer().comps();
+        if(comp.getAdmins().contains(DB.getInstance().getLoggedInUser()) || DB.getInstance().getLoggedInUser().getRole()== Role.ADMIN) {
+            tb.spacer().custom("Manage comp", FontImage.MATERIAL_SETTINGS, evt -> new CompetitionCreator(this, comp).show());
+        }
+        tb.build(getToolbar());
         getToolbar().setTitle(comp.getName());
         updateUI();
     }

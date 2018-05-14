@@ -12,7 +12,6 @@ import com.codename1.ui.plaf.UIManager;
 import com.jhalkjar.caoscomp.Util;
 import com.jhalkjar.caoscomp.backend.*;
 import com.jhalkjar.caoscomp.database.DB;
-import com.jhalkjar.caoscomp.database.RuteProvider.DBRuteProvider;
 import com.jhalkjar.caoscomp.gui.misc.Point;
 import com.jhalkjar.caoscomp.gui.rutelist.DefaultRuteList;
 import com.jhalkjar.caoscomp.gui.rutelist.RuteList;
