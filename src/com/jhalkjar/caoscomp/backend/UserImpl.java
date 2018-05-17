@@ -9,17 +9,15 @@ import java.util.Date;
  */
 public class UserImpl extends DatabaseEntryImpl implements User  {
 
-    private String name, email, passwordHash;
+    private String name, email;
     private Gym gym;
     private Role role;
 
-    public UserImpl(long id, String uuid, Date date, String name, String email, Gym gym, String passwordHash, Role role, int status) {
+    public UserImpl(long id, String uuid, Date date, String name, Gym gym, Role role, int status) {
         super(uuid, id, date, status);
         this.name = name;
-        this.email = email;
         this.gym = gym;
         this.role = role;
-        this.passwordHash = passwordHash;
     }
 
     @Override
@@ -27,15 +25,6 @@ public class UserImpl extends DatabaseEntryImpl implements User  {
         return name;
     }
 
-    @Override
-    public String getEmail() {
-        return email;
-    }
-
-    @Override
-    public String getPasswordHash() {
-        return passwordHash;
-    }
 
     @Override
     public Gym getGym() {

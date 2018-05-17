@@ -28,7 +28,7 @@ public class LocalDatabase extends ChaosDatabase{
     private Map<String, Rute> rutes = new HashMap<>();
 
     public final Gym unknownGym = new GymImpl(-1, "", Util.getNow(), "UnknowGym", 0,0, 0);
-    public final User unknownUser = new UserImpl(-1, "", Util.getNow(), "UnknownUser", "", unknownGym, "",Role.USER, 0);
+    public final User unknownUser = new UserImpl(-1, "", Util.getNow(), "UnknownUser", unknownGym,Role.USER, 0);
 
     public void refresh() {
         Log.p("[LocalDatabase] Refreshing..");
@@ -127,7 +127,7 @@ public class LocalDatabase extends ChaosDatabase{
             else {
                 if(getUser(r.getAuthor().getUUID()) == null){
                     User u = r.getAuthor();
-                    addUser(r.getUUID(), u.getName(), u.getEmail(), u.getPasswordHash(), u.getGym(), u.getDate(), u.getRole());
+                    addUser(r.getUUID(), u.getName(), u.getGym(), u.getDate(), u.getRole());
                 }
                 addRute(entry.getValue());
             }
@@ -271,11 +271,11 @@ public class LocalDatabase extends ChaosDatabase{
     }
 
 
-    public User createUser(String name, String email, String passwordHash, Gym gym, Date date, Role role) {
-        return addUser(UUID.randomUUID().toString(), name, email, passwordHash, gym, date, role);
+    public User createUser(String name, Gym gym, Date date, Role role) {
+        return addUser(UUID.randomUUID().toString(), name, gym, date, role);
     }
 
-    public User addUser(String uuid, String name, String email, String passwordHash, Gym gym, Date date, Role role) {
+    public User addUser(String uuid, String name, Gym gym, Date date, Role role) {
         Database db;
         try {
             db = Database.openOrCreate(dbname);
@@ -284,8 +284,6 @@ public class LocalDatabase extends ChaosDatabase{
             Map user = (Map) users.newObject();
             user.put("uuid", uuid);
             user.put("name", name);
-            user.put("email", email);
-            user.put("password", passwordHash);
             user.put("gym", gym.getUUID());
             if(date == null) date = Util.getNow();
             user.put("datetime", Util.format(date));
@@ -384,9 +382,7 @@ public class LocalDatabase extends ChaosDatabase{
             for(Map m : allRutes) {
 
                 String name = (String) m.get("name");
-                String email = (String) m.get("email");
                 String gym = (String) m.get("gym");
-                String pass = (String) m.get("password");
                 Date date = getDate(m.get("datetime"));
                 String uuid = (String) m.get("uuid");
                 long id = (Long) m.get("id");
@@ -394,7 +390,7 @@ public class LocalDatabase extends ChaosDatabase{
                 Role role = roler != null ? Role.valueOf(roler) : Role.USER;
 
 
-                users.put(uuid, new UserImpl(id, uuid, date, name, email, getGym(gym), pass, role, 0));
+                users.put(uuid, new UserImpl(id, uuid, date, name, getGym(gym), role, 0));
             }
             Log.p("[LocalDatabase] Loaded users: " + users.values());
             db.close();

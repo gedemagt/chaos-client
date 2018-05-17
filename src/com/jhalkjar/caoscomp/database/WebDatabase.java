@@ -31,14 +31,13 @@ public class WebDatabase extends ChaosDatabase {
         Map<String, Object> vals = (Map<String,Object>) result.values().iterator().next();
         String name = (String) vals.get("name");
         String email = (String) vals.get("email");
-        String password = (String) vals.get("password");
         Gym gym = getGym((String) vals.get("gym"));
         Date date = Util.parse((String) vals.get("date"));
         String uuid = (String) vals.get("uuid");
         String roler = (String) vals.get("role");
         Role role = roler != null ? Role.valueOf(roler) : Role.USER;
 
-        User s = new UserImpl(-1, uuid, date, name, email, gym, password, role, 0);
+        User s = new UserImpl(-1, uuid, date, name, gym, role, 0);
         Log.p("[WebDatabase] Loaded users: " + s.toString());
         return s;
     }
@@ -141,12 +140,12 @@ public class WebDatabase extends ChaosDatabase {
         NetworkManager.getInstance().addToQueueAndWait(request);
     }
 
-    public void uploadUser(User u) {
+    public void uploadUser(User u, String password, String email) {
         JSONObject object = new JSONObject();
         try {
             object.put("username", u.getName());
-            object.put("password", u.getPasswordHash());
-            object.put("email", u.getEmail());
+            object.put("password", password);
+            object.put("email", email);
             object.put("gym", u.getGym().getUUID());
             object.put("date", Util.format(u.getDate()));
             object.put("uuid", u.getUUID());
@@ -155,6 +154,7 @@ public class WebDatabase extends ChaosDatabase {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
         Rest.post(host + "/add_user").jsonContent().acceptJson().body(object.toString()).getAsStringAsync(
                 response -> {
                     Log.p("[WebDatabase] Uploading user: " + u.toString());

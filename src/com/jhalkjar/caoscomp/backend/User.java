@@ -9,8 +9,6 @@ import com.jhalkjar.caoscomp.database.DatabaseEntry;
 public interface User extends DatabaseEntry {
 
     String getName();
-    String getEmail();
-    String getPasswordHash();
     Gym getGym();
     Role getRole();
 
