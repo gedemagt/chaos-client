@@ -5,10 +5,7 @@ import com.codename1.ui.Label;
 import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.plaf.Style;
 import com.codename1.ui.plaf.UIManager;
-import com.jhalkjar.caoscomp.backend.Role;
 import com.jhalkjar.caoscomp.database.DB;
-import com.jhalkjar.caoscomp.gui.competition.CompetitionForm;
-import com.jhalkjar.caoscomp.gui.competition.CompetitionList;
 import com.jhalkjar.caoscomp.gui.misc.ToolbarSpacer;
 import com.jhalkjar.caoscomp.gui.rutelist.DefaultRuteList;
 
@@ -39,18 +36,20 @@ public class ToolbarBuilder {
     }
 
     public ToolbarBuilder comps() {
-         cmds.add(new CommandAddable(Command.create("Comps", FontImage.createMaterial(FontImage.MATERIAL_CAKE, s),
-                (e) -> new CompetitionForm().show())));
-
         return this;
+//        cmds.add(new CommandAddable(Command.create("Comps", FontImage.createMaterial(FontImage.MATERIAL_CAKE, s),
+//                (e) -> new CompetitionForm().show())));
+//
+//        return this;
     }
 
     public ToolbarBuilder compsAll() {
-        if(DB.getInstance().getLoggedInUser() != null && DB.getInstance().getLoggedInUser().getRole() == Role.ADMIN) {
-            cmds.add(new CommandAddable(Command.create("Comps (ADMIN)", FontImage.createMaterial(FontImage.MATERIAL_PANORAMA, s),
-                    (e) -> new CompetitionList().show())));
-        }
         return this;
+//        if(DB.getInstance().getLoggedInUser() != null && DB.getInstance().getLoggedInUser().getRole() == Role.ADMIN) {
+//            cmds.add(new CommandAddable(Command.create("Comps (ADMIN)", FontImage.createMaterial(FontImage.MATERIAL_PANORAMA, s),
+//                    (e) -> new CompetitionList().show())));
+//        }
+//        return this;
     }
 //
 //    public ToolbarBuilder currentComp() {
@@ -65,7 +64,7 @@ public class ToolbarBuilder {
 //    }
 
     public ToolbarBuilder spacer() {
-        cmds.add(new SpacerAddable());
+        if(!(cmds.get(cmds.size()-1) instanceof SpacerAddable)) cmds.add(new SpacerAddable());
         return this;
     }
 
@@ -77,10 +76,11 @@ public class ToolbarBuilder {
     public void build(Toolbar tb) {
         tb.addComponentToSideMenu(new Label("ChaosCompanion"));
         tb.addComponentToSideMenu(new ToolbarSpacer());
+
         for(Addable a : cmds) {
             a.add(tb);
         }
-        tb.addComponentToSideMenu(new ToolbarSpacer());
+        if(cmds.size() > 0) tb.addComponentToSideMenu(new ToolbarSpacer());
         tb.addCommandToSideMenu("Log out", FontImage.createMaterial(FontImage.MATERIAL_EXIT_TO_APP, s), (e) -> {
             DB.getInstance().logout();
         });

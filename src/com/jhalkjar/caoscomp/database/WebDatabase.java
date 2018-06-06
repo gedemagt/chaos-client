@@ -20,8 +20,8 @@ import java.util.*;
 public class WebDatabase extends ChaosDatabase {
 
 
-//    private static final String host = "https://jeshj.pythonanywhere.com";
-    private static String host = "http://localhost:5000";
+    private static final String host = "https://jeshj.pythonanywhere.com";
+//    private static String host = "http://localhost:5000";
 
     private static String LAST_WEB_CONNECTION = "last_sync";
 
@@ -30,7 +30,6 @@ public class WebDatabase extends ChaosDatabase {
         Map<String, Object> result = Rest.get(host + "/get_user/" + id).acceptJson().getAsJsonMap(false).getResponseData();
         Map<String, Object> vals = (Map<String,Object>) result.values().iterator().next();
         String name = (String) vals.get("name");
-        String email = (String) vals.get("email");
         Gym gym = getGym((String) vals.get("gym"));
         Date date = Util.parse((String) vals.get("date"));
         String uuid = (String) vals.get("uuid");
