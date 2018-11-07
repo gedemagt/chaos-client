@@ -39,21 +39,25 @@ public class DefaultRuteList extends RuteList {
         });
         fab.bindFabToContainer(getContentPane());
 
-        DB.getInstance().addRefreshListener(new DB.RefreshListener() {
-            @Override
-            public void OnBeginRefresh() {
-
-            }
-
-            @Override
-            public void OnEndRefresh() {
-                rc = new RuteCollection(DB.getInstance().getRutes());
-            }
-
-            @Override
-            public void OnRefreshError() {
-
-            }
+//        DB.getInstance().addRefreshListener(new DB.RefreshListener() {
+//            @Override
+//            public void OnBeginRefresh() {
+//
+//            }
+//
+//            @Override
+//            public void OnEndRefresh() {
+//                rc = new RuteCollection(DB.getInstance().getRutes());
+//            }
+//
+//            @Override
+//            public void OnRefreshError() {
+//
+//            }
+//        });
+        DB.getInstance().addRuteListener(rutes -> {
+            rc = new RuteCollection(rutes);
+            updateUI();
         });
         populateToolbar();
         updateUI();

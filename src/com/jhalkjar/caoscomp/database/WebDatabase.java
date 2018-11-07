@@ -62,8 +62,7 @@ public class WebDatabase extends ChaosDatabase {
         return g;
     }
 
-    public List<Gym> getGyms() {
-        Map<String, Object> result = Rest.get(host + "/get_gyms").acceptJson().getAsJsonMap(false).getResponseData();
+    private List<Gym> parseGyms(Map<String, Object> result) {
         List<Gym> re = new ArrayList<>();
         for(String key : result.keySet()) {
             Map<String,Object> vals = (Map<String, Object>) result.get(key);
@@ -84,6 +83,23 @@ public class WebDatabase extends ChaosDatabase {
 
         return re;
     }
+
+    public List<Gym> getGyms() {
+        Map<String, Object> result = Rest.get(host + "/get_gyms").acceptJson().getAsJsonMap(false).getResponseData();
+        return parseGyms(result);
+    }
+
+    public void getGyms(Result<List<Gym>> runnable) {
+        Rest.get(host + "/get_gyms").acceptJson().getAsJsonMap(value -> {
+                    Map<String,Object> result = value.getResponseData();
+                    List<Gym> gyms = parseGyms(result);
+                    runnable.OnResult(gyms);
+                },
+                (sender, err, errCode, errorMessage) -> {
+                    err.printStackTrace();
+                });
+    }
+
 
     public void uploadRute(Rute r, String imageUrl) {
         JSONObject object = new JSONObject();
@@ -407,29 +423,31 @@ public class WebDatabase extends ChaosDatabase {
     }
 
     private Map<String, Rute> parseRutes(Map<String,Object> result) {
-
         Map<String, Rute> list = new HashMap<>();
         for(String key : result.keySet()) {
-            Map<String,Object> vals = (Map<String, Object>) result.get(key);
-            String name = (String) vals.get("name");
-            String coordinates = (String) vals.get("coordinates");
-            Gym gym = DB.getInstance().getGym((String) vals.get("gym"));
-            String sector = (String) vals.get("sector");
-            Date date = Util.parse((String) vals.get("date"));
-            Date last_edit = Util.parse((String) vals.get("edit"));
-            User author = DB.getInstance().getUser((String) vals.get("author"));
-            String uuid = (String) vals.get("uuid");
-            String image = (String) vals.get("image");
-            String grader = (String) (vals.get("grade"));
-            int status = (int) ((double) vals.get("status"));
-            Grade grade = grader != null ? Grade.valueOf(grader) : Grade.NO_GRADE;
-            String tag = (String) vals.get("tag");
-            if(tag == null) tag = "";
+            if(key.equals("last_sync")) Preferences.set(LAST_WEB_CONNECTION, (String) result.get(key));
+            else {
+                Map<String,Object> vals = (Map<String, Object>) result.get(key);
+                String name = (String) vals.get("name");
+                String coordinates = (String) vals.get("coordinates");
+                Gym gym = DB.getInstance().getGym((String) vals.get("gym"));
+                String sector = (String) vals.get("sector");
+                Date date = Util.parse((String) vals.get("date"));
+                Date last_edit = Util.parse((String) vals.get("edit"));
+                User author = DB.getInstance().getUser((String) vals.get("author"));
+                String uuid = (String) vals.get("uuid");
+                String image = (String) vals.get("image");
+                String grader = (String) (vals.get("grade"));
+                int status = (int) ((double) vals.get("status"));
+                Grade grade = grader != null ? Grade.valueOf(grader) : Grade.NO_GRADE;
+                String tag = (String) vals.get("tag");
+                if(tag == null) tag = "";
 
-            list.put(uuid, new RuteImpl(-1, uuid, image, date, last_edit, name, author, gym.getSector(sector), Util.stringToVals(coordinates), grade, status, tag));
+                list.put(uuid, new RuteImpl(-1, uuid, image, date, last_edit, name, author, gym.getSector(sector), Util.stringToVals(coordinates), grade, status, tag));
+            }
         }
         Log.p("[WebDatabase] Loaded " + list.size() + " rutes.");
-        Preferences.set(LAST_WEB_CONNECTION, Util.format(Util.getNow()));
+//        Preferences.set(LAST_WEB_CONNECTION, Util.format(Util.getNow()));
         Log.p("[WebDatabase] " + "Last synced: " + Preferences.get(LAST_WEB_CONNECTION, ""));
         return list;
     }

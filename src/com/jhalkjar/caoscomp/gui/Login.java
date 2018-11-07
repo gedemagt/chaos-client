@@ -38,22 +38,7 @@ public class Login extends Form {
                         DB.getInstance().syncGyms();
                         Dialog dd = new WaitingDialog("Loading rutes");
 
-                        DB.getInstance().sync(new DB.RefreshListener() {
-                            @Override
-                            public void OnBeginRefresh() {
-
-                            }
-
-                            @Override
-                            public void OnEndRefresh() {
-                                dd.dispose();
-                            }
-
-                            @Override
-                            public void OnRefreshError() {
-                                dd.dispose();
-                            }
-                        });
+                        DB.getInstance().sync(() -> dd.dispose());
                         dd.show();
                         if(DB.getInstance().getRememberedGym() == null) new GymList().show();
                         else new DefaultRuteList().show();

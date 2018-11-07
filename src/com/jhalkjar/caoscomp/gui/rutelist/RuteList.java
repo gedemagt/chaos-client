@@ -57,22 +57,7 @@ public abstract class RuteList extends Form {
     void forceAndShow() {
         Dialog d = new WaitingDialog("Loading rutes");
 
-        DB.getInstance().forceWebRefresh(new DB.RefreshListener() {
-            @Override
-            public void OnBeginRefresh() {
-
-            }
-
-            @Override
-            public void OnEndRefresh() {
-                d.dispose();
-            }
-
-            @Override
-            public void OnRefreshError() {
-                d.dispose();
-            }
-        });
+        DB.getInstance().forceWebRefresh(()->d.dispose());
         d.show();
     }
 

@@ -22,8 +22,10 @@ public class DB {
     private LocalDatabase local = new LocalDatabase();
     private WebDatabase web;
 
-    private List<RefreshListener> refreshListeners = new ArrayList<>();
-    private List<RefreshListener> syncRefreshListeners = new ArrayList<>();
+
+    private List<RefreshListener<List<Gym>>> gymListeners = new ArrayList<>();
+    private List<RefreshListener<List<Rute>>> ruteListeners = new ArrayList<>();
+    private List<RefreshListener<List<User>>> userListeners = new ArrayList<>();
     private ImageProvider imgProvider;
 
     public User getLoggedInUser() {
@@ -38,21 +40,21 @@ public class DB {
         return web.checkUserName(username);
     }
 
-    public void forceWebRefresh(RefreshListener rf) {
+    public void forceWebRefresh(Runnable run) {
         web.resetLastVisit();
         syncGyms();
-        sync(rf);
+        sync(run);
     }
 
     public void refreshLocal() {
-        for(RefreshListener rl : refreshListeners) rl.OnBeginRefresh();
         local.refresh();
-        for(RefreshListener rl : refreshListeners) rl.OnEndRefresh();
+        fireRuteListeners();
+        fireUserListeners();
+        fireGymListeners();
     }
 
     public void syncGyms() {
         Log.p("[DB] Syncing gyms");
-        for(RefreshListener rl : syncRefreshListeners) rl.OnBeginRefresh();
         for(Gym g : web.getGyms()) {
             if(local.getGym(g.getUUID()) == null) {
                 local.addGym(g.getUUID(), g.getName(), g.getLat(), g.getLon(), g.getDate(), g.getSectors());
@@ -62,7 +64,22 @@ public class DB {
             }
         }
         refreshLocal();
-        for(RefreshListener rl : syncRefreshListeners) rl.OnEndRefresh();
+    }
+
+    public void syncGymsAsync() {
+        Log.p("[DB] Syncing gyms async");
+
+        web.getGyms(gyms -> {
+            for(Gym g : gyms) {
+                if(local.getGym(g.getUUID()) == null) {
+                    local.addGym(g.getUUID(), g.getName(), g.getLat(), g.getLon(), g.getDate(), g.getSectors());
+                }
+                else {
+                    local.save(g);
+                }
+            }
+            refreshLocal();
+        });
     }
 
     private DB() {
@@ -73,6 +90,7 @@ public class DB {
     public void delete(Rute r) {
         local.delete(r);
         web.delete(r);
+        refreshLocal();
     }
 
     public void save(Rute r) {
@@ -196,20 +214,17 @@ public class DB {
 //    }
 
 
-    public void sync(RefreshListener rf) {
+    public void sync(Runnable run) {
         web.getRutes( ruteMap->{
             local.sync(ruteMap);
-            for(RefreshListener l : refreshListeners) l.OnEndRefresh();
-            rf.OnEndRefresh();
+            fireRuteListeners();
+            run.run();
         });
-        for(RefreshListener l : refreshListeners) l.OnBeginRefresh();
-        rf.OnBeginRefresh();
     }
 
     public void sync() {
-        for(RefreshListener l : refreshListeners) l.OnBeginRefresh();
         local.sync(web.getRutes());
-        for(RefreshListener l : refreshListeners) l.OnEndRefresh();
+        fireRuteListeners();
 
     }
 
@@ -224,18 +239,21 @@ public class DB {
             uploadURL = long_new_url;
         }
         web.uploadRute(r, uploadURL);
+        fireRuteListeners();
         return r;
     }
 
     public User createUser(String name, String email, String password, Gym gym, Date date, Role role) {
         User u = local.createUser(name, gym, date, role);
         web.uploadUser(u, password, email);
+        fireUserListeners();
         return u;
     }
 
     public Gym createGym(String name, double lat, double lon, Date date, List<Sector> sectors) {
         Gym u = local.createGym(name, lat, lon, date, sectors);
         web.uploadGym(u);
+        fireGymListeners();
         return u;
     }
 
@@ -251,12 +269,28 @@ public class DB {
 
     }
 
-    public void addRefreshListener(RefreshListener l) {
-        refreshListeners.add(l);
+    protected void fireRuteListeners() {
+        for(RefreshListener<List<Rute>> l : ruteListeners) l.OnRefresh(getRutes());
     }
 
-    public void addGymsSyncListener(RefreshListener l) {
-        syncRefreshListeners.add(l);
+    protected void fireGymListeners() {
+        for(RefreshListener<List<Gym>> l : gymListeners) l.OnRefresh(getGyms());
+    }
+
+    protected void fireUserListeners() {
+        for(RefreshListener<List<User>> l : userListeners) l.OnRefresh(getUsers());
+    }
+
+    public void addRuteListener(RefreshListener<List<Rute>> l) {
+        ruteListeners.add(l);
+    }
+
+    public void addGymListener(RefreshListener<List<Gym>> l) {
+        gymListeners.add(l);
+    }
+
+    public void addUserListener(RefreshListener<List<User>> l) {
+        userListeners.add(l);
     }
 
     public boolean checkGymname(String text) {
@@ -294,10 +328,8 @@ public class DB {
         return null;
     }
 
-    public interface RefreshListener {
-        void OnBeginRefresh();
-        void OnEndRefresh();
-        void OnRefreshError();
+    public interface RefreshListener<T> {
+        void OnRefresh(T t);
     }
 
 }

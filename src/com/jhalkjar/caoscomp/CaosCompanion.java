@@ -37,7 +37,8 @@ public class CaosCompanion {
 
         Display.getInstance().lockOrientation(true);
 
-        DB.getInstance().sync();
+
+        //DB.getInstance().sync(()->{});
 
         DB.getInstance().refreshLocal();
         if(DB.getInstance().getLoggedInUser() == null) new Login().show();
